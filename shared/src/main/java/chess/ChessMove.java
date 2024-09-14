@@ -46,6 +46,13 @@ public class ChessMove {
      */
     public ChessPiece.PieceType getPromotionPiece() {
 
+        // TODO: at some point, I will need to check to see if pawn promotion is part of
+        // TODO: this chess move, and if so, add a getPieceType() function call to get the
+        // TODO: type of piece the pawn is being promoted to, as well as differentiate
+        // TODO: my return statements to see if I am returning the type of piece the
+        // TODO: pawn is being promoted to, or if I am returning a null if there is no
+        // TODO: promotion. Right now, it just returns the promotion piece. Will edit later.
+
         return promotionPiece;
         //throw new RuntimeException("Not implemented");
     }
