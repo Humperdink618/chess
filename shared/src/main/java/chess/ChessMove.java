@@ -53,7 +53,8 @@ public class ChessMove {
         // TODO: pawn is being promoted to, or if I am returning a null if there is no
         // TODO: promotion. Right now, it just returns the promotion piece. Will edit later.
 
-        return promotionPiece;
+        return null;
+        //override this in the Pawn subclass
         //throw new RuntimeException("Not implemented");
     }
 }
