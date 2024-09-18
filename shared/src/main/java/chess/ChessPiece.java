@@ -2,6 +2,7 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 
 /**
  * Represents a single chess piece
@@ -60,69 +61,38 @@ public class ChessPiece {
         // figure out the type of piece
         // call the specific function
         if (getPieceType() == PieceType.BISHOP) {
-            Bishop bishop = new Bishop(pieceColor, getPieceType());
+            PieceMovesCalculator bishop = new BishopMovesCalculator();
             return bishop.pieceMoves(board, myPosition);
         }
+        // TODO -> need to fix this (my subclasses are inheriting from the wrong class)
         // TODO -> the function calling pieceMoves doesn't know the type.
         //      fix functionality
         //      next time when implementing it, consider not making these into sub classes
         // TODO Test your functions on the test moves (debug) to figure out if it is correct.
         //      remember, since the base logic is the same for all piece movement, testing one will
         //      work for the other types unless the other type has something extra
+        /*
+        use this for reference
+
+        Collection<ChessMove> moves = new HashSet<>();
+        // bishop can move in 4 directions -> y+x+, y-x+, y-x- y-x+
+
+        // y+x+
+        addMoveLinear(board, myPosition, moves, 1, 1);
+        // y+x-
+        addMoveLinear(board, myPosition, moves, -1, 1);
+        // y-x+
+        addMoveLinear(board, myPosition, moves, 1, -1);
+        // y-x-
+        addMoveLinear(board, myPosition, moves, -1, -1);
+
+        //throw new RuntimeException("Not implemented");
+        return moves;
+
+ */
 
         return new ArrayList<>();
         //throw new RuntimeException("Not implemented");
     }
-    // can use this for all pieces except Pawn
-    protected static void addMoveLinear(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> moves, int x, int y) {
-        ChessPosition currPos = new ChessPosition(myPosition.getRow(), myPosition.getColumn());
 
-        Boolean continueSearch = true;
-        while (continueSearch) {
-            // TODO -> refactor method to create new function addMove() where only one move is in the function
-            //      not including while loop -> add functionality to different types of pieces pawn weird
-            // TODO -> extra refactor segments of addMove to work for pawn if want
-            currPos = new ChessPosition(currPos.getRow() + x, currPos.getColumn() + y);
-            // TODO check if out of bounds first
-            if(currPos.getRow() == board.getBoardSize() - 1 || currPos.getColumn() == board.getBoardSize() - 1
-                    || currPos.getRow() == 0 || currPos.getColumn() == 0){
-                continueSearch = false;
-
-
-                // out of bounds. Stop iterating. Invalid move.
-            }
-            else if(board.getPiece(currPos) != null) {
-                if(board.getPiece(currPos).getTeamColor() != board.getPiece(myPosition).getTeamColor()){
-                    // end position = currPos;
-                    // check color to see if you include it or not
-                    continueSearch = false;
-                    moves.add(new ChessMove(myPosition, currPos, null));
-                    break;
-                } else {
-                    continueSearch = false;
-
-                    // stop before you reach that position
-                }
-            }
-            // create position and add to list only if adding it is valid
-            if(continueSearch){
-                moves.add(new ChessMove(myPosition, currPos, null));
-            }
-        }
-        // 1) Get your row and column (current position object)
-        // 2) y+x+
-        //  a) get new row col positions as new position object -> need to actually get it
-        //  b) then board to see if there is a piece there
-        //      board.getPiece(ChessPosition position)
-        //      i) no more moves here -> stop iterating
-        //      ii) check color to see if you include or just up to it
-        //  c) then check to see if off board (edges)
-        //      board.getBoardSize() -> this is max x and max y min x,y = 0
-        //      consider putting this in chessPiece.java
-        //      i) if so, stop iterating and don't include
-        //  d) create position and add to list
-        //  e) continue until you have to stop (update current position object)
-        // 3) y-x+ -> reset current position object
-        // etc. for each
-    }
 }

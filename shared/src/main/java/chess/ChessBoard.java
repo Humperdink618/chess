@@ -8,7 +8,7 @@ package chess;
  */
 public class ChessBoard {
 
-    private int boardSize = 8;
+    private int boardSize = 9;
 
     private ChessPiece[][] chessSquares = new ChessPiece[boardSize][boardSize];
 

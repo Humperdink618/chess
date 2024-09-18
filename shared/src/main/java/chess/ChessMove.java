@@ -57,4 +57,13 @@ public class ChessMove {
         //override this in the Pawn subclass
         //throw new RuntimeException("Not implemented");
     }
+
+    @Override
+    public String toString() {
+        return "ChessMove{" +
+                "startPosition=" + startPosition +
+                ", endPosition=" + endPosition +
+                ", promotionPiece=" + promotionPiece +
+                '}';
+    }
 }
