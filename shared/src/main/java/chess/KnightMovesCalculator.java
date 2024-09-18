@@ -7,33 +7,27 @@ import java.util.List;
 public class KnightMovesCalculator extends PieceMovesCalculator {
     @Override
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        // figure out the type of piece
-        // call the specific function
-        //if (getPieceType() == PieceType.BISHOP) {
-        // Bishop bishop = new Bishop(pieceColor, getPieceType());
-        // return bishop.pieceMoves(board, myPosition);
-        //  }
 
-        // TODO -> the function calling pieceMoves doesn't know the type.
-        //      fix functionality
-        //      next time when implementing it, consider not making these into sub classes
-        // TODO Test your functions on the test moves (debug) to figure out if it is correct.
-        //      remember, since the base logic is the same for all piece movement, testing one will
-        //      work for the other types unless the other type has something extra
-
-        // use this for reference
 
         Collection<ChessMove> moves = new HashSet<>();
-        // bishop can move in 4 directions -> y+x+, y-x+, y-x- y-x+
+        // knight can move to 8 locations -> y+2x+, y+x+2, y+x-2 y-2x+, y+2x-, y-x+2, y-x-2, y-2x-
 
         // y+x+
-        addMoveLinear(board, myPosition, moves, 1, 1);
+        addMoveNoLoop(board, myPosition, moves, 1, 2);
         // y+x-
-        addMoveLinear(board, myPosition, moves, -1, 1);
+        addMoveNoLoop(board, myPosition, moves, 2, 1);
         // y-x+
-        addMoveLinear(board, myPosition, moves, 1, -1);
+        addMoveNoLoop(board, myPosition, moves, 1, -2);
         // y-x-
-        addMoveLinear(board, myPosition, moves, -1, -1);
+        addMoveNoLoop(board, myPosition, moves, -2, 1);
+        //
+        addMoveNoLoop(board, myPosition, moves, -1, 2);
+        // y+x-
+        addMoveNoLoop(board, myPosition, moves, 2, -1);
+        // y-x+
+        addMoveNoLoop(board, myPosition, moves, -1, -2);
+        // y-x-
+        addMoveNoLoop(board, myPosition, moves, -2, -1);
 
         //throw new RuntimeException("Not implemented");
         return moves;

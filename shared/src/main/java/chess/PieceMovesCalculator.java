@@ -14,8 +14,8 @@ public abstract class PieceMovesCalculator {
     public abstract Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition);
 
     protected static boolean outOfBounds( ChessPosition currPos, ChessBoard board) {
-        if(currPos.getRow() == board.getBoardSize() || currPos.getColumn() == board.getBoardSize()
-                || currPos.getRow() == 0 || currPos.getColumn() == 0){
+        if(currPos.getRow() >= board.getBoardSize() || currPos.getColumn() >= board.getBoardSize()
+                || currPos.getRow() <= 0 || currPos.getColumn() <= 0){
             return true;
 
 
@@ -24,7 +24,7 @@ public abstract class PieceMovesCalculator {
         return false;
     }
 
-    // can use this for all pieces except Pawn
+    // can use this for all pieces except Pawn, King, and Knight
     protected static void addMoveLinear(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> moves, int x, int y) {
         ChessPosition currPos = new ChessPosition(myPosition.getRow(), myPosition.getColumn());
 
@@ -35,14 +35,13 @@ public abstract class PieceMovesCalculator {
             // TODO -> extra refactor segments of addMove to work for pawn if want
             currPos = new ChessPosition(currPos.getRow() + x, currPos.getColumn() + y);
             // TODO check if out of bounds first
-            if(outOfBounds(currPos, board)){
+            if (outOfBounds(currPos, board)) {
                 continueSearch = false;
 
 
                 // out of bounds. Stop iterating. Invalid move.
-            }
-            else if(board.getPiece(currPos) != null) {
-                if(board.getPiece(currPos).getTeamColor() != board.getPiece(myPosition).getTeamColor()){
+            } else if (board.getPiece(currPos) != null) {
+                if (board.getPiece(currPos).getTeamColor() != board.getPiece(myPosition).getTeamColor()) {
                     // end position = currPos;
                     // check color to see if you include it or not
                     continueSearch = false;
@@ -55,10 +54,47 @@ public abstract class PieceMovesCalculator {
                 }
             }
             // create position and add to list only if adding it is valid
-            if(continueSearch){
+            if (continueSearch) {
                 moves.add(new ChessMove(myPosition, currPos, null));
             }
         }
+    }
+
+    // can use this for King and Knight (moves only once)
+    protected static void addMoveNoLoop(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> moves, int x, int y)
+    {
+        ChessPosition currPos = new ChessPosition(myPosition.getRow(), myPosition.getColumn());
+
+        Boolean isValidMove = true;
+
+        // TODO -> refactor method to create new function addMove() where only one move is in the function
+        //     not including while loop -> add functionality to different types of pieces pawn weird
+        // TODO -> extra refactor segments of addMove to work for pawn if want
+        currPos = new ChessPosition(currPos.getRow() + x, currPos.getColumn() + y);
+        // TODO check if out of bounds first
+        if (outOfBounds(currPos, board)) {
+            isValidMove = false;
+
+            // out of bounds. Stop iterating. Invalid move.
+        } else if (board.getPiece(currPos) != null) {
+            if (board.getPiece(currPos).getTeamColor() != board.getPiece(myPosition).getTeamColor()) {
+                // end position = currPos;
+                // check color to see if you include it or not
+
+                moves.add(new ChessMove(myPosition, currPos, null));
+
+            } else {
+                isValidMove = false;
+
+                // stop before you reach that position
+            }
+        }
+            // create position and add to list only if adding it is valid
+            if (isValidMove) {
+                moves.add(new ChessMove(myPosition, currPos, null));
+            }
+        }
+    }
         // 1) Get your row and column (current position object)
         // 2) y+x+
         //  a) get new row col positions as new position object -> need to actually get it
@@ -74,5 +110,5 @@ public abstract class PieceMovesCalculator {
         //  e) continue until you have to stop (update current position object)
         // 3) y-x+ -> reset current position object
         // etc. for each
-    }
-}
+
+

@@ -78,6 +78,23 @@ public class ChessPiece {
             PieceMovesCalculator bishop = new BishopMovesCalculator();
             return bishop.pieceMoves(board, myPosition);
         }
+        else if(getPieceType() == PieceType.QUEEN) {
+            PieceMovesCalculator queen = new QueenMovesCalculator();
+            return queen.pieceMoves(board, myPosition);
+        }
+        else if(getPieceType() == PieceType.ROOK) {
+            PieceMovesCalculator rook = new RookMovesCalculator();
+            return rook.pieceMoves(board, myPosition);
+        }
+        else if(getPieceType() == PieceType.KING) {
+            PieceMovesCalculator king = new KingMovesCalculator();
+            return king.pieceMoves(board, myPosition);
+        }
+        else if(getPieceType() == PieceType.KNIGHT) {
+            PieceMovesCalculator knight = new KnightMovesCalculator();
+            return knight.pieceMoves(board, myPosition);
+        }
+
         // TODO -> need to fix this (my subclasses are inheriting from the wrong class)
         // TODO -> the function calling pieceMoves doesn't know the type.
         //      fix functionality
