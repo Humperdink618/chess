@@ -56,7 +56,7 @@ public class ChessMove {
         //   promotion. Right now, it just returns the promotion piece. Will edit later.
 
         return null;
-        //override this in the Pawn subclass
+        //override this in the PawnMoveCalculator subclass
         //throw new RuntimeException("Not implemented");
     }
 

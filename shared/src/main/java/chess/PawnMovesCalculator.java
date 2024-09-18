@@ -8,6 +8,22 @@ public class PawnMovesCalculator extends PieceMovesCalculator {
 
     // note: things are a little different for Pawn
 
+    // Pawn can only move forward (i.e. the column position remains the same, unless capturing)
+    // if path is obstructed, Pawn cannot move.
+    // Pawn can only capture on diagonals
+
+    // Pawn only moves on space at a time (except on it's first ever move in the game, in which if a white Pawn is on col 2
+    // or if a black Pawn is on col 7, it can either move one space or two (if not obstructed))
+
+    // if a Pawn reaches the edge of the board, it can be promoted (will need to override promotePiece() for this case)
+    // thankfully, since a Pawn never starts on the edge of the board (row wise), this part should be the same for white and black
+
+    // COLOR MATTERS!! Black Pawns move down columns, white Pawns move up columns
+
+    // Pawn has to promote upon reaching the end of the board, even when capturing!
+
+    // Pawn may borrow some aspects of the previous piece moves, but overall it must utilize its own movement method.
+
     @Override
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         // figure out the type of piece
