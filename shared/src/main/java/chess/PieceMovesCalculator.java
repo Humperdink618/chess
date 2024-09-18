@@ -34,7 +34,7 @@ public abstract class PieceMovesCalculator {
             //      not including while loop -> add functionality to different types of pieces pawn weird
             // TODO -> extra refactor segments of addMove to work for pawn if want
             currPos = new ChessPosition(currPos.getRow() + x, currPos.getColumn() + y);
-            // TODO check if out of bounds first
+            //  check if out of bounds first
             if (outOfBounds(currPos, board)) {
                 continueSearch = false;
 
@@ -71,7 +71,7 @@ public abstract class PieceMovesCalculator {
         //     not including while loop -> add functionality to different types of pieces pawn weird
         // TODO -> extra refactor segments of addMove to work for pawn if want
         currPos = new ChessPosition(currPos.getRow() + x, currPos.getColumn() + y);
-        // TODO check if out of bounds first
+        // check if out of bounds first
         if (outOfBounds(currPos, board)) {
             isValidMove = false;
 
