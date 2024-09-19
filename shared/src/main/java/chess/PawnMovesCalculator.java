@@ -26,40 +26,95 @@ public class PawnMovesCalculator extends PieceMovesCalculator {
 
     @Override
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        // figure out the type of piece
-        // call the specific function
-        //if (getPieceType() == PieceType.BISHOP) {
-        // Bishop bishop = new Bishop(pieceColor, getPieceType());
-        // return bishop.pieceMoves(board, myPosition);
-        //  }
-
-        // TODO -> the function calling pieceMoves doesn't know the type.
-        //      fix functionality
-        //      next time when implementing it, consider not making these into sub classes
-        // TODO Test your functions on the test moves (debug) to figure out if it is correct.
-        //      remember, since the base logic is the same for all piece movement, testing one will
-        //      work for the other types unless the other type has something extra
-
-        // use this for reference
 
         Collection<ChessMove> moves = new HashSet<>();
-        // bishop can move in 4 directions -> y+x+, y-x+, y-x- y-x+
-
-        // y+x+
-        addMoveLinear(board, myPosition, moves, 1, 1);
-        // y+x-
-        addMoveLinear(board, myPosition, moves, -1, 1);
-        // y-x+
-        addMoveLinear(board, myPosition, moves, 1, -1);
-        // y-x-
-        addMoveLinear(board, myPosition, moves, -1, -1);
-
-        //throw new RuntimeException("Not implemented");
+        // check color to determine direction
+        if(colorIsWhite(board, myPosition)){
+//            // white Pawn moves
+//            if(moveTwiceWhite(myPosition, board)){
+//                addMovePawn(board, myPosition, moves, 1,1);
+//            }
+            addMovePawn(board, myPosition, moves, 1,2);
+        } else {
+            // black Pawn moves
+            addMovePawn(board, myPosition, moves, -1, -2);
+        }
         return moves;
-
-
-
-        //  return new ArrayList<>();
-        //throw new RuntimeException("Not implemented");
     }
-}
+
+    private boolean canCapture(ChessBoard board, ChessPosition myPosition, ChessPosition newPos) {
+        return board.getPiece(newPos).getTeamColor() != board.getPiece(myPosition).getTeamColor();
+    }
+
+    private boolean colorIsWhite(ChessBoard board, ChessPosition newPos){
+        return board.getPiece(newPos).getTeamColor() == ChessGame.TeamColor.WHITE;
+    }
+
+    private boolean canPromote(ChessPosition currPos) {
+        return currPos.getRow() == 8 || currPos.getRow() == 1;
+    }
+    private boolean moveTwiceWhite(ChessPosition myPosition, ChessPosition forward, ChessPosition forward2, ChessBoard board){
+        // mypos row == 2, 1st move in bounds && no piece, 2nd move in bounds && no piece
+        return myPosition.getRow() == 2 && !outOfBounds(forward,board) && board.getPiece(forward) == null
+                && !outOfBounds(forward2,board) && board.getPiece(forward2) == null;
+    }
+    private boolean moveTwiceBlack(ChessPosition myPosition, ChessPosition forward, ChessPosition forward2, ChessBoard board){
+        return myPosition.getRow() == 7 && !outOfBounds(forward,board) && board.getPiece(forward) == null
+                && !outOfBounds(forward2,board) && board.getPiece(forward2) == null;
+    }
+    // set from my position set at move forward -> repeat move forward
+
+    private void addMovePawn(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> moves, int forwardOneRow, int forwardTwoRow) {
+        ChessPosition forward = new ChessPosition(myPosition.getRow() + forwardOneRow, myPosition.getColumn());
+        ChessPosition forward2 = new ChessPosition(myPosition.getRow() + forwardTwoRow, myPosition.getColumn());
+        ChessPosition leftPos = new ChessPosition(myPosition.getRow() + forwardOneRow, myPosition.getColumn() -1);
+        ChessPosition rightPos = new ChessPosition(myPosition.getRow() +forwardOneRow, myPosition.getColumn() +1);
+
+
+        // Check forward
+        moveForwardPawn(board, myPosition, moves, forward);
+        if(moveTwiceWhite(myPosition, forward, forward2, board) || moveTwiceBlack(myPosition,forward,forward2, board)){
+            moveForwardPawn(board,myPosition,moves,forward2);
+        }
+        moveDiagonal(board, myPosition, moves, leftPos);
+        moveDiagonal(board, myPosition, moves, rightPos);
+    }
+
+    private void moveForwardPawn(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> moves, ChessPosition forward) {
+        if (!outOfBounds(forward, board)) {
+            if (board.getPiece(forward) == null) {
+                // one else statement only -> separates promotion and non promotion
+                if (canPromote(forward)) {
+                    addPromotion(myPosition, moves, forward);
+                } else {
+                    moves.add(new ChessMove(myPosition, forward, null));
+                }
+            }
+        }
+    }
+
+    private void moveDiagonal(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> moves, ChessPosition newPos) {
+        if(!outOfBounds(newPos, board)){
+            if(board.getPiece(newPos) != null){
+                if(canCapture(board, myPosition, newPos)){
+                    if (canPromote(newPos)) {
+                        addPromotion(myPosition, moves, newPos);
+                    } else {
+                        moves.add(new ChessMove(myPosition, newPos, null));
+                    }
+                }
+            }
+        }
+    }
+
+    private static void addPromotion(ChessPosition myPosition, Collection<ChessMove> moves, ChessPosition newPos) {
+        // moves.add(new ChessMove(myPosition, currPos, ChessPiece.PieceType.KING)); // ANARCHY!
+        // moves.add(new ChessMove(myPosition, currPos, ChessPiece.PieceType.PAWN)); // ANARCHY!
+        moves.add(new ChessMove(myPosition, newPos, ChessPiece.PieceType.QUEEN));
+        moves.add(new ChessMove(myPosition, newPos, ChessPiece.PieceType.ROOK));
+        moves.add(new ChessMove(myPosition, newPos, ChessPiece.PieceType.BISHOP));
+        moves.add(new ChessMove(myPosition, newPos, ChessPiece.PieceType.KNIGHT));
+        // the top two comments were just a joke. SERIOUSLY DO NOT PROMOTE PAWN TO THESE PIECES!
+    }
+}// can use this for King and Knight (moves only once)
+

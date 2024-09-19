@@ -2,7 +2,6 @@ package chess;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 
 public class KnightMovesCalculator extends PieceMovesCalculator {
     @Override
@@ -13,21 +12,21 @@ public class KnightMovesCalculator extends PieceMovesCalculator {
         // knight can move to 8 locations -> y+2x+, y+x+2, y+x-2 y-2x+, y+2x-, y-x+2, y-x-2, y-2x-
 
         // y+x+
-        addMoveNoLoop(board, myPosition, moves, 1, 2);
+        addSingleMove(board, myPosition, moves, 1, 2);
         // y+x-
-        addMoveNoLoop(board, myPosition, moves, 2, 1);
+        addSingleMove(board, myPosition, moves, 2, 1);
         // y-x+
-        addMoveNoLoop(board, myPosition, moves, 1, -2);
+        addSingleMove(board, myPosition, moves, 1, -2);
         // y-x-
-        addMoveNoLoop(board, myPosition, moves, -2, 1);
+        addSingleMove(board, myPosition, moves, -2, 1);
         //
-        addMoveNoLoop(board, myPosition, moves, -1, 2);
+        addSingleMove(board, myPosition, moves, -1, 2);
         // y+x-
-        addMoveNoLoop(board, myPosition, moves, 2, -1);
+        addSingleMove(board, myPosition, moves, 2, -1);
         // y-x+
-        addMoveNoLoop(board, myPosition, moves, -1, -2);
+        addSingleMove(board, myPosition, moves, -1, -2);
         // y-x-
-        addMoveNoLoop(board, myPosition, moves, -2, -1);
+        addSingleMove(board, myPosition, moves, -2, -1);
 
         //throw new RuntimeException("Not implemented");
         return moves;
