@@ -13,7 +13,7 @@ public abstract class PieceMovesCalculator {
     public abstract Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition);
 
     protected static boolean outOfBounds( ChessPosition currPos, ChessBoard board) {
-        if(currPos.getRow() >= board.getBoardSize() || currPos.getColumn() >= board.getBoardSize()
+        if(currPos.getRow() -1 >= board.getBoardSize() || currPos.getColumn() -1 >= board.getBoardSize()
                 || currPos.getRow() <= 0 || currPos.getColumn() <= 0){
             return true;
         }

@@ -24,7 +24,7 @@ public class ChessBoard {
         return Objects.hash(boardSize, Arrays.deepHashCode(chessSquares));
     }
 
-    private int boardSize = 9;
+    private int boardSize = 8;
 
     private ChessPiece[][] chessSquares = new ChessPiece[boardSize][boardSize];
 
@@ -39,7 +39,7 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        chessSquares[position.getRow()][position.getColumn()] = piece;
+        chessSquares[position.getRow() -1][position.getColumn() - 1] = piece;
 
        // throw new RuntimeException("Not implemented");
     }
@@ -53,7 +53,7 @@ public class ChessBoard {
      */
 
     public ChessPiece getPiece(ChessPosition position) {
-        return chessSquares[position.getRow()][position.getColumn()];
+        return chessSquares[position.getRow() - 1][position.getColumn() - 1];
         //throw new RuntimeException("Not implemented");
     }
 
