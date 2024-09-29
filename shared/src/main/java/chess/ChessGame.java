@@ -11,17 +11,22 @@ import java.util.Collection;
 public class ChessGame {
 
     private ChessBoard board;
-    private TeamColor team;
+    private TeamColor teamTurn; // which team's turn it is
+    private boolean isWhiteInCheck;
+    private boolean isBlackInCheck;
 
     public ChessGame() {
-
+        teamTurn = TeamColor.WHITE;
+        isWhiteInCheck = false;
+        isBlackInCheck = false;
+        // TODO set default board
     }
 
     /**
      * @return Which team's turn it is
      */
     public TeamColor getTeamTurn() {
-        return team;
+        return teamTurn;
         //throw new RuntimeException("Not implemented");
     }
 
@@ -31,7 +36,7 @@ public class ChessGame {
      * @param team the team whose turn it is
      */
     public void setTeamTurn(TeamColor team) {
-        this.team = team;
+        this.teamTurn = team;
         //throw new RuntimeException("Not implemented");
     }
 
@@ -51,7 +56,20 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        throw new RuntimeException("Not implemented");
+        ChessPiece chessPiece = board.getPiece(startPosition);
+        Collection<ChessMove> moves = chessPiece.pieceMoves(board, startPosition);
+        // can stop here if you want to just return moves without checking if in check and have makeMove() figure
+        // that out OR you could figure out if this move would put you in check and remove the violating moves here
+        // Filter these for check violations
+        if(isInCheck(chessPiece.getTeamColor())) {
+            // TODO: remove moves yay
+        }
+        // check to see if a move gets you in check
+        //throw new RuntimeException("Not implemented");
+        // may consider getBoard.clone()
+        // clone board for each iteration, calling isInCheck() on each of them, and if none get me out of check,
+        // it is checkmate
+        return moves;
     }
 
     /**
@@ -61,6 +79,15 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
+        //TODO make move board has been changed
+        // check if move is in valid moves -> else throw
+        //  update board
+        // OR don't edit valid moves, and simply gaslight your players into thinking a move is
+        // valid and then in this function tell them that you lied and throw an invalid move
+        // exception if it puts them in check. Lie to them. Make them feel dumb. Feel empowered. >=)
+        // after you execute your move, you check to see if the other team's king is in check.
+        checkCalculator(TeamColor.WHITE);
+        checkCalculator(TeamColor.BLACK);
         throw new RuntimeException("Not implemented");
     }
 
@@ -71,7 +98,19 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        // set this up as if it were a getter method, and create a function for checkCalculator to check if your
+        // king is in check
+        if(teamColor == TeamColor.WHITE){
+            return isWhiteInCheck;
+        } else {
+            return isBlackInCheck;
+        }
+    }
+    private void checkCalculator(TeamColor teamColor){
+      //  this.isBlackInCheck = ?
+      //  this.isWhiteInCheck = ?
+        // TODO: use the board to check if the passed in team is in check and set it in the class.
+        throw new RuntimeException("Not Implemented");
     }
 
     /**
@@ -81,6 +120,10 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
+        // TODO: figure out how I am going to implement this. Should I calculate this every time I call it
+        //      or not (depending on how often I will call it). If I call it a lot, use the same method I used
+        //      for isInCheck. Otherwise, calculate it in this function. Same thing for isInStalemate.
+        // validMoves() is empty, and isInCheck == true
         throw new RuntimeException("Not implemented");
     }
 
@@ -92,7 +135,9 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
+        // TODO: same drill as in isInCheckmate()
         throw new RuntimeException("Not implemented");
+        // is in stalemate if no possible valid moves (validMoves() is empty) and !isInCheck()
     }
 
     /**
@@ -102,7 +147,8 @@ public class ChessGame {
      */
     public void setBoard(ChessBoard board) {
         this.board = board;
-        //throw new RuntimeException("Not implemented");
+        checkCalculator(TeamColor.WHITE);
+        checkCalculator(TeamColor.BLACK);
     }
 
     /**
@@ -112,6 +158,5 @@ public class ChessGame {
      */
     public ChessBoard getBoard() {
         return board;
-        //throw new RuntimeException("Not implemented");
     }
 }
