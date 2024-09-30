@@ -86,6 +86,13 @@ public class ChessGame {
         // valid and then in this function tell them that you lied and throw an invalid move
         // exception if it puts them in check. Lie to them. Make them feel dumb. Feel empowered. >=)
         // after you execute your move, you check to see if the other team's king is in check.
+
+        // TODO: likely will use this method to help implement the isInCheck, isInCheckmate, and isInStalemate
+        //      methods. Iterate over the valid moves and create a temporary copy of the board using the .clone()
+        //      method (scrapping it after each iteration), and make the move on that board, checking to see if
+        //      that move would put your king in check, if your king is in check and if your move would get your king
+        //      out of check or not, or if it is your turn or not. If it is an illegal move, throw the exception.
+        //      Otherwise, execute the move on the original board.
         checkCalculator(TeamColor.WHITE);
         checkCalculator(TeamColor.BLACK);
         throw new RuntimeException("Not implemented");
