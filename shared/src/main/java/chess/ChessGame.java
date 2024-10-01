@@ -61,9 +61,9 @@ public class ChessGame {
         // can stop here if you want to just return moves without checking if in check and have makeMove() figure
         // that out OR you could figure out if this move would put you in check and remove the violating moves here
         // Filter these for check violations
-        if(isInCheck(chessPiece.getTeamColor())) {
+       // if(isInCheck(chessPiece.getTeamColor())) {
             // TODO: remove moves yay
-        }
+       // }
         // check to see if a move gets you in check
         //throw new RuntimeException("Not implemented");
         // may consider getBoard.clone()
@@ -71,6 +71,7 @@ public class ChessGame {
         // it is checkmate
         return moves;
     }
+
 
     /**
      * Makes a move in a chess game
@@ -116,6 +117,7 @@ public class ChessGame {
     private void checkCalculator(TeamColor teamColor){
       //  this.isBlackInCheck = ?
       //  this.isWhiteInCheck = ?
+        // this functions like a setter
         // TODO: use the board to check if the passed in team is in check and set it in the class.
         throw new RuntimeException("Not Implemented");
     }
