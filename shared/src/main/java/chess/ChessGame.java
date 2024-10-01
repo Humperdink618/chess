@@ -63,9 +63,15 @@ public class ChessGame implements Cloneable {
         // can stop here if you want to just return moves without checking if in check and have makeMove() figure
         // that out OR you could figure out if this move would put you in check and remove the violating moves here
         // Filter these for check violations
-       // if(isInCheck(chessPiece.getTeamColor())) {
-            // TODO: remove moves yay
-       // }
+        /*
+        for(ChessMove move : moves){
+            ChessBoard board1 = board.clone();
+            Ches
+            if(isInCheck(chessPiece.getTeamColor())) {
+                // TODO: remove moves yay
+            }
+        }
+        */
         // check to see if a move gets you in check
         //throw new RuntimeException("Not implemented");
         // may consider getBoard.clone()
@@ -108,8 +114,9 @@ public class ChessGame implements Cloneable {
         //      that move would put your king in check, if your king is in check and if your move would get your king
         //      out of check or not, or if it is your turn or not. If it is an illegal move, throw the exception.
         //      Otherwise, execute the move on the original board.
-        checkCalculator(TeamColor.WHITE);
-        checkCalculator(TeamColor.BLACK);
+
+        checkCalculator(TeamColor.WHITE, move);
+        checkCalculator(TeamColor.BLACK, move);
         throw new RuntimeException("Not implemented");
     }
 
@@ -128,11 +135,25 @@ public class ChessGame implements Cloneable {
             return isBlackInCheck;
         }
     }
-    private void checkCalculator(TeamColor teamColor){
+    private void checkCalculator(TeamColor teamColor, ChessMove move){
       //  this.isBlackInCheck = ?
       //  this.isWhiteInCheck = ?
         // this functions like a setter
         // TODO: use the board to check if the passed in team is in check and set it in the class.
+       // ChessPiece chessPiece1 = board.getPiece(move.getStartPosition());
+        if(board.getPiece(move.getEndPosition()) != null){
+            if(board.getPiece(move.getEndPosition()).getTeamColor() != teamColor){
+                if(board.getPiece(move.getEndPosition()).getPieceType() == ChessPiece.PieceType.KING) {
+                    if(board.getPiece(move.getEndPosition()).getTeamColor() == TeamColor.WHITE){
+                        this.isWhiteInCheck = true;
+                    } else {
+                        this.isBlackInCheck = true;
+                    }
+                }
+            }
+        }
+
+
         throw new RuntimeException("Not Implemented");
     }
 
@@ -170,8 +191,8 @@ public class ChessGame implements Cloneable {
      */
     public void setBoard(ChessBoard board) {
         this.board = board;
-        checkCalculator(TeamColor.WHITE);
-        checkCalculator(TeamColor.BLACK);
+      //  checkCalculator(TeamColor.WHITE,);
+        //  checkCalculator(TeamColor.BLACK);
     }
 
     /**
