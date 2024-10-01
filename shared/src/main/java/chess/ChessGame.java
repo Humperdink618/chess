@@ -1,6 +1,8 @@
 package chess;
 
 import java.util.Collection;
+import java.util.Objects;
+
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -8,7 +10,7 @@ import java.util.Collection;
  * Note: You can add to this class, but you may not alter
  * signature of the existing methods.
  */
-public class ChessGame {
+public class ChessGame implements Cloneable {
 
     private ChessBoard board;
     private TeamColor teamTurn; // which team's turn it is
@@ -72,6 +74,18 @@ public class ChessGame {
         return moves;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChessGame chessGame = (ChessGame) o;
+        return isWhiteInCheck == chessGame.isWhiteInCheck && isBlackInCheck == chessGame.isBlackInCheck && Objects.equals(board, chessGame.board) && teamTurn == chessGame.teamTurn;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(board, teamTurn, isWhiteInCheck, isBlackInCheck);
+    }
 
     /**
      * Makes a move in a chess game
@@ -168,4 +182,30 @@ public class ChessGame {
     public ChessBoard getBoard() {
         return board;
     }
+
+    @Override
+    public String toString() {
+        return "ChessGame{" +
+                "board=" + board +
+                ", teamTurn=" + teamTurn +
+                ", isWhiteInCheck=" + isWhiteInCheck +
+                ", isBlackInCheck=" + isBlackInCheck +
+                '}';
+    }
+
+    @Override
+    public ChessGame clone() {
+        try {
+            ChessGame clone = (ChessGame) super.clone();
+
+            ChessBoard clonedBoard = (ChessBoard) getBoard().clone();
+            clone.setBoard(clonedBoard);
+
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
 }
