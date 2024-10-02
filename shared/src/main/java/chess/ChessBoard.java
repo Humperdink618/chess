@@ -24,6 +24,14 @@ public class ChessBoard implements Cloneable {
         return Objects.hash(boardSize, Arrays.deepHashCode(chessSquares));
     }
 
+    @Override
+    public String toString() {
+        return "ChessBoard{" +
+                "boardSize=" + boardSize +
+                ", chessSquares=" + Arrays.toString(chessSquares) +
+                '}';
+    }
+
     private int boardSize = 8;
 
     private ChessPiece[][] chessSquares = new ChessPiece[boardSize][boardSize];

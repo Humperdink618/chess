@@ -57,21 +57,21 @@ public class ChessGame implements Cloneable {
      * @return Set of valid moves for requested piece, or null if no piece at
      * startPosition
      */
-    public Collection<ChessMove> validMoves(ChessPosition startPosition) {
+    public Collection<ChessMove> validMoves(ChessPosition startPosition){
         ChessPiece chessPiece = board.getPiece(startPosition);
         Collection<ChessMove> moves = chessPiece.pieceMoves(board, startPosition);
         // can stop here if you want to just return moves without checking if in check and have makeMove() figure
         // that out OR you could figure out if this move would put you in check and remove the violating moves here
         // Filter these for check violations
-        /*
+      /*
         for(ChessMove move : moves){
-            ChessBoard board1 = board.clone();
-            Ches
+            ChessBoard board1 = (ChessBoard) board.clone();
+
             if(isInCheck(chessPiece.getTeamColor())) {
                 // TODO: remove moves yay
             }
         }
-        */
+       */
         // check to see if a move gets you in check
         //throw new RuntimeException("Not implemented");
         // may consider getBoard.clone()
@@ -115,9 +115,14 @@ public class ChessGame implements Cloneable {
         //      out of check or not, or if it is your turn or not. If it is an illegal move, throw the exception.
         //      Otherwise, execute the move on the original board.
 
-        checkCalculator(TeamColor.WHITE, move);
-        checkCalculator(TeamColor.BLACK, move);
-        throw new RuntimeException("Not implemented");
+        //checkCalculator(TeamColor.WHITE, move);
+        //checkCalculator(TeamColor.BLACK, move);
+        if(!validMoves(move.getStartPosition()).contains(move)){
+            throw new InvalidMoveException("You can't make that move, Stupid!");
+        } else {
+            board.addPiece(move.getStartPosition(), board.getPiece(move.getStartPosition()));
+        }
+        //throw new RuntimeException("Not implemented");
     }
 
     /**
