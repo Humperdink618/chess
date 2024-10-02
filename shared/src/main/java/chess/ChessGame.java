@@ -10,7 +10,7 @@ import java.util.Objects;
  * Note: You can add to this class, but you may not alter
  * signature of the existing methods.
  */
-public class ChessGame implements Cloneable {
+public class ChessGame  {
 
     private ChessBoard board;
     private TeamColor teamTurn; // which team's turn it is
@@ -63,15 +63,16 @@ public class ChessGame implements Cloneable {
         // can stop here if you want to just return moves without checking if in check and have makeMove() figure
         // that out OR you could figure out if this move would put you in check and remove the violating moves here
         // Filter these for check violations
-      /*
+
         for(ChessMove move : moves){
-            ChessBoard board1 = (ChessBoard) board.clone();
+            ChessBoard board1 = getBoard().clone();
+
 
             if(isInCheck(chessPiece.getTeamColor())) {
                 // TODO: remove moves yay
             }
         }
-       */
+
         // check to see if a move gets you in check
         //throw new RuntimeException("Not implemented");
         // may consider getBoard.clone()
@@ -120,7 +121,7 @@ public class ChessGame implements Cloneable {
         if(!validMoves(move.getStartPosition()).contains(move)){
             throw new InvalidMoveException("You can't make that move, Stupid!");
         } else {
-            board.addPiece(move.getStartPosition(), board.getPiece(move.getStartPosition()));
+            getBoard().addPiece(move.getStartPosition(), getBoard().getPiece(move.getStartPosition()));
         }
         //throw new RuntimeException("Not implemented");
     }
@@ -219,19 +220,7 @@ public class ChessGame implements Cloneable {
                 '}';
     }
 
-    @Override
-    public ChessGame clone() {
-        try {
-            ChessGame clone = (ChessGame) super.clone();
 
-            ChessBoard clonedBoard = (ChessBoard) getBoard().clone();
-            clone.setBoard(clonedBoard);
-
-            return clone;
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
 
 }
