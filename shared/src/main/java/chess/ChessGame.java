@@ -67,7 +67,12 @@ public class ChessGame  {
         for(ChessMove move : moves){
             ChessBoard board1 = getBoard().clone();
 
-
+            // check if your king is currently in check before you make the move
+            if(isInCheck(chessPiece.getTeamColor())) {
+                // TODO: remove moves yay
+            }
+            // call makeMove on the cloned board
+            //check if the move you just made puts you in check
             if(isInCheck(chessPiece.getTeamColor())) {
                 // TODO: remove moves yay
             }
