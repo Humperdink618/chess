@@ -67,14 +67,13 @@ public class ChessGame  {
         for(ChessMove move : moves){
             ChessBoard board1 = getBoard().clone();
 
-            // check if your king is currently in check before you make the move
-            if(isInCheck(chessPiece.getTeamColor())) {
-                // TODO: remove moves yay
-            }
-            // call makeMove on the cloned board
+            // make a move on the cloned board
+            makeMoveHelper(move,board1,chessPiece);
+            //checkCalculator(chessPiece.getTeamColor(),move);
             //check if the move you just made puts you in check
             if(isInCheck(chessPiece.getTeamColor())) {
                 // TODO: remove moves yay
+                moves.remove(move);
             }
         }
 
@@ -85,6 +84,9 @@ public class ChessGame  {
         // it is checkmate
         return moves;
     }
+    public void makeMoveHelper(ChessMove move, ChessBoard board1, ChessPiece piece) {
+            board1.addPiece(move.getEndPosition(), piece);
+        }
 
     @Override
     public boolean equals(Object o) {
@@ -125,8 +127,11 @@ public class ChessGame  {
         //checkCalculator(TeamColor.BLACK, move);
         if(!validMoves(move.getStartPosition()).contains(move)){
             throw new InvalidMoveException("You can't make that move, Stupid!");
+        }
+        if(getBoard().getPiece(move.getStartPosition()).getTeamColor() != getTeamTurn()){
+            throw new InvalidMoveException("Not your turn, Moron!");
         } else {
-            getBoard().addPiece(move.getStartPosition(), getBoard().getPiece(move.getStartPosition()));
+            makeMoveHelper(move, getBoard(), getBoard().getPiece(move.getEndPosition()));
         }
         //throw new RuntimeException("Not implemented");
     }
@@ -152,10 +157,13 @@ public class ChessGame  {
         // this functions like a setter
         // TODO: use the board to check if the passed in team is in check and set it in the class.
        // ChessPiece chessPiece1 = board.getPiece(move.getStartPosition());
-        if(board.getPiece(move.getEndPosition()) != null){
-            if(board.getPiece(move.getEndPosition()).getTeamColor() != teamColor){
-                if(board.getPiece(move.getEndPosition()).getPieceType() == ChessPiece.PieceType.KING) {
-                    if(board.getPiece(move.getEndPosition()).getTeamColor() == TeamColor.WHITE){
+        this.isBlackInCheck = false;
+        this.isWhiteInCheck = false;
+        // TODO: may need to fix functionality for this.
+        if(getBoard().getPiece(move.getEndPosition()) != null){
+            if(getBoard().getPiece(move.getEndPosition()).getTeamColor() != teamColor){
+                if(getBoard().getPiece(move.getEndPosition()).getPieceType() == ChessPiece.PieceType.KING) {
+                    if(getBoard().getPiece(move.getEndPosition()).getTeamColor() == TeamColor.WHITE){
                         this.isWhiteInCheck = true;
                     } else {
                         this.isBlackInCheck = true;
