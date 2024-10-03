@@ -132,6 +132,7 @@ public class ChessGame  {
             throw new InvalidMoveException("Not your turn, Moron!");
         } else {
             makeMoveHelper(move, getBoard(), getBoard().getPiece(move.getEndPosition()));
+            //setTeamTurn();
         }
         //throw new RuntimeException("Not implemented");
     }
