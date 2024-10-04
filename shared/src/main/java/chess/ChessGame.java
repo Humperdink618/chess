@@ -289,9 +289,8 @@ public class ChessGame  {
                             }
                         }
                     }
-
+                    break;
                 }
-
             }
         }
         if(counter == 0){
