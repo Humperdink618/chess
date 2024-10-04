@@ -60,7 +60,7 @@ public class ChessGame  {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition){
-        ChessBoard originalBoard = getBoard();
+        ChessBoard originalBoard = board;
         ChessPiece chessPiece = originalBoard.getPiece(startPosition);
         Collection<ChessMove> moves = chessPiece.pieceMoves(originalBoard, startPosition);
         Collection<ChessMove> movesValid = new HashSet<>();
@@ -68,17 +68,14 @@ public class ChessGame  {
 
         for(ChessMove move : moves){
             ChessBoard clonedBoard = originalBoard.clone();
-            if(isInCheck(chessPiece.getTeamColor())){
-                makeMoveHelper(move,clonedBoard,chessPiece);
-                if(!isInCheck(chessPiece.getTeamColor())) {
-                    // TODO: add to list of final moves
-                    if(!checkCalculator(chessPiece.getTeamColor(),clonedBoard)) {
-                        movesValid.add(move);
-                    }
-                    undoMoveHelper(move,clonedBoard,chessPiece);
-                } else {
-                    undoMoveHelper(move,clonedBoard,chessPiece);
+            if(isInCheck(chessPiece.getTeamColor())) {
+                makeMoveHelper(move, clonedBoard, chessPiece);
+
+                if (!checkCalculator(chessPiece.getTeamColor(), clonedBoard)) {
+
+                    movesValid.add(move);
                 }
+                undoMoveHelper(move, clonedBoard, chessPiece);
             } else {
                 // make a move on the cloned board
                 makeMoveHelper(move,clonedBoard,chessPiece);
@@ -338,6 +335,7 @@ public class ChessGame  {
         this.board = board;
         this.isWhiteInCheck = checkCalculator(TeamColor.WHITE, board);
         this.isBlackInCheck = checkCalculator(TeamColor.BLACK, board);
+        setTeamTurn(getTeamTurn());
     }
 
     /**
@@ -346,6 +344,10 @@ public class ChessGame  {
      * @return the chessboard
      */
     public ChessBoard getBoard() {
+        this.isWhiteInCheck = checkCalculator(TeamColor.WHITE, board);
+        this.isBlackInCheck = checkCalculator(TeamColor.BLACK, board);
+        this.teamTurn = getTeamTurn();
+        setTeamTurn(getTeamTurn());
         return board;
     }
 
