@@ -60,22 +60,26 @@ public class ChessGame  {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition){
-        ChessPiece chessPiece = board.getPiece(startPosition);
-        Collection<ChessMove> moves = chessPiece.pieceMoves(board, startPosition);
+        ChessBoard originalBoard = board;
+        ChessPiece chessPiece = originalBoard.getPiece(startPosition);
+        Collection<ChessMove> moves = chessPiece.pieceMoves(originalBoard, startPosition);
         Collection<ChessMove> movesValid = new HashSet<>();
         // Filter these for check violations
 
         for(ChessMove move : moves){
-            ChessBoard board1 = getBoard().clone();
+            ChessBoard clonedBoard = (ChessBoard) originalBoard.clone();
 
             // make a move on the cloned board
-            makeMoveHelper(move,board1,chessPiece);
+            makeMoveHelper(move,clonedBoard,chessPiece);
 
             //check if the move you just made puts you in check
-            if(!checkCalculator(chessPiece.getTeamColor(), board1)) {
+            if(!checkCalculator(chessPiece.getTeamColor(), clonedBoard)) {
                 // TODO: add to list of final moves
+
                 movesValid.add(move);
             }
+            undoMoveHelper(move, clonedBoard, chessPiece);
+
             /*
             b.	Loop over theoretically possible moves for each piece
             i.	For each possible move:
@@ -94,7 +98,9 @@ public class ChessGame  {
                 add moves that keep me out of check
             }
 ```````````*/
+
         }
+
 
         // check to see if a move gets you in check
         //throw new RuntimeException("Not implemented");
@@ -110,6 +116,11 @@ public class ChessGame  {
             board1.addPiece(move.getEndPosition(), piece);
         }
         board1.removePiece(move.getStartPosition());
+    }
+
+    public void undoMoveHelper(ChessMove move, ChessBoard board1, ChessPiece piece) {
+        board1.addPiece(move.getStartPosition(), piece);
+        board1.removePiece(move.getEndPosition());
     }
 
     @Override
@@ -149,12 +160,15 @@ public class ChessGame  {
         //      that move would put your king in check, if your king is in check and if your move would get your king
         //      out of check or not, or if it is your turn or not. If it is an illegal move, throw the exception.
         //      Otherwise, execute the move on the original board.
+        if(board.getPiece(move.getStartPosition()) == null){
+            throw new InvalidMoveException("Nothing here, Dummy!");
+        }
+        if(board.getPiece(move.getStartPosition()).getTeamColor() != getTeamTurn()) {
+            throw new InvalidMoveException("Not your turn, Moron!");
+        }
 
         if(!validMoves(move.getStartPosition()).contains(move)){
             throw new InvalidMoveException("You can't make that move, Stupid!");
-        }
-        if(board.getPiece(move.getStartPosition()).getTeamColor() != teamTurn){
-            throw new InvalidMoveException("Not your turn, Moron!");
         } else {
             makeMoveHelper(move, board, board.getPiece(move.getStartPosition()));
         }
@@ -187,10 +201,85 @@ public class ChessGame  {
         2.	If No, continue to the next opponent piece
         3.	If Yes, exit loop (possible move is not valid); destroy cloned grid. Rether to Step II.b
         */
-
-
+        Collection<ChessPosition> positions = board1.getChessPositions();
+        for(ChessPosition position : positions){
+            if(position.getRow() -1 < board1.getBoardSize() || position.getColumn() -1 < board1.getBoardSize()
+                    || position.getRow() > 0 || position.getColumn() > 0){
+                if(board1.getPiece(position) != null){
+                    if(board1.getPiece(position).getTeamColor() == opponentTeam(teamColor)){
+                        ChessPiece enemyPiece = board1.getPiece(position);
+                        Collection<ChessMove> enemyMoves = enemyPiece.pieceMoves(board1,position);
+                        for(ChessMove enemyMove : enemyMoves){
+                            if(board1.getPiece(enemyMove.getEndPosition()) != null){
+                                if(board1.getPiece(enemyMove.getEndPosition()).getTeamColor() != enemyPiece.getTeamColor()) {
+                                    if(board1.getPiece(enemyMove.getEndPosition()).getPieceType() == ChessPiece.PieceType.KING) {
+                                        return true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
         return false;
        // throw new RuntimeException("Not Implemented");
+    }
+
+//    private Collection<ChessMove> getOutOfCheck(TeamColor teamColor, ChessBoard board1){
+//        // TODO: use the board to check if the passed in team is in check and set it in the class.
+//
+//        /*
+//        v.	Loop over opponent pieces
+//        1.	For each opponent piece, test if piece can move to the spot where your king is
+//        2.	If No, continue to the next opponent piece
+//        3.	If Yes, exit loop (possible move is not valid); destroy cloned grid. Rether to Step II.b
+//        */
+//        Collection<ChessMove> rescueMoves = new HashSet<>();
+//        Collection<ChessPosition> positions = board1.getChessPositions();
+//        for(ChessPosition position : positions){
+//            if(position.getRow() -1 < board1.getBoardSize() || position.getColumn() -1 < board1.getBoardSize()
+//                    || position.getRow() > 0 || position.getColumn() > 0){
+//                if(board1.getPiece(position) != null){
+//                    if(board1.getPiece(position).getTeamColor() != opponentTeam(teamColor)){
+//                        ChessPiece piece = board1.getPiece(position);
+//                        Collection<ChessMove> moves = piece.pieceMoves(board1,position);
+//                        for(ChessMove move : moves){
+//                            // check if you can move king out of the way
+//                            makeMoveHelper(move,board1,piece);
+//                            if(!checkCalculator(teamColor,board1)){
+//                                rescueMoves.add(move);
+//                            }
+//                            undoMoveHelper(move,board1,piece);
+//                            // check if another piece can block enemy piece
+//
+//                            // check if enemy piece can be captured
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//        return rescueMoves;
+//        // throw new RuntimeException("Not Implemented");
+//    }
+
+    public boolean noMovesLeft(TeamColor teamColor) {
+        Collection<ChessPosition> positions = board.getChessPositions();
+        int counter = 0;
+        for (ChessPosition position : positions) {
+            if (board.getPiece(position) != null) {
+                Collection<ChessMove> moves = validMoves(position);
+                if (!moves.isEmpty()) {
+                    for (int i = 0; i <= moves.size(); i++) {
+                        counter += 1;
+                    }
+                }
+            }
+        }
+        if(counter == 0){
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -204,7 +293,8 @@ public class ChessGame  {
         //      or not (depending on how often I will call it). If I call it a lot, use the same method I used
         //      for isInCheck. Otherwise, calculate it in this function. Same thing for isInStalemate.
         // validMoves() is empty, and isInCheck == true
-        throw new RuntimeException("Not implemented");
+        return noMovesLeft(teamColor) && isInCheck(teamColor);
+        //throw new RuntimeException("Not implemented");
     }
 
     /**
@@ -216,8 +306,10 @@ public class ChessGame  {
      */
     public boolean isInStalemate(TeamColor teamColor) {
         // TODO: same drill as in isInCheckmate()
-        throw new RuntimeException("Not implemented");
-        // is in stalemate if no possible valid moves (validMoves() for all pieces in a specific team is empty) and !isInCheck()
+        return noMovesLeft(teamColor) && !isInCheck(teamColor);
+        //throw new RuntimeException("Not implemented");
+        // is in stalemate if no possible valid moves (validMoves() for all pieces in a specific team is empty)
+        // and !isInCheck()
     }
 
     // TODO: create a new helper method to check to see if all validMoves for a team is empty

@@ -1,6 +1,8 @@
 package chess;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Objects;
 
 /**
@@ -54,6 +56,19 @@ public class ChessBoard implements Cloneable {
 
     public void removePiece(ChessPosition position){
         chessSquares[position.getRow() -1][position.getColumn() - 1] = null;
+    }
+
+    public Collection<ChessPosition> getChessPositions() {
+        Collection<ChessPosition> chessPositions = new HashSet<>();
+        for(int x = 1; x <= 8; x++){
+            for(int y = 1; y <= 8; y++){
+                // get row and column
+                ChessPosition currPos = new ChessPosition(x,y);
+                chessPositions.add(currPos);
+            }
+        }
+
+        return chessPositions;
     }
 
     /**
