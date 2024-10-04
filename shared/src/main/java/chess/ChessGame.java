@@ -279,12 +279,19 @@ public class ChessGame  {
         int counter = 0;
         for (ChessPosition position : positions) {
             if (board.getPiece(position) != null) {
-                Collection<ChessMove> moves = validMoves(position);
-                if (!moves.isEmpty()) {
-                    for (int i = 0; i <= moves.size(); i++) {
-                        counter += 1;
+                ChessPiece piece = board.getPiece(position);
+                Collection<ChessMove> moves = piece.pieceMoves(board,position);
+                for(ChessMove move : moves){
+                    if(piece.getTeamColor() == teamColor){
+                        if(validMoves(move.getStartPosition()).contains(move)){
+                            for (int i = 0; i <= moves.size(); i++) {
+                                counter += 1;
+                            }
+                        }
                     }
+
                 }
+
             }
         }
         if(counter == 0){
