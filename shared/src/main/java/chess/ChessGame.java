@@ -60,25 +60,37 @@ public class ChessGame  {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition){
-        ChessBoard originalBoard = board;
+        ChessBoard originalBoard = getBoard();
         ChessPiece chessPiece = originalBoard.getPiece(startPosition);
         Collection<ChessMove> moves = chessPiece.pieceMoves(originalBoard, startPosition);
         Collection<ChessMove> movesValid = new HashSet<>();
         // Filter these for check violations
 
         for(ChessMove move : moves){
-            ChessBoard clonedBoard = (ChessBoard) originalBoard.clone();
+            ChessBoard clonedBoard = originalBoard.clone();
+            if(isInCheck(chessPiece.getTeamColor())){
+                makeMoveHelper(move,clonedBoard,chessPiece);
+                if(!isInCheck(chessPiece.getTeamColor())) {
+                    // TODO: add to list of final moves
+                    if(!checkCalculator(chessPiece.getTeamColor(),clonedBoard)) {
+                        movesValid.add(move);
+                    }
+                    undoMoveHelper(move,clonedBoard,chessPiece);
+                } else {
+                    undoMoveHelper(move,clonedBoard,chessPiece);
+                }
+            } else {
+                // make a move on the cloned board
+                makeMoveHelper(move,clonedBoard,chessPiece);
 
-            // make a move on the cloned board
-            makeMoveHelper(move,clonedBoard,chessPiece);
+                //check if the move you just made puts you in check
+                if(!checkCalculator(chessPiece.getTeamColor(), clonedBoard)) {
+                    // TODO: add to list of final moves
 
-            //check if the move you just made puts you in check
-            if(!checkCalculator(chessPiece.getTeamColor(), clonedBoard)) {
-                // TODO: add to list of final moves
-
-                movesValid.add(move);
+                    movesValid.add(move);
+                }
+                undoMoveHelper(move, clonedBoard, chessPiece);
             }
-            undoMoveHelper(move, clonedBoard, chessPiece);
 
             /*
             b.	Loop over theoretically possible moves for each piece
