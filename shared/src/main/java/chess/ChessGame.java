@@ -101,6 +101,7 @@ public class ChessGame  {
             if my team is currently in check (isInCheck()), by the rules of chess, I cannot
             make a move that wouldn't get me out of check
 
+
             if(isInCheck()) {
                 add moves that get me out of check
             } else {
