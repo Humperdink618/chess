@@ -209,15 +209,20 @@ public class ChessGame  {
                     if(board1.getPiece(position).getTeamColor() == opponentTeam(teamColor)){
                         ChessPiece enemyPiece = board1.getPiece(position);
                         Collection<ChessMove> enemyMoves = enemyPiece.pieceMoves(board1,position);
-                        for(ChessMove enemyMove : enemyMoves){
-                            if(board1.getPiece(enemyMove.getEndPosition()) != null){
-                                if(board1.getPiece(enemyMove.getEndPosition()).getTeamColor() != enemyPiece.getTeamColor()) {
-                                    if(board1.getPiece(enemyMove.getEndPosition()).getPieceType() == ChessPiece.PieceType.KING) {
-                                        return true;
-                                    }
-                                }
-                            }
-                        }
+                        if (enemyCanCaptureYourKing(board1, enemyMoves, enemyPiece)) return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private static boolean enemyCanCaptureYourKing(ChessBoard board1, Collection<ChessMove> enemyMoves, ChessPiece enemyPiece) {
+        for(ChessMove enemyMove : enemyMoves){
+            if(board1.getPiece(enemyMove.getEndPosition()) != null){
+                if(board1.getPiece(enemyMove.getEndPosition()).getTeamColor() != enemyPiece.getTeamColor()) {
+                    if(board1.getPiece(enemyMove.getEndPosition()).getPieceType() == ChessPiece.PieceType.KING) {
+                        return true;
                     }
                 }
             }
