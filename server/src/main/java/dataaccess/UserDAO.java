@@ -9,8 +9,6 @@ public interface UserDAO {
 
     UserData getUser(String username) throws DataAccessException;
 
-    // void deleteUser(String username) throws DataAccessException;
-    //  just in case. Not sure if I will need the above method, but good to think about
 
-    void clearUserData() throws DataAccessException;
+    void clear() throws DataAccessException;
 }

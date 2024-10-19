@@ -1,20 +1,23 @@
 package service;
 
+import dataaccess.DataAccessException;
 import model.AuthData;
 import model.GameData;
+
+import java.util.Collection;
 
 public class GameService {
         // note: of all the services, this one will be the most complicated. Talk to TAs for recommendations
         // on implementing this service.
-        public GameData listGames(AuthData auth) {
+        public ListResult listGames(ListRequest listRequest) throws DataAccessException {
             return null; // TODO: not implemented
             // also, may need to change the return type at some point.
         }
-        public GameData createGame(AuthData auth, String gameName) {
+        public CreateResult createGame(CreateRequest createRequest) throws DataAccessException {
             return null; // TODO: not implemented
             // also, may need to change the return type and parameters at some point.
         }
-        public void joinGame(AuthData auth, GameData gameData) {}
+        public void joinGame(JoinRequest joinRequest) throws DataAccessException {}
             // TODO: not implemented
             // also, may need to change the parameters at some point.
 }

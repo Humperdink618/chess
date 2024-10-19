@@ -31,18 +31,15 @@ public class MemoryGameDAO implements GameDAO {
         }
     }
     // I think this is right? May need to check with TAs.
+    // this will work, but it has poor performance (very slow). May need to seek alternate methods, but for this class
+    // this will work. Should still try to find a Big O of O(1) instead of the current O(n)
 
     public GameData getGame(int gameID){
         return games.get(gameID);
     }
-/*
-    public void deleteGame(int gameID){
-        games.remove(gameID);
-    }
-    // not sure if I need this. I'll write it down anyway, just in case.
 
- */
-    public void clearGameData(){
+
+    public void clear(){
         games.clear();
     }
 }

@@ -16,5 +16,5 @@ public interface GameDAO {
     // void deleteGame(int gameID) throws DataAccessException;
     //  just in case. Not sure if I will need the above method, but good to think about
 
-    void clearGameData() throws DataAccessException;
+    void clear() throws DataAccessException;
 }
