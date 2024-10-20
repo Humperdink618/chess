@@ -33,7 +33,8 @@ public class UserService {
                 authDAO.createAuth(new AuthData(authToken, registerRequest.username()));
                 return new RegisterResult(registerRequest.username(), authToken);
             }
-            throw new Exception("Error: already taken");
+            return new RegisterResult(registerRequest.username(), null);
+            //throw new Exception("Error: already taken");
             // TODO: potentially in the future, may change the exception type
             // create authToken here
         }
