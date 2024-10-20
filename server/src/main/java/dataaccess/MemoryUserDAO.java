@@ -20,4 +20,9 @@ public class MemoryUserDAO implements UserDAO {
         users.clear();
     }
 
+    @Override
+    public boolean empty() {
+        return users.isEmpty();
+    }
+
 }

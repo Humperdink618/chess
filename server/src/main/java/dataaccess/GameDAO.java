@@ -17,4 +17,7 @@ public interface GameDAO {
     //  just in case. Not sure if I will need the above method, but good to think about
 
     void clear() throws DataAccessException;
+
+    // For testing purposes
+    public boolean empty();
 }

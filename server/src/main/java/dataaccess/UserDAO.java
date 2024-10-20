@@ -11,4 +11,7 @@ public interface UserDAO {
 
 
     void clear() throws DataAccessException;
+
+    // For testing purposes
+    public boolean empty();
 }

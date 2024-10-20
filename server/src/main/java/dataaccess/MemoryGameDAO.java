@@ -23,12 +23,8 @@ public class MemoryGameDAO implements GameDAO {
     }
 
     public void updateGame(GameData gameData){
-        for(int i = 0; i < games.size(); i++){
-            if(games.get(i).gameID() == gameData.gameID()){
-                games.replace(i, gameData);
-                break;
-            }
-        }
+        games.put(gameData.gameID(), gameData);
+        // TODO eventually update in database
     }
     // I think this is right? May need to check with TAs.
     // this will work, but it has poor performance (very slow). May need to seek alternate methods, but for this class
@@ -41,5 +37,10 @@ public class MemoryGameDAO implements GameDAO {
 
     public void clear(){
         games.clear();
+    }
+
+    // for testing purposes only
+    public boolean empty() {
+        return games.isEmpty();
     }
 }
