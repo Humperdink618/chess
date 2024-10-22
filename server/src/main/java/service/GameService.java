@@ -1,12 +1,16 @@
 package service;
 
 import dataaccess.AuthDAO;
-import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import model.AuthData;
 import model.GameData;
+import request.CreateRequest;
+import request.JoinRequest;
+import request.ListRequest;
+import result.CreateResult;
+import result.ListResult;
 
-import java.util.Collection;
+import java.util.Objects;
 
 public class GameService {
         // note: of all the services, this one will be the most complicated. Talk to TAs for recommendations
@@ -29,6 +33,7 @@ public class GameService {
         }
         public CreateResult createGame(CreateRequest createRequest) throws Exception {
             authDAO.getAuth(createRequest.authToken());
+            // do request checking
             if(authDAO.getAuth(createRequest.authToken()) == null){
                 throw new Exception("Error: unauthorized");
             }
@@ -37,18 +42,16 @@ public class GameService {
             // also, may need to change the return type and parameters at some point.
         }
         public void joinGame(JoinRequest joinRequest) throws Exception {
-            authDAO.getAuth(joinRequest.authToken());
-            if(authDAO.getAuth(joinRequest.authToken()) == null){
+            AuthData authData = authDAO.getAuth(joinRequest.authToken());
+            if(authData == null){
                 throw new Exception("Error: unauthorized");
             }
-            AuthData authData = authDAO.getAuth(joinRequest.authToken());
-            gameDAO.getGame(joinRequest.gameID());
-//            if(gameDAO.getGame(joinRequest.gameID()) == null){
-//                throw new Exception("Error: bad request");
-//            }
-            // may need to double-check this with TAs
             GameData gameData = gameDAO.getGame(joinRequest.gameID());
-            if(joinRequest.playerColor() == "WHITE"){
+            if(gameData == null){
+                throw new Exception("Error: bad request");
+            }
+            // may need to double-check this with TAs
+            if(Objects.equals(joinRequest.playerColor(), "WHITE")){
                 if(gameData.whiteUsername() != null){
                     throw new Exception("Error: already taken");
                 }
@@ -59,7 +62,7 @@ public class GameService {
                                 gameData.gameName(),
                                 gameData.game()
                                 ));
-            } else if(joinRequest.playerColor() == "BLACK"){
+            } else if(Objects.equals(joinRequest.playerColor(), "BLACK")){
                 if(gameData.blackUsername() != null){
                     throw new Exception("Error: already taken");
                 }
@@ -71,9 +74,9 @@ public class GameService {
                                 gameData.game()
                         ));
             }
-//            else {
-//                throw new Exception("Error: bad request");
-//            }
+            else {
+               throw new Exception("Error: bad request");
+            }
             // ask TAs about this
         }
 

@@ -2,10 +2,15 @@ package service;
 
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
-import dataaccess.GameDAO;
 import dataaccess.UserDAO;
 import model.AuthData;
 import model.UserData;
+import request.LoginRequest;
+import request.LogoutRequest;
+import request.RegisterRequest;
+import result.LoginResult;
+import result.RegisterResult;
+
 import java.util.UUID;
 
 
@@ -24,7 +29,7 @@ public class UserService {
             return UUID.randomUUID().toString();
         }
 
-        public RegisterResult register(RegisterRequest registerRequest) throws Exception {
+        public RegisterResult register(RegisterRequest registerRequest) throws Exception, DataAccessException {
             userDAO.getUser(registerRequest.username());
             if(userDAO.getUser(registerRequest.username()) == null){
                 userDAO.createUser(
@@ -33,16 +38,19 @@ public class UserService {
                 authDAO.createAuth(new AuthData(authToken, registerRequest.username()));
                 return new RegisterResult(registerRequest.username(), authToken);
             }
+            // do request checking
             //return new RegisterResult(registerRequest.username(), null);
             throw new Exception("Error: already taken");
             // TODO: potentially in the future, may change the exception type
             // create authToken here
         }
         public LoginResult login(LoginRequest loginRequest) throws Exception {
-            userDAO.getUser(loginRequest.username());
-            if(userDAO.getUser(loginRequest.username()) == null){
+            UserData userData = userDAO.getUser(loginRequest.username());
+            if(userData == null){
                 throw new Exception("Error: unauthorized");
             }
+            // do password checking
+            // also do request checking
             String authToken = generateToken();
             authDAO.createAuth(new AuthData(authToken, loginRequest.username()));
             return new LoginResult(loginRequest.username(), authToken);
@@ -50,8 +58,8 @@ public class UserService {
         }
         public void logout(LogoutRequest logoutRequest) throws Exception {
             // check if authToken is valid
-            authDAO.getAuth(logoutRequest.authToken());
-            if(authDAO.getAuth(logoutRequest.authToken()) == null){
+            AuthData authData = authDAO.getAuth(logoutRequest.authToken());
+            if(authData == null){
                 throw new Exception("Error: unauthorized");
             }
             authDAO.deleteAuth(logoutRequest.authToken());

@@ -7,6 +7,9 @@ import dataaccess.MemoryUserDAO;
 import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.*;
+import request.LoginRequest;
+import request.LogoutRequest;
+import request.RegisterRequest;
 
 public class UserServiceTest {
 
