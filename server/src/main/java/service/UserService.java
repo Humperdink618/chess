@@ -33,21 +33,27 @@ public class UserService {
                 authDAO.createAuth(new AuthData(authToken, registerRequest.username()));
                 return new RegisterResult(registerRequest.username(), authToken);
             }
-            return new RegisterResult(registerRequest.username(), null);
-            //throw new Exception("Error: already taken");
+            //return new RegisterResult(registerRequest.username(), null);
+            throw new Exception("Error: already taken");
             // TODO: potentially in the future, may change the exception type
             // create authToken here
         }
-        public LoginResult login(LoginRequest loginRequest) throws DataAccessException {
+        public LoginResult login(LoginRequest loginRequest) throws Exception {
             userDAO.getUser(loginRequest.username());
+            if(userDAO.getUser(loginRequest.username()) == null){
+                throw new Exception("Error: unauthorized");
+            }
             String authToken = generateToken();
             authDAO.createAuth(new AuthData(authToken, loginRequest.username()));
             return new LoginResult(loginRequest.username(), authToken);
             // create authToken here
         }
-        public void logout(LogoutRequest logoutRequest) throws DataAccessException {
+        public void logout(LogoutRequest logoutRequest) throws Exception {
             // check if authToken is valid
             authDAO.getAuth(logoutRequest.authToken());
+            if(authDAO.getAuth(logoutRequest.authToken()) == null){
+                throw new Exception("Error: unauthorized");
+            }
             authDAO.deleteAuth(logoutRequest.authToken());
         }
         // delete authToken
