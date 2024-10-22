@@ -21,6 +21,8 @@ public class MemoryGameDAO implements GameDAO {
     public Collection<GameData> listGames(){
         return games.values();
     }
+    // specs show that the listGames response doesn't actually contain "ChessGame" as part of the list.
+    // may need to ask TAs about this...
 
     public void updateGame(GameData gameData){
         games.put(gameData.gameID(), gameData);
