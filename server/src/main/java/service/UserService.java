@@ -11,6 +11,7 @@ import request.RegisterRequest;
 import result.LoginResult;
 import result.RegisterResult;
 
+import java.util.Objects;
 import java.util.UUID;
 
 
@@ -28,8 +29,15 @@ public class UserService {
         public static String generateToken() {
             return UUID.randomUUID().toString();
         }
-
+        // note: DataAccessException inherits from Exception, so I don't actually need to specify it
+        // here. Only reason I'm doing so is to show that I can throw multiple exception types via
+        // comma delimitation.
         public RegisterResult register(RegisterRequest registerRequest) throws Exception, DataAccessException {
+            // do request checking
+            if(registerRequest.username() == null || registerRequest.password() == null
+                    || registerRequest.email() == null) {
+                throw new Exception("Error: bad request");
+            }
             userDAO.getUser(registerRequest.username());
             if(userDAO.getUser(registerRequest.username()) == null){
                 userDAO.createUser(
@@ -38,15 +46,17 @@ public class UserService {
                 authDAO.createAuth(new AuthData(authToken, registerRequest.username()));
                 return new RegisterResult(registerRequest.username(), authToken);
             }
-            // do request checking
-            //return new RegisterResult(registerRequest.username(), null);
             throw new Exception("Error: already taken");
             // TODO: potentially in the future, may change the exception type
             // create authToken here
         }
         public LoginResult login(LoginRequest loginRequest) throws Exception {
+
             UserData userData = userDAO.getUser(loginRequest.username());
             if(userData == null){
+                throw new Exception("Error: unauthorized");
+            }
+            if(!Objects.equals(userData.password(), loginRequest.password())){
                 throw new Exception("Error: unauthorized");
             }
             // do password checking

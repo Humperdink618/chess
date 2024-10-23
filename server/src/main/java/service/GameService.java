@@ -31,17 +31,27 @@ public class GameService {
             gameDAO.listGames();
             return new ListResult(gameDAO.listGames());
         }
+
         public CreateResult createGame(CreateRequest createRequest) throws Exception {
-            authDAO.getAuth(createRequest.authToken());
+            if(createRequest.gameName() == null || createRequest.authToken() == null){
+                throw new Exception("Error: bad request");
+            }
+            AuthData authData = authDAO.getAuth(createRequest.authToken());
             // do request checking
-            if(authDAO.getAuth(createRequest.authToken()) == null){
+            if(authData == null){
                 throw new Exception("Error: unauthorized");
             }
-            gameDAO.createGame(createRequest.gameName());
-            return new CreateResult(gameDAO.createGame(createRequest.gameName()));
+            int gameID = gameDAO.createGame(createRequest.gameName());
+            return new CreateResult(gameID);
             // also, may need to change the return type and parameters at some point.
         }
+
         public void joinGame(JoinRequest joinRequest) throws Exception {
+            if(joinRequest.gameID() == null
+                    || joinRequest.authToken() == null
+                    || joinRequest.playerColor() == null){
+                throw new Exception("Error: bad request");
+            }
             AuthData authData = authDAO.getAuth(joinRequest.authToken());
             if(authData == null){
                 throw new Exception("Error: unauthorized");
@@ -50,13 +60,13 @@ public class GameService {
             if(gameData == null){
                 throw new Exception("Error: bad request");
             }
-            // may need to double-check this with TAs
             if(Objects.equals(joinRequest.playerColor(), "WHITE")){
                 if(gameData.whiteUsername() != null){
                     throw new Exception("Error: already taken");
                 }
                 gameDAO.updateGame(
-                        new GameData(joinRequest.gameID(),
+                        new GameData(
+                                joinRequest.gameID(),
                                 authData.username(),
                                 gameData.blackUsername(),
                                 gameData.gameName(),
@@ -67,7 +77,8 @@ public class GameService {
                     throw new Exception("Error: already taken");
                 }
                 gameDAO.updateGame(
-                        new GameData(joinRequest.gameID(),
+                        new GameData(
+                                joinRequest.gameID(),
                                 gameData.whiteUsername(),
                                 authData.username(),
                                 gameData.gameName(),
@@ -77,7 +88,6 @@ public class GameService {
             else {
                throw new Exception("Error: bad request");
             }
-            // ask TAs about this
         }
 
         // also, may need to change the parameters at some point.
