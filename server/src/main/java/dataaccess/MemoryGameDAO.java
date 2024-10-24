@@ -5,6 +5,7 @@ import model.GameData;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class MemoryGameDAO implements GameDAO {
     private int nextId = 1;
@@ -19,7 +20,15 @@ public class MemoryGameDAO implements GameDAO {
     }
 
     public Collection<GameData> listGames(){
-        return games.values();
+        Collection<GameData> myGames = new HashSet<>();
+        for( GameData game : games.values()){
+            myGames.add(
+                    new GameData(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName(), null)
+            );
+        }
+
+        return myGames;
+        //return games.values();
     }
     // specs show that the listGames response doesn't actually contain "ChessGame" as part of the list.
     // may need to ask TAs about this...

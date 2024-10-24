@@ -100,7 +100,6 @@ public class Server {
             return new Gson().toJson(resBody);
 
         } catch (UnauthorizedException ex) {
-            //if(Objects.equals(ex.getMessage(), "Error: bad request")){
             res.status(401);
             String body = new Gson().toJson(Map.of("message", ex.getMessage()));
             res.body(body);
@@ -122,7 +121,6 @@ public class Server {
             return "{}";
 
         } catch (UnauthorizedException ex) {
-            //if(Objects.equals(ex.getMessage(), "Error: bad request")){
             res.status(401);
             String body = new Gson().toJson(Map.of("message", ex.getMessage()));
             res.body(body);
@@ -144,7 +142,6 @@ public class Server {
             return new Gson().toJson(resBody);
 
         } catch (UnauthorizedException ex) {
-            //if(Objects.equals(ex.getMessage(), "Error: bad request")){
             res.status(401);
             String body = new Gson().toJson(Map.of("message", ex.getMessage()));
             res.body(body);
@@ -161,19 +158,19 @@ public class Server {
     private Object createGameHandler(Request req, Response res) {
         GameService gameService = new GameService(authDAO, gameDAO);
         try{
-            CreateRequest reqBody = new CreateRequest(req.headers("authorization"), req.body());
-            CreateResult resBody = gameService.createGame(reqBody);
+            String authToken = req.headers("authorization");
+            CreateRequest reqBody = new Gson().fromJson(req.body(), CreateRequest.class);
+            CreateRequest reqData = new CreateRequest(authToken, reqBody.gameName());
+            CreateResult resBody = gameService.createGame(reqData);
             return new Gson().toJson(resBody);
 
         } catch (BadRequestExceptionChess ex) {
-            //if(Objects.equals(ex.getMessage(), "Error: bad request")){
             res.status(400);
             String body = new Gson().toJson(Map.of("message", ex.getMessage()));
             res.body(body);
             return body;
 
         } catch (UnauthorizedException ex) {
-            //if(Objects.equals(ex.getMessage(), "Error: bad request")){
             res.status(401);
             String body = new Gson().toJson(Map.of("message", ex.getMessage()));
             res.body(body);
@@ -188,17 +185,11 @@ public class Server {
     }
 
     private String joinGameHandler(Request req, Response res) {
-        // TODO: FIX THIS!!
         GameService gameService = new GameService(authDAO, gameDAO);
         try{
-            //JoinRequest reqBody = new Gson().fromJson(req.body(), JoinRequest.class);
-            //JoinRequest reqBody = new JoinRequest(req.headers("authorization"), req.body());
             String authToken = req.headers("authorization");
             JoinRequest reqBody = new Gson().fromJson(req.body(), JoinRequest.class);
-            //System.out.println(reqBody);
             JoinRequest reqData = new JoinRequest(authToken, reqBody.playerColor(), reqBody.gameID());
-
-            //JoinRequest reqBody = new Gson().fromJson(req.body(), JoinRequest.class);
             gameService.joinGame(reqData);
             return "{}";
 
@@ -209,14 +200,12 @@ public class Server {
             return body;
 
         } catch (BadRequestExceptionChess ex) {
-            //if(Objects.equals(ex.getMessage(), "Error: bad request")){
             res.status(400);
             String body = new Gson().toJson(Map.of("message", ex.getMessage()));
             res.body(body);
             return body;
 
         } catch (UnauthorizedException ex) {
-            //if(Objects.equals(ex.getMessage(), "Error: bad request")){
             res.status(401);
             String body = new Gson().toJson(Map.of("message", ex.getMessage()));
             res.body(body);
