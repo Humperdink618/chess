@@ -2,10 +2,10 @@ package service;
 
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
-import exceptionChess.AlreadyTakenException;
-import exceptionChess.BadRequestExceptionChess;
+import service_exception.AlreadyTakenException;
+import service_exception.BadRequestExceptionChess;
 import dataaccess.UserDAO;
-import exceptionChess.UnauthorizedException;
+import service_exception.UnauthorizedException;
 import model.AuthData;
 import model.UserData;
 import request.LoginRequest;

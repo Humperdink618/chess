@@ -5,6 +5,7 @@ import java.util.HashSet;
 
 public class PawnMovesCalculator extends PieceMovesCalculator {
 
+/*
     // note: things are a little different for Pawn
 
     // Pawn can only move forward (i.e. the column position remains the same, unless capturing)
@@ -25,16 +26,20 @@ public class PawnMovesCalculator extends PieceMovesCalculator {
 
     // Pawn may borrow some aspects of the previous piece moves, but overall it must utilize its own movement method.
 
+ */
+
     @Override
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
 
         Collection<ChessMove> moves = new HashSet<>();
         // check color to determine direction
         if(colorIsWhite(board, myPosition)){
-//            // white Pawn moves
-//            if(moveTwiceWhite(myPosition, board)){
-//                addMovePawn(board, myPosition, moves, 1,1);
-//            }
+            /*
+           // white Pawn moves
+            if(moveTwiceWhite(myPosition, board)){
+                addMovePawn(board, myPosition, moves, 1,1);
+            }
+             */
             addMovePawn(board, myPosition, moves, 1,2);
         } else {
             // black Pawn moves

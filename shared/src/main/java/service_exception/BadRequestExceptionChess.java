@@ -1,4 +1,4 @@
-package exceptionChess;
+package service_exception;
 
 /**
  * Indicates there was an error in the user's request

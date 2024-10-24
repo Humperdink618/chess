@@ -83,7 +83,7 @@ public class GameServiceTest {
             throw new Exception("Error: unauthorized");
         });
     }
-
+/*
 //    @Test
 //    @DisplayName("Should throw an error when createGame() is called due to bad request")
 //    // don't actually need this test, but a good idea to try it out anyway
@@ -95,6 +95,7 @@ public class GameServiceTest {
 //            throw new Exception("Error: bad request");
 //        });
 //    }
+ */
 
     @Test
     @DisplayName("Should update an existing game when joinGame() is called")
@@ -119,7 +120,7 @@ public class GameServiceTest {
             throw new Exception("Error: bad request");
         });
     }
-
+/*
     //    @Test
 //    @DisplayName("Should throw an exception when joinGame() is called")
 //    void joinGameFailAuth() throws Exception {
@@ -152,4 +153,5 @@ public class GameServiceTest {
 //            throw new Exception("Error: already taken");
 //        });
 //    }
+ */
 }

@@ -1,4 +1,4 @@
-package exceptionChess;
+package service_exception;
 
 /**
  * Indicates there was an error when a resource with the same attribute already exists,

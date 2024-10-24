@@ -2,9 +2,9 @@ package server;
 
 import com.google.gson.Gson;
 import dataaccess.*;
-import exceptionChess.AlreadyTakenException;
-import exceptionChess.BadRequestExceptionChess;
-import exceptionChess.UnauthorizedException;
+import service_exception.AlreadyTakenException;
+import service_exception.BadRequestExceptionChess;
+import service_exception.UnauthorizedException;
 import request.*;
 import result.CreateResult;
 import result.ListResult;
@@ -57,10 +57,7 @@ public class Server {
             // could also do new Gson().toJson(new Object());
             return "{}";
         } catch (DataAccessException ex) {
-            res.status(500);
-            String body = new Gson().toJson(Map.of("message", "Error:" + ex.getMessage()));
-            res.body(body);
-            return body;
+            return handleDataAccessException(res, ex);
         }
     }
 
@@ -73,22 +70,21 @@ public class Server {
 
         } catch (BadRequestExceptionChess ex) {
             //if(Objects.equals(ex.getMessage(), "Error: bad request")){
-            res.status(400);
-            String body = new Gson().toJson(Map.of("message", ex.getMessage()));
-            res.body(body);
-            return body;
+            return handleBadRequestException(res, ex);
 
         } catch (AlreadyTakenException ex) {
-            res.status(403);
-            String body = new Gson().toJson(Map.of("message", ex.getMessage()));
-            res.body(body);
-            return body;
+            return handleAlreadyTakenException(res, ex);
+
         } catch (DataAccessException ex) {
-            res.status(500);
-            String body = new Gson().toJson(Map.of("message", "Error:" + ex.getMessage()));
-            res.body(body);
-            return body;
+            return handleDataAccessException(res, ex);
         }
+    }
+
+    private static String handleDataAccessException(Response res, DataAccessException ex) {
+        res.status(500);
+        String body = new Gson().toJson(Map.of("message", "Error:" + ex.getMessage()));
+        res.body(body);
+        return body;
     }
 
     private Object loginHandler(Request req, Response res) {
@@ -99,16 +95,10 @@ public class Server {
             return new Gson().toJson(resBody);
 
         } catch (UnauthorizedException ex) {
-            res.status(401);
-            String body = new Gson().toJson(Map.of("message", ex.getMessage()));
-            res.body(body);
-            return body;
+            return handleUnauthorizedException(res, ex);
 
         } catch (DataAccessException ex) {
-            res.status(500);
-            String body = new Gson().toJson(Map.of("message", "Error:" + ex.getMessage()));
-            res.body(body);
-            return body;
+            return handleDataAccessException(res, ex);
         }
     }
 
@@ -120,16 +110,10 @@ public class Server {
             return "{}";
 
         } catch (UnauthorizedException ex) {
-            res.status(401);
-            String body = new Gson().toJson(Map.of("message", ex.getMessage()));
-            res.body(body);
-            return body;
+            return handleUnauthorizedException(res, ex);
 
         } catch (DataAccessException ex) {
-            res.status(500);
-            String body = new Gson().toJson(Map.of("message", "Error:" + ex.getMessage()));
-            res.body(body);
-            return body;
+            return handleDataAccessException(res, ex);
         }
     }
 
@@ -141,16 +125,10 @@ public class Server {
             return new Gson().toJson(resBody);
 
         } catch (UnauthorizedException ex) {
-            res.status(401);
-            String body = new Gson().toJson(Map.of("message", ex.getMessage()));
-            res.body(body);
-            return body;
+            return handleUnauthorizedException(res, ex);
 
         } catch (DataAccessException ex) {
-            res.status(500);
-            String body = new Gson().toJson(Map.of("message", "Error:" + ex.getMessage()));
-            res.body(body);
-            return body;
+            return handleDataAccessException(res, ex);
         }
     }
 
@@ -164,22 +142,13 @@ public class Server {
             return new Gson().toJson(resBody);
 
         } catch (BadRequestExceptionChess ex) {
-            res.status(400);
-            String body = new Gson().toJson(Map.of("message", ex.getMessage()));
-            res.body(body);
-            return body;
+            return handleBadRequestException(res, ex);
 
         } catch (UnauthorizedException ex) {
-            res.status(401);
-            String body = new Gson().toJson(Map.of("message", ex.getMessage()));
-            res.body(body);
-            return body;
+            return handleUnauthorizedException(res, ex);
 
         } catch (DataAccessException ex) {
-            res.status(500);
-            String body = new Gson().toJson(Map.of("message", "Error:" + ex.getMessage()));
-            res.body(body);
-            return body;
+            return handleDataAccessException(res, ex);
         }
     }
 
@@ -193,29 +162,38 @@ public class Server {
             return "{}";
 
         } catch (AlreadyTakenException ex) {
-            res.status(403);
-            String body = new Gson().toJson(Map.of("message", ex.getMessage()));
-            res.body(body);
-            return body;
+            return handleAlreadyTakenException(res, ex);
 
         } catch (BadRequestExceptionChess ex) {
-            res.status(400);
-            String body = new Gson().toJson(Map.of("message", ex.getMessage()));
-            res.body(body);
-            return body;
+            return handleBadRequestException(res, ex);
 
         } catch (UnauthorizedException ex) {
-            res.status(401);
-            String body = new Gson().toJson(Map.of("message", ex.getMessage()));
-            res.body(body);
-            return body;
+            return handleUnauthorizedException(res, ex);
 
         } catch (DataAccessException ex) {
-            res.status(500);
-            String body = new Gson().toJson(Map.of("message", "Error:" + ex.getMessage()));
-            res.body(body);
-            return body;
+            return handleDataAccessException(res, ex);
         }
+    }
+
+    private static String handleUnauthorizedException(Response res, UnauthorizedException ex) {
+        res.status(401);
+        String body = new Gson().toJson(Map.of("message", ex.getMessage()));
+        res.body(body);
+        return body;
+    }
+
+    private static String handleBadRequestException(Response res, BadRequestExceptionChess ex) {
+        res.status(400);
+        String body = new Gson().toJson(Map.of("message", ex.getMessage()));
+        res.body(body);
+        return body;
+    }
+
+    private static String handleAlreadyTakenException(Response res, AlreadyTakenException ex) {
+        res.status(403);
+        String body = new Gson().toJson(Map.of("message", ex.getMessage()));
+        res.body(body);
+        return body;
     }
 
 }

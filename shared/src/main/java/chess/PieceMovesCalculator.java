@@ -63,6 +63,7 @@ public abstract class PieceMovesCalculator {
                                         Collection<ChessMove> moves,
                                         int x,
                                         int y) {
+
         ChessPosition currPos = new ChessPosition(myPosition.getRow() + x, myPosition.getColumn() + y);
         // check if out of bounds first
         if (!outOfBounds(currPos, board)) {
