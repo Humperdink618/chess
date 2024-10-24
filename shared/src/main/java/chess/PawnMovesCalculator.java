@@ -16,9 +16,13 @@ public class PawnMovesCalculator extends PieceMovesCalculator {
     */
 
     /*
-     Pawn only moves on space at a time (except on it's first ever move in the game,
-        in which if a white Pawn is on col 2 or if a black Pawn is on col 7,
+     Pawn only moves on space at a time
+     */
+      /*
+     (except on it's first ever move in the game, in which if a white Pawn is on col 2 or if a black Pawn is on col 7,
+
         it can either move one space or two (if not obstructed))
+
      */
 
     /*
@@ -41,11 +45,14 @@ public class PawnMovesCalculator extends PieceMovesCalculator {
         Collection<ChessMove> moves = new HashSet<>();
         // check color to determine direction
         if(colorIsWhite(board, myPosition)){
-            /*
-            white Pawn moves
 
+            // white Pawn moves
+
+            /*
             if(moveTwiceWhite(myPosition, board)){
+
                 addMovePawn(board, myPosition, moves, 1,1);
+
             }
              */
             addMovePawn(board, myPosition, moves, 1,2);

@@ -83,28 +83,6 @@ public class GameServiceTest {
             throw new Exception("Error: unauthorized");
         });
     }
-/*
-    @Test
-
-    @DisplayName("Should throw an error when createGame() is called due to bad request")
-
-     don't actually need this test, but a good idea to try it out anyway
-
-    void createGameBadReq() throws Exception {
-
-        Assertions.assertFalse(authDAO.empty());
-
-        CreateRequest badReq = new CreateRequest("myToken", null);
-
-        Assertions.assertThrows(Exception.class, () -> {
-
-            gameService.createGame(badReq);
-
-            throw new Exception("Error: bad request");
-
-        });
-    }
- */
 
     @Test
     @DisplayName("Should update an existing game when joinGame() is called")
@@ -129,53 +107,102 @@ public class GameServiceTest {
             throw new Exception("Error: bad request");
         });
     }
+}
+
 /*
     @Test
+    @DisplayName("Should throw an error when createGame() is called due to bad request")
+    */
 
+/*
+     don't actually need this test, but a good idea to try it out anyway
+*/
+
+/*
+    void createGameBadReq() throws Exception {
+        Assertions.assertFalse(authDAO.empty());
+        */
+
+/*
+        CreateRequest badReq = new CreateRequest("myToken", null);
+        */
+/*
+        Assertions.assertThrows(Exception.class, () -> {
+
+            gameService.createGame(badReq);
+            */
+/*
+            throw new Exception("Error: bad request");
+
+        });
+        */
+/*
+    }
+ */
+
+/*
+    @Test
     @DisplayName("Should throw an exception when joinGame() is called")
+    */
 
+/*
     void joinGameFailAuth() throws Exception {
 
         Assertions.assertFalse(authDAO.empty());
 
         Assertions.assertFalse(gameDAO.empty());
+        */
 
+/*
         JoinRequest badReq = new JoinRequest("JoeBiden", "WHITE", myGameID);
-
+        */
+/*
         Assertions.assertThrows(Exception.class, () -> {
 
             gameService.joinGame(badReq);
-
+            */
+/*
             throw new Exception("Error: unauthorized");
-
+            */
+/*
         });
     }
+    */
 
+/*
     @Test
-
     @DisplayName("Should throw an exception when joinGame() is called")
+    */
 
-         I've tested a lot of authentication errors already. Let's test for an already taken error this time!
+ //        I've tested a lot of authentication errors already. Let's test for an already taken error this time!
 
+/*
     void joinGameFailAlreadyTaken() throws Exception {
 
         Assertions.assertFalse(authDAO.empty());
 
         Assertions.assertFalse(gameDAO.empty());
+        */
 
+/*
         gameDAO.updateGame(
                 new GameData(1, null, "BarneyThePurpleDinosaur", "myGame", new ChessGame()));
+*/
 
+/*
         JoinRequest badReq = new JoinRequest("myToken", "BLACK", myGameID);
+*/
 
+/*
         Assertions.assertThrows(Exception.class, () -> {
-
             gameService.joinGame(badReq);
+            */
 
+ /*
             throw new Exception("Error: already taken");
-
         });
+*/
 
+/*
     }
  */
-}
