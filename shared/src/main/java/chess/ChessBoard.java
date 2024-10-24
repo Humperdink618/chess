@@ -39,7 +39,6 @@ public class ChessBoard implements Cloneable {
     private ChessPiece[][] chessSquares = new ChessPiece[boardSize][boardSize];
 
     public ChessBoard() {
-        
     }
 
     /**
@@ -50,8 +49,6 @@ public class ChessBoard implements Cloneable {
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
         chessSquares[position.getRow() -1][position.getColumn() - 1] = piece;
-
-       // throw new RuntimeException("Not implemented");
     }
 
     public void removePiece(ChessPosition position){
@@ -67,7 +64,6 @@ public class ChessBoard implements Cloneable {
                 chessPositions.add(currPos);
             }
         }
-
         return chessPositions;
     }
 
@@ -81,7 +77,6 @@ public class ChessBoard implements Cloneable {
 
     public ChessPiece getPiece(ChessPosition position) {
         return chessSquares[position.getRow() - 1][position.getColumn() - 1];
-        //throw new RuntimeException("Not implemented");
     }
 
     /**

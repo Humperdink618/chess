@@ -3,6 +3,7 @@ package chess;
 import java.util.Collection;
 
 public abstract class PieceMovesCalculator {
+
     /**
      * Calculates all the positions a chess piece can move to
      * Does not take into account moves that are illegal due to leaving the king in
@@ -10,20 +11,26 @@ public abstract class PieceMovesCalculator {
      *
      * @return Collection of valid moves
      */
+
     public abstract Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition);
 
     protected static boolean outOfBounds( ChessPosition currPos, ChessBoard board) {
-        if(currPos.getRow() -1 >= board.getBoardSize() || currPos.getColumn() -1 >= board.getBoardSize()
-                || currPos.getRow() <= 0 || currPos.getColumn() <= 0){
+        if(currPos.getRow() -1 >= board.getBoardSize()
+                || currPos.getColumn() -1 >= board.getBoardSize()
+                || currPos.getRow() <= 0
+                || currPos.getColumn() <= 0) {
             return true;
         }
         return false;
     }
 
     // can use this for all pieces except Pawn, King, and Knight
-    protected static void addMoveLinear(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> moves, int x, int y) {
+    protected static void addMoveLinear(ChessBoard board,
+                                        ChessPosition myPosition,
+                                        Collection<ChessMove> moves,
+                                        int x,
+                                        int y) {
         ChessPosition currPos = new ChessPosition(myPosition.getRow(), myPosition.getColumn());
-
         Boolean continueSearch = true;
         while (continueSearch) {
             currPos = new ChessPosition(currPos.getRow() + x, currPos.getColumn() + y);
@@ -51,7 +58,11 @@ public abstract class PieceMovesCalculator {
     }
 
     // can use this for King and Knight (moves only once)
-    protected static void addSingleMove(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> moves, int x, int y) {
+    protected static void addSingleMove(ChessBoard board,
+                                        ChessPosition myPosition,
+                                        Collection<ChessMove> moves,
+                                        int x,
+                                        int y) {
         ChessPosition currPos = new ChessPosition(myPosition.getRow() + x, myPosition.getColumn() + y);
         // check if out of bounds first
         if (!outOfBounds(currPos, board)) {
@@ -68,8 +79,6 @@ public abstract class PieceMovesCalculator {
         }
     }
 }
-
-
         // 1) Get your row and column (current position object)
         // 2) y+x+
         //  a) get new row col positions as new position object -> need to actually get it
@@ -85,5 +94,3 @@ public abstract class PieceMovesCalculator {
         //  e) continue until you have to stop (update current position object)
         // 3) y-x+ -> reset current position object
         // etc. for each
-
-

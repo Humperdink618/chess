@@ -13,12 +13,9 @@ import request.JoinRequest;
 import request.ListRequest;
 import result.CreateResult;
 import result.ListResult;
-
 import java.util.Objects;
 
 public class GameService {
-        // note: of all the services, this one will be the most complicated. Talk to TAs for recommendations
-        // on implementing this service.
         private final AuthDAO authDAO;
         private final GameDAO gameDAO;
 
@@ -48,7 +45,6 @@ public class GameService {
             }
             int gameID = gameDAO.createGame(createRequest.gameName());
             return new CreateResult(gameID);
-            // also, may need to change the return type and parameters at some point.
         }
 
         public void joinGame(JoinRequest joinRequest)
@@ -95,6 +91,4 @@ public class GameService {
                throw new BadRequestExceptionChess("Error: bad request");
             }
         }
-
-        // also, may need to change the parameters at some point.
 }

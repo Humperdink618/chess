@@ -2,12 +2,10 @@ package chess;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 
 public class QueenMovesCalculator extends PieceMovesCalculator {
     @Override
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-
 
         Collection<ChessMove> moves = new HashSet<>();
         // Queen can move in 8 directions -> y+x+, y-x+, y-x- y-x+, y0x+, y+x0, y0x-, y-x0
@@ -29,12 +27,6 @@ public class QueenMovesCalculator extends PieceMovesCalculator {
         // y0x-
         addMoveLinear(board, myPosition, moves, -1, 0);
 
-        //throw new RuntimeException("Not implemented");
         return moves;
-
-
-
-        //  return new ArrayList<>();
-        //throw new RuntimeException("Not implemented");
     }
 }

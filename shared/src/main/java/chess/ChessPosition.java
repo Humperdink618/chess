@@ -8,6 +8,7 @@ import java.util.Objects;
  * Note: You can add to this class, but you may not alter
  * signature of the existing methods.
  */
+
 public class ChessPosition {
 
     private final int row;
@@ -22,10 +23,9 @@ public class ChessPosition {
      * @return which row this position is in
      * 1 codes for the bottom row
      */
-    public int getRow() {
 
+    public int getRow() {
         return row;
-      //  throw new RuntimeException("Not implemented");
     }
 
     @Override
@@ -53,8 +53,8 @@ public class ChessPosition {
      * @return which column this position is in
      * 1 codes for the left row
      */
+
     public int getColumn() {
         return col;
-        //throw new RuntimeException("Not implemented");
     }
 }

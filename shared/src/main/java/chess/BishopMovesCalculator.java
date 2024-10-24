@@ -1,12 +1,9 @@
 package chess;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 
 public class BishopMovesCalculator extends PieceMovesCalculator {
-
 
     @Override
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
@@ -28,7 +25,6 @@ public class BishopMovesCalculator extends PieceMovesCalculator {
 
         Collection<ChessMove> moves = new HashSet<>();
         // bishop can move in 4 directions -> y+x+, y-x+, y-x- y-x+
-
         // y+x+
         addMoveLinear(board, myPosition, moves, 1, 1);
         // y+x-
@@ -38,12 +34,6 @@ public class BishopMovesCalculator extends PieceMovesCalculator {
         // y-x-
         addMoveLinear(board, myPosition, moves, -1, -1);
 
-        //throw new RuntimeException("Not implemented");
         return moves;
-
-
-
-      //  return new ArrayList<>();
-        //throw new RuntimeException("Not implemented");
     }
 }

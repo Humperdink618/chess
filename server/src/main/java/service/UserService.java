@@ -13,15 +13,11 @@ import request.LogoutRequest;
 import request.RegisterRequest;
 import result.LoginResult;
 import result.RegisterResult;
-
 import java.util.Objects;
 import java.util.UUID;
 
-
-
 public class UserService {
         private final UserDAO userDAO;
-
         private final AuthDAO authDAO;
 
         public UserService(UserDAO userDAO, AuthDAO authDAO){
@@ -32,13 +28,12 @@ public class UserService {
         public static String generateToken() {
             return UUID.randomUUID().toString();
         }
-        // note: DataAccessException inherits from Exception, so I don't actually need to specify it
-        // here. Only reason I'm doing so is to show that I can throw multiple exception types via
-        // comma delimitation.
+
         public RegisterResult register(RegisterRequest registerRequest)
                 throws BadRequestExceptionChess, AlreadyTakenException, DataAccessException {
             // do request checking
-            if(registerRequest.username() == null || registerRequest.password() == null
+            if(registerRequest.username() == null
+                    || registerRequest.password() == null
                     || registerRequest.email() == null) {
                 throw new BadRequestExceptionChess("Error: bad request");
             }
@@ -51,7 +46,6 @@ public class UserService {
                 return new RegisterResult(registerRequest.username(), authToken);
             }
             throw new AlreadyTakenException("Error: already taken");
-            // TODO: potentially in the future, may change the exception type
             // create authToken here
         }
         public LoginResult login(LoginRequest loginRequest) throws UnauthorizedException, DataAccessException {

@@ -5,8 +5,6 @@ import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.*;
 
-import service.ClearService;
-
 public class ClearServiceTest {
     /*
     Variables in the class:
@@ -77,6 +75,4 @@ public class ClearServiceTest {
         Assertions.assertTrue(gameDAO.empty());
         Assertions.assertTrue(authDAO.empty());
     }
-
-
 }

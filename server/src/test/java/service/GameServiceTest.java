@@ -1,21 +1,15 @@
 package service;
 
-import chess.ChessGame;
 import dataaccess.DataAccessException;
 import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryGameDAO;
 import dataaccess.MemoryUserDAO;
 import model.AuthData;
-import model.GameData;
 import org.junit.jupiter.api.*;
 import request.CreateRequest;
 import request.JoinRequest;
 import request.ListRequest;
-import result.ListResult;
-
 import java.util.Objects;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 public class GameServiceTest {
 
@@ -88,7 +82,6 @@ public class GameServiceTest {
             gameService.createGame(badReq);
             throw new Exception("Error: unauthorized");
         });
-
     }
 
 //    @Test

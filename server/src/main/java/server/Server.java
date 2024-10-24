@@ -16,7 +16,7 @@ import service.UserService;
 import spark.*;
 
 import java.util.Map;
-import java.util.Objects;
+
 
 public class Server {
     private UserDAO userDAO = new MemoryUserDAO();
@@ -62,7 +62,6 @@ public class Server {
             res.body(body);
             return body;
         }
-
     }
 
     private Object registerHandler(Request req, Response res) {

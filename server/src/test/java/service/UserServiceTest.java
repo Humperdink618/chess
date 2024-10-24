@@ -34,7 +34,6 @@ public class UserServiceTest {
         clearService.clear();
     }
 
-
     @Test
     @DisplayName("Should add a new user to the DAO when register() is called")
     void registerPass() throws Exception {
@@ -43,7 +42,6 @@ public class UserServiceTest {
         userService.register(goodReq);
         Assertions.assertTrue(userDAO.getUser(goodReq.username()) != null);
         Assertions.assertFalse(authDAO.empty());
-
     }
 
     @Test
@@ -55,7 +53,6 @@ public class UserServiceTest {
             userService.register(badReq);
             throw new Exception("Error: already taken");
         });
-
     }
 
     @Test

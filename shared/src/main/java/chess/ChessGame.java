@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
 
-
 /**
  * For a class that can manage a chess game, making moves on a board
  * <p>
@@ -31,7 +30,6 @@ public class ChessGame  {
      */
     public TeamColor getTeamTurn() {
         return teamTurn;
-        //throw new RuntimeException("Not implemented");
     }
 
     /**
@@ -64,17 +62,15 @@ public class ChessGame  {
         Collection<ChessMove> moves = chessPiece.pieceMoves(board, startPosition);
         Collection<ChessMove> movesValid = new HashSet<>();
         // Filter these for check violations
-
-        for(ChessMove move : moves){
+        for(ChessMove move : moves) {
             ChessBoard clonedBoard = board.clone();
             ChessPiece atEnd = clonedBoard.getPiece(move.getEndPosition());
             makeMoveHelper(move, clonedBoard, chessPiece);
-
-            if (!checkCalculator(chessPiece.getTeamColor(), clonedBoard)) {
-
+            if(!checkCalculator(chessPiece.getTeamColor(), clonedBoard)){
                 movesValid.add(move);
             }
-            undoMoveHelper(move, clonedBoard, chessPiece,atEnd);
+            undoMoveHelper(move, clonedBoard, chessPiece, atEnd);
+        }
             /*
             b.	Loop over theoretically possible moves for each piece
             i.	For each possible move:
@@ -100,13 +96,12 @@ public class ChessGame  {
             }
 ```````````*/
 
-        }
         // check to see if a move gets you in check
         // may consider getBoard.clone()
         // clone board for each iteration, calling isInCheck() on each of them, and if none get me out of check,
         // it is checkmate
 
-        // TODO: may at some point alter the clone() method here, as it isn't giving me the deep copies I want
+        // may at some point alter the clone() method here, as it isn't giving me the deep copies I want
         //      (which is why I created the undoMoveHelper() method). Code runs fine, but may no longer need
         //      the clone() method here, as currently it is redundant code. May fix one or both of the methods
         //      at some point, but for now, the code works just fine, and I'm not gonna touch it for right now.
@@ -129,8 +124,8 @@ public class ChessGame  {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if(this == o) return true;
+        if(o == null || getClass() != o.getClass()) return false;
         ChessGame chessGame = (ChessGame) o;
         return isWhiteInCheck == chessGame.isWhiteInCheck && isBlackInCheck == chessGame.isBlackInCheck && Objects.equals(board, chessGame.board) && teamTurn == chessGame.teamTurn;
     }
@@ -203,13 +198,13 @@ public class ChessGame  {
         */
         Collection<ChessPosition> positions = board1.getChessPositions();
         for(ChessPosition position : positions){
-            if(position.getRow() -1 < board1.getBoardSize() || position.getColumn() -1 < board1.getBoardSize()
-                    || position.getRow() > 0 || position.getColumn() > 0){
+            if(position.getRow() -1 < board1.getBoardSize()
+                    || position.getColumn() -1 < board1.getBoardSize()
+                    || position.getRow() > 0
+                    || position.getColumn() > 0){
                 if(board1.getPiece(position) != null){
-                    if(board1.getPiece(position).getTeamColor() == opponentTeam(teamColor)){
-                        ChessPiece enemyPiece = board1.getPiece(position);
-                        Collection<ChessMove> enemyMoves = enemyPiece.pieceMoves(board1,position);
-                        if (enemyCanCaptureYourKing(board1, enemyMoves, enemyPiece)) return true;
+                    if(isEnemyPiece(teamColor, board1, position)){
+                        return true;
                     }
                 }
             }
@@ -217,14 +212,32 @@ public class ChessGame  {
         return false;
     }
 
-    private static boolean enemyCanCaptureYourKing(ChessBoard board1, Collection<ChessMove> enemyMoves, ChessPiece enemyPiece) {
+    private boolean isEnemyPiece(TeamColor teamColor, ChessBoard board1, ChessPosition position) {
+        if(board1.getPiece(position).getTeamColor() == opponentTeam(teamColor)){
+            ChessPiece enemyPiece = board1.getPiece(position);
+            Collection<ChessMove> enemyMoves = enemyPiece.pieceMoves(board1, position);
+            if(enemyMoves(board1, enemyMoves, enemyPiece)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean enemyMoves(ChessBoard board1, Collection<ChessMove> enemyMoves, ChessPiece enemyPiece) {
         for(ChessMove enemyMove : enemyMoves){
             if(board1.getPiece(enemyMove.getEndPosition()) != null){
-                if(board1.getPiece(enemyMove.getEndPosition()).getTeamColor() != enemyPiece.getTeamColor()) {
-                    if(board1.getPiece(enemyMove.getEndPosition()).getPieceType() == ChessPiece.PieceType.KING) {
-                        return true;
-                    }
+                if(enemyCanCaptureYourKing(board1, enemyPiece, enemyMove)){
+                    return true;
                 }
+            }
+        }
+        return false;
+    }
+
+    private static boolean enemyCanCaptureYourKing(ChessBoard board1, ChessPiece enemyPiece, ChessMove enemyMove) {
+        if(board1.getPiece(enemyMove.getEndPosition()).getTeamColor() != enemyPiece.getTeamColor()) {
+            if(board1.getPiece(enemyMove.getEndPosition()).getPieceType() == ChessPiece.PieceType.KING) {
+                return true;
             }
         }
         return false;
@@ -236,25 +249,35 @@ public class ChessGame  {
     public boolean noMovesLeft(TeamColor teamColor) {
         Collection<ChessPosition> positions = board.getChessPositions();
         int counter = 0;
-        for (ChessPosition position : positions) {
-            if (board.getPiece(position) != null) {
+        for(ChessPosition position : positions) {
+            if(board.getPiece(position) != null) {
                 ChessPiece piece = board.getPiece(position);
                 Collection<ChessMove> moves = piece.pieceMoves(board,position);
-                for(ChessMove move : moves){
-                    if(piece.getTeamColor() == teamColor){
-                        if(validMoves(move.getStartPosition()).contains(move)){
-                            for (int i = 0; i <= moves.size(); i++) {
-                                counter += 1;
-                            }
-                        }
-                    }
-                }
+                counter = checkIfMovesAreValid(teamColor, moves, piece, counter);
             }
         }
         if(counter == 0){
             return true;
         }
         return false;
+    }
+
+    private int checkIfMovesAreValid(TeamColor teamColor, Collection<ChessMove> moves, ChessPiece piece, int counter) {
+        for(ChessMove move : moves){
+            if(piece.getTeamColor() == teamColor){
+                if(validMoves(move.getStartPosition()).contains(move)){
+                    counter = getCounter(moves, counter);
+                }
+            }
+        }
+        return counter;
+    }
+
+    private static int getCounter(Collection<ChessMove> moves, int counter) {
+        for(int i = 0; i <= moves.size(); i++) {
+            counter += 1;
+        }
+        return counter;
     }
 
     /**
@@ -264,12 +287,8 @@ public class ChessGame  {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        // TODO: figure out how I am going to implement this. Should I calculate this every time I call it
-        //      or not (depending on how often I will call it). If I call it a lot, use the same method I used
-        //      for isInCheck. Otherwise, calculate it in this function. Same thing for isInStalemate.
         // validMoves() is empty, and isInCheck == true
         return noMovesLeft(teamColor) && isInCheck(teamColor);
-        //throw new RuntimeException("Not implemented");
     }
 
     /**
@@ -280,17 +299,18 @@ public class ChessGame  {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        // TODO: same drill as in isInCheckmate()
+        // same drill as in isInCheckmate()
         return noMovesLeft(teamColor) && !isInCheck(teamColor);
-        //throw new RuntimeException("Not implemented");
         // is in stalemate if no possible valid moves (validMoves() for all pieces in a specific team is empty)
         // and !isInCheck()
     }
+
     /**
      * Sets this game's chessboard with a given board
      *
      * @param board the new board to use
      */
+
     public void setBoard(ChessBoard board) {
         this.board = board;
         this.isWhiteInCheck = checkCalculator(TeamColor.WHITE, board);
@@ -303,6 +323,7 @@ public class ChessGame  {
      *
      * @return the chessboard
      */
+
     public ChessBoard getBoard() {
         this.isWhiteInCheck = checkCalculator(TeamColor.WHITE, board);
         this.isBlackInCheck = checkCalculator(TeamColor.BLACK, board);
