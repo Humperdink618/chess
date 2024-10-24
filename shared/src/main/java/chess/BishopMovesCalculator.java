@@ -13,8 +13,10 @@ public class BishopMovesCalculator extends PieceMovesCalculator {
          call the specific function
 
         if (getPieceType() == PieceType.BISHOP) {
+
          Bishop bishop = new Bishop(pieceColor, getPieceType());
          return bishop.pieceMoves(board, myPosition);
+
           }
 
          to do -> the function calling pieceMoves doesn't know the type.

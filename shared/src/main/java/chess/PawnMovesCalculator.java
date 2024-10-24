@@ -6,19 +6,19 @@ import java.util.HashSet;
 public class PawnMovesCalculator extends PieceMovesCalculator {
 
 /*
-    // note: things are a little different for Pawn
+     note: things are a little different for Pawn
 
-    // Pawn can only move forward (i.e. the column position remains the same, unless capturing)
+     Pawn can only move forward (i.e. the column position remains the same, unless capturing)
 
-    // if path is obstructed, Pawn cannot move.
+     if path is obstructed, Pawn cannot move.
 
-    // Pawn can only capture on diagonals
+     Pawn can only capture on diagonals
     */
 
     /*
      Pawn only moves on space at a time (except on it's first ever move in the game,
-     in which if a white Pawn is on col 2 or if a black Pawn is on col 7,
-     it can either move one space or two (if not obstructed))
+        in which if a white Pawn is on col 2 or if a black Pawn is on col 7,
+        it can either move one space or two (if not obstructed))
      */
 
     /*
@@ -42,7 +42,7 @@ public class PawnMovesCalculator extends PieceMovesCalculator {
         // check color to determine direction
         if(colorIsWhite(board, myPosition)){
             /*
-           // white Pawn moves
+            white Pawn moves
 
             if(moveTwiceWhite(myPosition, board)){
                 addMovePawn(board, myPosition, moves, 1,1);
