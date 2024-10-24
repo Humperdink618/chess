@@ -18,11 +18,11 @@ public class BishopMovesCalculator extends PieceMovesCalculator {
         if (getPieceType() == PieceType.BISHOP) {
 
          Bishop bishop = new Bishop(pieceColor, getPieceType());
+         */
 
+        /*
          return bishop.pieceMoves(board, myPosition);
-
           }
-
          */
 
 /*

@@ -149,7 +149,9 @@ public class GameServiceTest {
     void joinGameFailAuth() throws Exception {
 
         Assertions.assertFalse(authDAO.empty());
+        */
 
+/*
         Assertions.assertFalse(gameDAO.empty());
         */
 
@@ -174,13 +176,17 @@ public class GameServiceTest {
     @DisplayName("Should throw an exception when joinGame() is called")
     */
 
- //        I've tested a lot of authentication errors already. Let's test for an already taken error this time!
+/*
+         I've tested a lot of authentication errors already. Let's test for an already taken error this time!
+ */
 
 /*
     void joinGameFailAlreadyTaken() throws Exception {
 
         Assertions.assertFalse(authDAO.empty());
+        */
 
+/*
         Assertions.assertFalse(gameDAO.empty());
         */
 

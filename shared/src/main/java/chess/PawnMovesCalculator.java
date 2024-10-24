@@ -49,11 +49,7 @@ public class PawnMovesCalculator extends PieceMovesCalculator {
             // white Pawn moves
 
             /*
-            if(moveTwiceWhite(myPosition, board)){
-
-                addMovePawn(board, myPosition, moves, 1,1);
-
-            }
+            if(moveTwiceWhite(myPosition, board)){ addMovePawn(board, myPosition, moves, 1,1); }
              */
             addMovePawn(board, myPosition, moves, 1,2);
         } else {
