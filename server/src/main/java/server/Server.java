@@ -2,9 +2,9 @@ package server;
 
 import com.google.gson.Gson;
 import dataaccess.*;
-import service_exception.AlreadyTakenException;
-import service_exception.BadRequestExceptionChess;
-import service_exception.UnauthorizedException;
+import exceptions.AlreadyTakenException;
+import exceptions.BadRequestExceptionChess;
+import exceptions.UnauthorizedException;
 import request.*;
 import result.CreateResult;
 import result.ListResult;

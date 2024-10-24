@@ -1,4 +1,4 @@
-package service_exception;
+package exceptions;
 
 /**
  * Indicates there was an error when a resource with the same attribute already exists,
