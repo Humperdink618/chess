@@ -2,7 +2,10 @@ package service;
 
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
+import exceptionChess.AlreadyTakenException;
+import exceptionChess.BadRequestExceptionChess;
 import dataaccess.UserDAO;
+import exceptionChess.UnauthorizedException;
 import model.AuthData;
 import model.UserData;
 import request.LoginRequest;
@@ -32,11 +35,12 @@ public class UserService {
         // note: DataAccessException inherits from Exception, so I don't actually need to specify it
         // here. Only reason I'm doing so is to show that I can throw multiple exception types via
         // comma delimitation.
-        public RegisterResult register(RegisterRequest registerRequest) throws Exception, DataAccessException {
+        public RegisterResult register(RegisterRequest registerRequest)
+                throws BadRequestExceptionChess, AlreadyTakenException, DataAccessException {
             // do request checking
             if(registerRequest.username() == null || registerRequest.password() == null
                     || registerRequest.email() == null) {
-                throw new Exception("Error: bad request");
+                throw new BadRequestExceptionChess("Error: bad request");
             }
             userDAO.getUser(registerRequest.username());
             if(userDAO.getUser(registerRequest.username()) == null){
@@ -46,18 +50,18 @@ public class UserService {
                 authDAO.createAuth(new AuthData(authToken, registerRequest.username()));
                 return new RegisterResult(registerRequest.username(), authToken);
             }
-            throw new Exception("Error: already taken");
+            throw new AlreadyTakenException("Error: already taken");
             // TODO: potentially in the future, may change the exception type
             // create authToken here
         }
-        public LoginResult login(LoginRequest loginRequest) throws Exception {
+        public LoginResult login(LoginRequest loginRequest) throws UnauthorizedException, DataAccessException {
 
             UserData userData = userDAO.getUser(loginRequest.username());
             if(userData == null){
-                throw new Exception("Error: unauthorized");
+                throw new UnauthorizedException("Error: unauthorized");
             }
             if(!Objects.equals(userData.password(), loginRequest.password())){
-                throw new Exception("Error: unauthorized");
+                throw new UnauthorizedException("Error: unauthorized");
             }
             // do password checking
             // also do request checking
@@ -66,11 +70,11 @@ public class UserService {
             return new LoginResult(loginRequest.username(), authToken);
             // create authToken here
         }
-        public void logout(LogoutRequest logoutRequest) throws Exception {
+        public void logout(LogoutRequest logoutRequest) throws UnauthorizedException, DataAccessException {
             // check if authToken is valid
             AuthData authData = authDAO.getAuth(logoutRequest.authToken());
             if(authData == null){
-                throw new Exception("Error: unauthorized");
+                throw new UnauthorizedException("Error: unauthorized");
             }
             authDAO.deleteAuth(logoutRequest.authToken());
         }

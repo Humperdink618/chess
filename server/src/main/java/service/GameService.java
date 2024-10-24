@@ -1,7 +1,11 @@
 package service;
 
 import dataaccess.AuthDAO;
+import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
+import exceptionChess.AlreadyTakenException;
+import exceptionChess.BadRequestExceptionChess;
+import exceptionChess.UnauthorizedException;
 import model.AuthData;
 import model.GameData;
 import request.CreateRequest;
@@ -23,46 +27,48 @@ public class GameService {
             this.gameDAO = gameDAO;
         }
 
-        public ListResult listGames(ListRequest listRequest) throws Exception {
+        public ListResult listGames(ListRequest listRequest) throws UnauthorizedException, DataAccessException {
             authDAO.getAuth(listRequest.authToken());
             if(authDAO.getAuth(listRequest.authToken()) == null){
-                throw new Exception("Error: unauthorized");
+                throw new UnauthorizedException("Error: unauthorized");
             }
             gameDAO.listGames();
             return new ListResult(gameDAO.listGames());
         }
 
-        public CreateResult createGame(CreateRequest createRequest) throws Exception {
+        public CreateResult createGame(CreateRequest createRequest)
+                throws BadRequestExceptionChess, UnauthorizedException, DataAccessException {
             if(createRequest.gameName() == null || createRequest.authToken() == null){
-                throw new Exception("Error: bad request");
+                throw new BadRequestExceptionChess("Error: bad request");
             }
             AuthData authData = authDAO.getAuth(createRequest.authToken());
             // do request checking
             if(authData == null){
-                throw new Exception("Error: unauthorized");
+                throw new UnauthorizedException("Error: unauthorized");
             }
             int gameID = gameDAO.createGame(createRequest.gameName());
             return new CreateResult(gameID);
             // also, may need to change the return type and parameters at some point.
         }
 
-        public void joinGame(JoinRequest joinRequest) throws Exception {
+        public void joinGame(JoinRequest joinRequest)
+                throws BadRequestExceptionChess, UnauthorizedException, AlreadyTakenException, DataAccessException {
             if(joinRequest.gameID() == null
                     || joinRequest.authToken() == null
                     || joinRequest.playerColor() == null){
-                throw new Exception("Error: bad request");
+                throw new BadRequestExceptionChess("Error: bad request");
             }
             AuthData authData = authDAO.getAuth(joinRequest.authToken());
             if(authData == null){
-                throw new Exception("Error: unauthorized");
+                throw new UnauthorizedException("Error: unauthorized");
             }
             GameData gameData = gameDAO.getGame(joinRequest.gameID());
             if(gameData == null){
-                throw new Exception("Error: bad request");
+                throw new BadRequestExceptionChess("Error: bad request");
             }
             if(Objects.equals(joinRequest.playerColor(), "WHITE")){
                 if(gameData.whiteUsername() != null){
-                    throw new Exception("Error: already taken");
+                    throw new AlreadyTakenException("Error: already taken");
                 }
                 gameDAO.updateGame(
                         new GameData(
@@ -74,7 +80,7 @@ public class GameService {
                                 ));
             } else if(Objects.equals(joinRequest.playerColor(), "BLACK")){
                 if(gameData.blackUsername() != null){
-                    throw new Exception("Error: already taken");
+                    throw new AlreadyTakenException("Error: already taken");
                 }
                 gameDAO.updateGame(
                         new GameData(
@@ -86,7 +92,7 @@ public class GameService {
                         ));
             }
             else {
-               throw new Exception("Error: bad request");
+               throw new BadRequestExceptionChess("Error: bad request");
             }
         }
 
