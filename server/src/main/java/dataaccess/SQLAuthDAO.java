@@ -1,61 +1,100 @@
 package dataaccess;
 
 import model.AuthData;
+import model.UserData;
 
 import java.sql.SQLException;
 
 public class SQLAuthDAO implements AuthDAO {
 
     public SQLAuthDAO() throws DataAccessException {
-        configureDatabase();
+        ConfigureDatabase.configureDatabase();
     }
 
     public AuthData createAuth(AuthData authData) throws DataAccessException {
-        // TODO: not implemented
-        return null;
+        String statement = "INSERT INTO authdata (authToken, username) VALUES (?, ?)";
+        try(var conn = DatabaseManager.getConnection()){
+            try (var preparedStatement
+                         = conn.prepareStatement(statement)) {
+                preparedStatement.setString(1, authData.authToken());
+                preparedStatement.setString(2, authData.username());
+
+                preparedStatement.executeUpdate();
+                // note: primary keys that are strings do not require any generated keys, so don't worry about it
+                return new AuthData(authData.authToken(), authData.username());
+            }
+        } catch (SQLException e){
+            throw new DataAccessException(
+                    String.format("Unable to update database: %s, %s", statement, e.getMessage()));
+        }
     }
 
     public AuthData getAuth(String authToken) throws DataAccessException {
-        // TODO: not implemented
+        // similar to query format
+        // try (var conn = DatabaseManager.getConnection()) {
+        String statement = "SELECT authToken, username FROM authdata WHERE authToken=?";
+        try (var conn = DatabaseManager.getConnection()){
+            try (var preparedStatement
+                         = conn.prepareStatement(statement)) {
+                preparedStatement.setString(1, authToken);
+                try (var rs = preparedStatement.executeQuery()) {
+                    while (rs.next()){
+                        String myAuthToken = rs.getString("authToken");
+                        String username = rs.getString("username");
+                        return new AuthData(myAuthToken, username);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
+        }
         return null;
     }
 
     public void deleteAuth(String authToken) throws DataAccessException {
-        // TODO: not implemented
+        String statement = "DELETE FROM authdata WHERE authToken=?";
+        try(var conn = DatabaseManager.getConnection()){
+            try (var preparedStatement
+                         = conn.prepareStatement(statement)) {
+                preparedStatement.setString(1, authToken);
+                preparedStatement.executeUpdate();
+            }
+        } catch (SQLException e){
+            throw new DataAccessException(
+                    String.format("Unable to update database: %s, %s", statement, e.getMessage()));
+        }
     }
 
     public void clear() throws DataAccessException {
-        // TODO: not implemented
+        String statement = "TRUNCATE authdata";
+        try(var conn = DatabaseManager.getConnection()){
+            try (var preparedStatement
+                         = conn.prepareStatement(statement)) {
+                preparedStatement.executeUpdate();
+            }
+        } catch (SQLException e){
+            throw new DataAccessException(
+                    String.format("Unable to update database: %s, %s", statement, e.getMessage()));
+        }
     }
 
     // for testing purposes only
     public boolean empty() {
         // TODO: not implemented
-        return false; // fix this later
-    }
-
-    private final String[] createStatementsAuth = {
-            """
-            CREATE TABLE IF NOT EXISTS authdata (
-              `authToken` varchar(100) NOT NULL,
-              `username` varchar(100), NOT NULL,
-              PRIMARY KEY (`authToken`),
-              FOREIGN KEY (`username`) REFERENCES user(username)
-            )
-            """
-    };
-    // ask TAs if this is formatted correctly
-
-    private void configureDatabase() throws DataAccessException {
-        DatabaseManager.createDatabase();
-        try (var conn = DatabaseManager.getConnection()) {
-            for (var statement : createStatementsAuth) {
-                try (var preparedStatement = conn.prepareStatement(statement)) {
-                    preparedStatement.executeUpdate();
+        // for testing purposes only
+        /*
+        String statement = "SELECT COUNT(*) FROM user";
+        try(var conn = DatabaseManager.getConnection()){
+            try (PreparedStatement preparedStatement
+                         = conn.prepareStatement(statement)) {
+                if(preparedStatement.executeQuery() = 0){
+                    return true;
                 }
             }
-        } catch (SQLException ex) {
-            throw new DataAccessException(String.format("Unable to configure database: %s", ex.getMessage()));
-        }
+        } catch (SQLException e) {
+            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
+        } */
+        return false; // fix this later
+        // SQL COUNT method might be helpful here
     }
 }

@@ -8,6 +8,7 @@ import dataaccess.UserDAO;
 import exceptions.UnauthorizedException;
 import model.AuthData;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 import request.LoginRequest;
 import request.LogoutRequest;
 import request.RegisterRequest;
@@ -39,8 +40,9 @@ public class UserService {
             }
             userDAO.getUser(registerRequest.username());
             if(userDAO.getUser(registerRequest.username()) == null){
+                String hash = BCrypt.hashpw(registerRequest.password(), BCrypt.gensalt());
                 userDAO.createUser(
-                        new UserData(registerRequest.username(), registerRequest.password(), registerRequest.email()));
+                        new UserData(registerRequest.username(), hash, registerRequest.email()));
                 String authToken = generateToken();
                 authDAO.createAuth(new AuthData(authToken, registerRequest.username()));
                 return new RegisterResult(registerRequest.username(), authToken);
@@ -54,7 +56,7 @@ public class UserService {
             if(userData == null){
                 throw new UnauthorizedException("Error: unauthorized");
             }
-            if(!Objects.equals(userData.password(), loginRequest.password())){
+            if(!BCrypt.checkpw(loginRequest.password(), userData.password())){
                 throw new UnauthorizedException("Error: unauthorized");
             }
             // do password checking
