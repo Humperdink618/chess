@@ -14,7 +14,6 @@ import request.LogoutRequest;
 import request.RegisterRequest;
 import result.LoginResult;
 import result.RegisterResult;
-import java.util.Objects;
 import java.util.UUID;
 
 public class UserService {
