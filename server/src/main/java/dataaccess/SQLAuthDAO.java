@@ -3,6 +3,7 @@ package dataaccess;
 import model.AuthData;
 import model.UserData;
 
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class SQLAuthDAO implements AuthDAO {
@@ -80,21 +81,22 @@ public class SQLAuthDAO implements AuthDAO {
 
     // for testing purposes only
     public boolean empty() {
-        // TODO: not implemented
-        // for testing purposes only
-        /*
-        String statement = "SELECT COUNT(*) FROM user";
+        String statement = "SELECT COUNT(*) FROM authdata";
         try(var conn = DatabaseManager.getConnection()){
             try (PreparedStatement preparedStatement
                          = conn.prepareStatement(statement)) {
-                if(preparedStatement.executeQuery() = 0){
-                    return true;
+                try(var rs = preparedStatement.executeQuery()) {
+                    if(!rs.next()){
+                        return true;
+                    }
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
-        } */
-        return false; // fix this later
+            System.out.println("Error connecting to the Server");
+        } catch (DataAccessException ex) {
+            System.out.println("Unable to read data");
+        }
+        return false;
         // SQL COUNT method might be helpful here
     }
 }

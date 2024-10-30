@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import model.GameData;
 import model.UserData;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
@@ -24,7 +25,7 @@ public class SQLGameDAO implements GameDAO {
         ChessGame myGame = new ChessGame();
         String game = new Gson().toJson(myGame);
         int gameID = executeUpdate(statement, null, null, gameName, game);
-        GameData gameData = new GameData(gameID, null, null, gameName, myGame);
+        // GameData gameData = new GameData(gameID, null, null, gameName, myGame);
         return gameID;
     }
 
@@ -56,13 +57,17 @@ public class SQLGameDAO implements GameDAO {
     }
 
     public void updateGame(GameData gameData) throws DataAccessException {
-        String statement = "UPDATE gamedata SET game=? WHERE gameID=?";
+        String statement = "UPDATE gamedata SET whiteUsername=?, " +
+                "blackUsername=?, gameName=?, game=? WHERE gameID=?";
         try (var conn = DatabaseManager.getConnection()){
             try (var preparedStatement
                          = conn.prepareStatement(statement)) {
                 String game = new Gson().toJson(gameData.game());
-                preparedStatement.setString(1, game);
-                preparedStatement.setInt(2, gameData.gameID());
+                preparedStatement.setString(1, gameData.whiteUsername());
+                preparedStatement.setString(2, gameData.blackUsername());
+                preparedStatement.setString(3, gameData.gameName());
+                preparedStatement.setString(4, game);
+                preparedStatement.setInt(5, gameData.gameID());
 
                 preparedStatement.executeUpdate();
             }
@@ -114,23 +119,24 @@ public class SQLGameDAO implements GameDAO {
 
     // for testing purposes only
     public boolean empty() {
-        // TODO: not implemented
-        // for testing purposes only
-        /*
-        String statement = "SELECT COUNT(*) FROM user";
+        String statement = "SELECT COUNT(*) FROM gamedata";
         try(var conn = DatabaseManager.getConnection()){
             try (PreparedStatement preparedStatement
-                         = conn.prepareStatement(statement)) {
-                if(preparedStatement.executeQuery() = 0){
-                    return true;
+                             = conn.prepareStatement(statement)) {
+                try(var rs = preparedStatement.executeQuery()) {
+                    if(!rs.next()){
+                        return true;
+                    }
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
-        } */
-        return false; // fix this later
-        // SQL COUNT method might be helpful here
-    }
+            System.out.println("Error connecting to the Server");
+        } catch (DataAccessException ex) {
+            System.out.println("Unable to read data");
+        }
+        return false;
+            // SQL COUNT method might be helpful here
+        }
 
     private int executeUpdate(String statement, Object... params) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
