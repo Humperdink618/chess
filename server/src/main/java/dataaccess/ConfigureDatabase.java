@@ -7,30 +7,27 @@ public class ConfigureDatabase {
     private static final String[] CREATE_STATEMENTS = {
             """
             CREATE TABLE IF NOT EXISTS user (
-              `username` varchar(100) NOT NULL,
-              `password` varchar(100) NOT NULL,
-              `email` varchar(100) NOT NULL,
-              PRIMARY KEY (`username`)
+              username VARCHAR(100) NOT NULL,
+              password VARCHAR(100) NOT NULL,
+              email VARCHAR(100) NOT NULL,
+              PRIMARY KEY (username)
             )
             """,
             """
             CREATE TABLE IF NOT EXISTS authdata (
-              `authToken` varchar(100) NOT NULL,
-              `username` varchar(100), NOT NULL,
-              PRIMARY KEY (`authToken`),
-              FOREIGN KEY (`username`) REFERENCES user(username)
+              authToken VARCHAR(100) NOT NULL,
+              username VARCHAR(100) NOT NULL,
+              PRIMARY KEY (authToken)
             )
             """,
             """
             CREATE TABLE IF NOT EXISTS gamedata (
-              `gameID` int(100) NOT NULL AUTO_INCREMENT,
-              `whiteUsername` varchar(100),
-              `blackUsername` varchar(100),
-              `gameName varchar(100) NOT NULL,
-              `game` LONGTEXT NOT NULL,
-              PRIMARY KEY (`gameID`),
-              FOREIGN KEY (`whiteUsername`) REFERENCES user(username),
-              FOREIGN KEY (`blackUsername`) REFERENCES user(username)
+              gameID INT(100) NOT NULL AUTO_INCREMENT,
+              whiteUsername VARCHAR(100),
+              blackUsername VARCHAR(100),
+              gameName VARCHAR(100) NOT NULL,
+              game LONGTEXT NOT NULL,
+              PRIMARY KEY (gameID)
             )
             """
     };

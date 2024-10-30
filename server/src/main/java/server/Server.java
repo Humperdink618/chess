@@ -19,10 +19,24 @@ import java.util.Map;
 
 
 public class Server {
-    private UserDAO userDAO = new MemoryUserDAO();
-    private AuthDAO authDAO = new MemoryAuthDAO();
-    private GameDAO gameDAO = new MemoryGameDAO();
-    // for Phase 4, eventually change these
+
+    private UserDAO userDAO;
+    private AuthDAO authDAO;
+    private GameDAO gameDAO;
+
+    public Server() {
+        try {
+            userDAO = new SQLUserDAO();
+            // userDAO = new MemoryUserDAO();
+            authDAO = new SQLAuthDAO();
+            // authDAO = new MemoryAuthDAO();
+            gameDAO = new SQLGameDAO();
+            // gameDAO = new MemoryGameDAO();
+
+        } catch(DataAccessException ex) {
+            System.out.printf("Error creating database: %s", ex.getMessage());
+        }
+    }
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
