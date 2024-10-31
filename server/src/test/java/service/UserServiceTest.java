@@ -4,6 +4,8 @@ import dataaccess.DataAccessException;
 import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryGameDAO;
 import dataaccess.MemoryUserDAO;
+import exceptions.AlreadyTakenException;
+import exceptions.BadRequestExceptionChess;
 import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.*;
@@ -21,9 +23,10 @@ public class UserServiceTest {
     static ClearService clearService = new ClearService(userDAO, new MemoryGameDAO(), authDAO);
 
     @BeforeEach
-    public void setUp() throws DataAccessException {
+    public void setUp() throws DataAccessException, BadRequestExceptionChess, AlreadyTakenException {
         clearService.clear();
-        userDAO.createUser(user1);
+        //userDAO.createUser(user1);
+        userService.register(new RegisterRequest(user1.username(), user1.password(), user1.email()));
     }
 
     @AfterAll
@@ -58,6 +61,7 @@ public class UserServiceTest {
     @Test
     @DisplayName("Should log in an existing user and return a new authToken when login() is called")
     void loginPass() throws Exception {
+
         LoginRequest goodReq = new LoginRequest("Fido", "BigChungas");
         Assertions.assertFalse(userDAO.empty());
         userService.login(goodReq);
@@ -84,7 +88,7 @@ public class UserServiceTest {
         Assertions.assertFalse(userDAO.empty());
         Assertions.assertFalse(authDAO.empty());
         userService.logout(goodReq);
-        Assertions.assertTrue(authDAO.empty());
+        Assertions.assertTrue(authDAO.getAuth("LOLIAmAuthToken") == null);
     }
 
     @Test
