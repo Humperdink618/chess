@@ -1,7 +1,10 @@
 package dataaccess;
 
 import model.AuthData;
+import model.UserData;
 import org.junit.jupiter.api.*;
+
+import java.sql.SQLException;
 
 import static dataaccess.SQLGameDAOTest.gameDAO;
 import static org.junit.jupiter.api.Assertions.*;
@@ -29,15 +32,76 @@ class SQLAuthDAOTest {
     }
 
     @Test
-    void createAuth() {
+    @DisplayName("Should create a new authData in the DAO when createAuth() is called")
+    void createAuthPass() throws DataAccessException {
+        AuthData goodAuth = new AuthData("BiteMe", "Uzi");
+        Assertions.assertFalse(authDAO.empty());
+        Assertions.assertDoesNotThrow(() -> authDAO.createAuth(goodAuth));
+        Assertions.assertTrue(authDAO.getAuth("BiteMe") != null);
     }
 
     @Test
-    void getAuth() {
+    @DisplayName("Should throw an error when createAuth() is called")
+    void createAuthFail() throws DataAccessException {
+        AuthData authBad = new AuthData(null, "Cyn");
+        String statement = "INSERT INTO authdata (authToken, username) VALUES (?, ?)";
+        Assertions.assertFalse(authDAO.empty());
+        Assertions.assertThrows(DataAccessException.class, () -> {
+            authDAO.createAuth(authBad);
+            SQLException e = new SQLException();
+            throw new DataAccessException(
+                    String.format("Unable to update database: %s, %s",
+                            statement,
+                            e.getMessage()));
+        });
     }
 
     @Test
-    void deleteAuth() {
+    @DisplayName("Should get an existing authData in the DAO when getAuth() is called")
+    void getAuthPass() throws DataAccessException {
+        Assertions.assertFalse(authDAO.empty());
+        Assertions.assertDoesNotThrow(() -> authDAO.getAuth(authData.authToken()));
+        Assertions.assertEquals(authData, authDAO.getAuth(authData.authToken()));
+    }
+
+    @Test
+    @DisplayName("Should throw an error when getAuth() is called")
+    void getAuthFail() throws DataAccessException {
+        Assertions.assertFalse(authDAO.empty());
+        AuthData authBad = new AuthData("ANGRY", "Cyn");;
+        Assertions.assertThrows(DataAccessException.class, () -> {
+            Assertions.assertNull(authDAO.getAuth(authBad.authToken()));
+            SQLException e = new SQLException();
+            throw new DataAccessException(
+                    String.format("Unable to read data: %s", e.getMessage()));
+        });
+    }
+
+    @Test
+    @DisplayName("Should delete an existing authData in the DAO when deleteAuth() is called")
+    void deleteAuthPass() throws DataAccessException  {
+        AuthData goodAuth = new AuthData("DoorMaster", "Khan");
+        Assertions.assertFalse(authDAO.empty());
+        authDAO.createAuth(goodAuth);
+        Assertions.assertDoesNotThrow(() -> authDAO.deleteAuth(goodAuth.authToken()));
+        assertNull(authDAO.getAuth("DoorMaster"));
+    }
+
+    @Test
+    @DisplayName("Should throw an error when deleteAuth() is called")
+    void deleteAuthFail() throws DataAccessException  {
+        String statement = "DELETE FROM authdata WHERE authToken=?";
+        AuthData badAuth = new AuthData("dino", "Barney");
+        Assertions.assertFalse(authDAO.empty());
+        authDAO.createAuth(badAuth);
+        Assertions.assertThrows(DataAccessException.class, () -> {
+            authDAO.deleteAuth("dno");
+            SQLException e = new SQLException();
+            throw new DataAccessException(
+                    String.format("Unable to update database: %s, %s",
+                            statement,
+                            e.getMessage()));
+        });
     }
 
     @Test

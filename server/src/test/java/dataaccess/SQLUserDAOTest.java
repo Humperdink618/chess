@@ -36,8 +36,6 @@ class SQLUserDAOTest {
         Assertions.assertFalse(userDAO.empty());
         Assertions.assertDoesNotThrow(() -> userDAO.createUser(userGood));
         Assertions.assertTrue(userDAO.getUser("N") != null);
-
-
     }
 
     @Test
@@ -54,7 +52,6 @@ class SQLUserDAOTest {
                             statement,
                             e.getMessage()));
         });
-
     }
 
     @Test
@@ -71,7 +68,7 @@ class SQLUserDAOTest {
         Assertions.assertFalse(userDAO.empty());
         UserData userBad = new UserData("Cyn", "getSnuckUpon", "annoyedExpression");
         Assertions.assertThrows(DataAccessException.class, () -> {
-            userDAO.createUser(userBad);
+            assertNull(userDAO.getUser(userBad.username()));
             SQLException e = new SQLException();
             throw new DataAccessException(
                     String.format("Unable to read data: %s", e.getMessage()));
