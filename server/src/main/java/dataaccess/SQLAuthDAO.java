@@ -85,8 +85,8 @@ public class SQLAuthDAO implements AuthDAO {
             try (PreparedStatement preparedStatement
                          = conn.prepareStatement(statement)) {
                 try(var rs = preparedStatement.executeQuery()) {
-                    if(!rs.next()){
-                        return true;
+                    if(rs.next()){
+                        return rs.getInt(1) == 0;
                     }
                 }
             }

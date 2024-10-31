@@ -123,8 +123,8 @@ public class SQLGameDAO implements GameDAO {
             try (PreparedStatement preparedStatement
                              = conn.prepareStatement(statement)) {
                 try(var rs = preparedStatement.executeQuery()) {
-                    if(!rs.next()){
-                        return true;
+                    if(rs.next()){
+                        return rs.getInt(1) == 0;
                     }
                 }
             }
