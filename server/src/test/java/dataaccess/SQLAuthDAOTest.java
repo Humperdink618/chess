@@ -68,7 +68,7 @@ class SQLAuthDAOTest {
     @DisplayName("Should throw an error when getAuth() is called")
     void getAuthFail() throws DataAccessException {
         Assertions.assertFalse(authDAO.empty());
-        AuthData authBad = new AuthData("ANGRY", "Cyn");;
+        AuthData authBad = new AuthData("ANGRY", "Cyn");
         Assertions.assertThrows(DataAccessException.class, () -> {
             Assertions.assertNull(authDAO.getAuth(authBad.authToken()));
             SQLException e = new SQLException();
@@ -84,7 +84,7 @@ class SQLAuthDAOTest {
         Assertions.assertFalse(authDAO.empty());
         authDAO.createAuth(goodAuth);
         Assertions.assertDoesNotThrow(() -> authDAO.deleteAuth(goodAuth.authToken()));
-        assertNull(authDAO.getAuth("DoorMaster"));
+        assertNull(authDAO.getAuth(goodAuth.authToken()));
     }
 
     @Test
@@ -96,6 +96,8 @@ class SQLAuthDAOTest {
         authDAO.createAuth(badAuth);
         Assertions.assertThrows(DataAccessException.class, () -> {
             authDAO.deleteAuth("dno");
+            // shows that badAuth has not been deleted
+            Assertions.assertNotNull(authDAO.getAuth(badAuth.authToken()));
             SQLException e = new SQLException();
             throw new DataAccessException(
                     String.format("Unable to update database: %s, %s",
