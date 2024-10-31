@@ -1,5 +1,6 @@
 package dataaccess;
 
+import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.*;
 
@@ -28,7 +29,13 @@ class SQLGameDAOTest {
     }
 
     @Test
-    void createGame() {
+    @DisplayName("Should create a new gameData in the DAO when createGame() is called")
+    void createGamePass() throws DataAccessException {
+    }
+
+    @Test
+    @DisplayName("Should throw an error when createGame() is called")
+    void createGameFail() throws DataAccessException {
     }
 
     @Test
