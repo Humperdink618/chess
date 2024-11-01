@@ -1,9 +1,7 @@
 package dataaccess;
 
 import chess.*;
-import model.AuthData;
 import model.GameData;
-import model.UserData;
 import org.junit.jupiter.api.*;
 
 import java.sql.SQLException;
@@ -54,9 +52,7 @@ class SQLGameDAOTest {
             Assertions.assertEquals(0, badGame);
             SQLException e = new SQLException();
             throw new DataAccessException(
-                    String.format("Unable to update database: %s, %s",
-                            statement,
-                            e.getMessage()));
+                    String.format("Unable to update database: %s, %s", statement, e.getMessage()));
         });
     }
 
@@ -116,7 +112,8 @@ class SQLGameDAOTest {
     @DisplayName("Should throw an error when updateGame() is called")
     void updateGameFail() throws DataAccessException {
         Assertions.assertFalse(gameDAO.empty());
-        GameData badGame = new GameData(gameID, null, "Cyn", null, new ChessGame());
+        GameData badGame
+                = new GameData(gameID, null, "Cyn", null, new ChessGame());
         Assertions.assertThrows(DataAccessException.class, () -> {
             gameDAO.updateGame(badGame);
             SQLException e = new SQLException();

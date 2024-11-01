@@ -13,9 +13,8 @@ public class SQLUserDAO implements UserDAO {
 
     public void createUser(UserData userData) throws DataAccessException {
         String statement = "INSERT INTO user (username, password, email) VALUES (?, ?, ?)";
-        try(var conn = DatabaseManager.getConnection()){
-            try (var preparedStatement
-                         = conn.prepareStatement(statement)) {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            try (PreparedStatement preparedStatement = conn.prepareStatement(statement)) {
                 preparedStatement.setString(1, userData.username());
                 preparedStatement.setString(2, userData.password());
                 preparedStatement.setString(3, userData.email());
@@ -23,7 +22,7 @@ public class SQLUserDAO implements UserDAO {
                 preparedStatement.executeUpdate();
                 // note: primary keys that are strings do not require any generated keys, so don't worry about it
             }
-        } catch (SQLException e){
+        } catch (SQLException e) {
             throw new DataAccessException(
                     String.format("Unable to update database: %s, %s", statement, e.getMessage()));
         }
@@ -32,12 +31,11 @@ public class SQLUserDAO implements UserDAO {
     public UserData getUser(String username) throws DataAccessException {
         // similar to query format
         String statement = "SELECT username, password, email FROM user WHERE username=?";
-        try (var conn = DatabaseManager.getConnection()){
-            try (var preparedStatement
-                         = conn.prepareStatement(statement)) {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            try (PreparedStatement preparedStatement = conn.prepareStatement(statement)) {
                 preparedStatement.setString(1, username);
-               try (var rs = preparedStatement.executeQuery()) {
-                   while (rs.next()){
+               try (ResultSet rs = preparedStatement.executeQuery()) {
+                   while (rs.next()) {
                        String myUsername = rs.getString("username");
                        String password = rs.getString("password");
                        String email = rs.getString("email");
@@ -53,30 +51,27 @@ public class SQLUserDAO implements UserDAO {
 
     public void clear() throws DataAccessException {
       //  var statement = "TRUNCATE TABLE user";
-     //   executeUpdate(statement);
        // String statement = "DELETE FROM user";
         String statement = "TRUNCATE user";
-        try(var conn = DatabaseManager.getConnection()){
-            try (var preparedStatement
-                         = conn.prepareStatement(statement)) {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            try (PreparedStatement preparedStatement = conn.prepareStatement(statement)) {
                 preparedStatement.executeUpdate();
             }
-        } catch (SQLException e){
+        } catch (SQLException e) {
             throw new DataAccessException(
                     String.format("Unable to update database: %s, %s", statement, e.getMessage()));
         }
     }
 
     @Override
-    public boolean empty() /*throws DataAccessException */{
+    public boolean empty() {
         // for testing purposes only
 
         String statement = "SELECT COUNT(*) FROM user";
-        try(var conn = DatabaseManager.getConnection()){
-            try (PreparedStatement preparedStatement
-                         = conn.prepareStatement(statement)) {
+        try (var conn = DatabaseManager.getConnection()) {
+            try (PreparedStatement preparedStatement = conn.prepareStatement(statement)) {
                 try(var rs = preparedStatement.executeQuery()) {
-                    if(rs.next()){
+                    if (rs.next()) {
                         return rs.getInt(1) == 0;
                     }
                 }

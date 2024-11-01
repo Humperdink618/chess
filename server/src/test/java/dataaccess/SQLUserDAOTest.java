@@ -25,14 +25,13 @@ class SQLUserDAOTest {
     @AfterEach
     public void tearDown() throws DataAccessException {
         userDAO.clear();
-
     }
-
 
     @Test
     @DisplayName("Should create a new user in the DAO when createUser() is called")
     void createUserTestPass() throws DataAccessException {
-        UserData userGood = new UserData("N", "goldenRetrieversRAwesome", "GoodBoiN@JCJenson.com");
+        UserData userGood
+                = new UserData("N", "goldenRetrieversRAwesome", "GoodBoiN@JCJenson.com");
         Assertions.assertFalse(userDAO.empty());
         Assertions.assertDoesNotThrow(() -> userDAO.createUser(userGood));
         Assertions.assertTrue(userDAO.getUser("N") != null);
@@ -40,7 +39,7 @@ class SQLUserDAOTest {
 
     @Test
     @DisplayName("Should throw an error when createUser() is called")
-    void createUserTestFail() throws DataAccessException, SQLException {
+    void createUserTestFail() throws DataAccessException {
         UserData userBad = new UserData("Cyn", "getSnuckUpon", null);
         String statement = "INSERT INTO user (username, password, email) VALUES (?, ?, ?)";
         Assertions.assertFalse(userDAO.empty());
@@ -48,9 +47,7 @@ class SQLUserDAOTest {
             userDAO.createUser(userBad);
             SQLException e = new SQLException();
             throw new DataAccessException(
-                    String.format("Unable to update database: %s, %s",
-                            statement,
-                            e.getMessage()));
+                    String.format("Unable to update database: %s, %s", statement, e.getMessage()));
         });
     }
 
@@ -70,8 +67,7 @@ class SQLUserDAOTest {
         Assertions.assertThrows(DataAccessException.class, () -> {
             assertNull(userDAO.getUser(userBad.username()));
             SQLException e = new SQLException();
-            throw new DataAccessException(
-                    String.format("Unable to read data: %s", e.getMessage()));
+            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
         });
     }
 

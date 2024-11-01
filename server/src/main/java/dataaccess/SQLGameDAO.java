@@ -4,6 +4,7 @@ import chess.ChessGame;
 import com.google.gson.Gson;
 import model.GameData;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -30,11 +31,11 @@ public class SQLGameDAO implements GameDAO {
 
     public Collection<GameData> listGames() throws DataAccessException {
         Collection<GameData> myGames = new HashSet<>();
-        try (var conn = DatabaseManager.getConnection()) {
+        try (Connection conn = DatabaseManager.getConnection()) {
             String statement = "SELECT gameID, whiteUsername, blackUsername, gameName FROM gamedata";
-            try (var ps = conn.prepareStatement(statement)) {
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 try (ResultSet rs = ps.executeQuery()) {
-                    while (rs.next()){
+                    while (rs.next()) {
                         myGames.add(readGame(rs));
                     }
                 }
@@ -58,9 +59,8 @@ public class SQLGameDAO implements GameDAO {
     public void updateGame(GameData gameData) throws DataAccessException {
         String statement = "UPDATE gamedata SET whiteUsername=?, " +
                 "blackUsername=?, gameName=?, game=? WHERE gameID=?";
-        try (var conn = DatabaseManager.getConnection()){
-            try (var preparedStatement
-                         = conn.prepareStatement(statement)) {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            try (PreparedStatement preparedStatement = conn.prepareStatement(statement)) {
                 String game = new Gson().toJson(gameData.game());
                 preparedStatement.setString(1, gameData.whiteUsername());
                 preparedStatement.setString(2, gameData.blackUsername());
@@ -73,17 +73,15 @@ public class SQLGameDAO implements GameDAO {
         } catch (SQLException e) {
             String.format("Unable to update database: %s, %s", statement, e.getMessage());
         }
-
     }
 
     public GameData getGame(int gameID) throws DataAccessException {
         String statement = "SELECT gameID, whiteUsername, blackUsername, gameName, game FROM gamedata WHERE gameID=?";
-        try (var conn = DatabaseManager.getConnection()){
-            try (var preparedStatement
-                         = conn.prepareStatement(statement)) {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            try (PreparedStatement preparedStatement = conn.prepareStatement(statement)) {
                 preparedStatement.setInt(1, gameID);
-                try (var rs = preparedStatement.executeQuery()) {
-                    while (rs.next()){
+                try (ResultSet rs = preparedStatement.executeQuery()) {
+                    while (rs.next()) {
                         int myGameID = rs.getInt("gameID");
                         String whiteUsername = rs.getString("whiteUsername");
                         String blackUsername = rs.getString("blackUsername");
@@ -102,15 +100,13 @@ public class SQLGameDAO implements GameDAO {
 
     public void clear() throws DataAccessException {
         //  var statement = "TRUNCATE TABLE user";
-        //   executeUpdate(statement);
         // String statement = "DELETE FROM user";
         String statement = "TRUNCATE gamedata";
-        try(var conn = DatabaseManager.getConnection()){
-            try (var preparedStatement
-                         = conn.prepareStatement(statement)) {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            try (PreparedStatement preparedStatement = conn.prepareStatement(statement)) {
                 preparedStatement.executeUpdate();
             }
-        } catch (SQLException e){
+        } catch (SQLException e) {
             throw new DataAccessException(
                     String.format("Unable to update database: %s, %s", statement, e.getMessage()));
         }
@@ -119,11 +115,10 @@ public class SQLGameDAO implements GameDAO {
     // for testing purposes only
     public boolean empty() {
         String statement = "SELECT COUNT(*) FROM gamedata";
-        try(var conn = DatabaseManager.getConnection()){
-            try (PreparedStatement preparedStatement
-                             = conn.prepareStatement(statement)) {
-                try(var rs = preparedStatement.executeQuery()) {
-                    if(rs.next()){
+        try (Connection conn = DatabaseManager.getConnection()) {
+            try (PreparedStatement preparedStatement = conn.prepareStatement(statement)) {
+                try (ResultSet rs = preparedStatement.executeQuery()) {
+                    if(rs.next()) {
                         return rs.getInt(1) == 0;
                     }
                 }
@@ -138,11 +133,11 @@ public class SQLGameDAO implements GameDAO {
         }
 
     private int executeUpdate(String statement, Object... params) throws DataAccessException {
-        try (var conn = DatabaseManager.getConnection()) {
-            try (var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
-                for (var i = 0; i < params.length; i++) {
-                    var param = params[i];
-                    if (param instanceof String p){
+        try (Connection conn = DatabaseManager.getConnection()) {
+            try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
+                for (int i = 0; i < params.length; i++) {
+                    Object param = params[i];
+                    if (param instanceof String p) {
                         ps.setString(i + 1, p);
                     }
                     else if (param instanceof Integer p) {
@@ -154,11 +149,10 @@ public class SQLGameDAO implements GameDAO {
                 }
                 ps.executeUpdate();
 
-                var rs = ps.getGeneratedKeys();
+                ResultSet rs = ps.getGeneratedKeys();
                 if (rs.next()) {
                     return rs.getInt(1);
                 }
-
                 return 0;
             }
         } catch (SQLException e) {
@@ -167,5 +161,4 @@ public class SQLGameDAO implements GameDAO {
                     e.getMessage()));
         }
     }
-
 }

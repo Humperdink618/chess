@@ -1,13 +1,11 @@
 package dataaccess;
 
 import model.AuthData;
-import model.UserData;
 import org.junit.jupiter.api.*;
 
 import java.sql.SQLException;
-
-import static dataaccess.SQLGameDAOTest.gameDAO;
 import static org.junit.jupiter.api.Assertions.*;
+
 class SQLAuthDAOTest {
 
     static SQLAuthDAO authDAO;
@@ -28,7 +26,6 @@ class SQLAuthDAOTest {
     @AfterEach
     public void tearDown() throws DataAccessException {
         authDAO.clear();
-
     }
 
     @Test
@@ -37,7 +34,7 @@ class SQLAuthDAOTest {
         AuthData goodAuth = new AuthData("BiteMe", "Uzi");
         Assertions.assertFalse(authDAO.empty());
         Assertions.assertDoesNotThrow(() -> authDAO.createAuth(goodAuth));
-        Assertions.assertTrue(authDAO.getAuth("BiteMe") != null);
+        assertNotNull(authDAO.getAuth("BiteMe"));
     }
 
     @Test
@@ -50,9 +47,7 @@ class SQLAuthDAOTest {
             authDAO.createAuth(authBad);
             SQLException e = new SQLException();
             throw new DataAccessException(
-                    String.format("Unable to update database: %s, %s",
-                            statement,
-                            e.getMessage()));
+                    String.format("Unable to update database: %s, %s", statement, e.getMessage()));
         });
     }
 
@@ -72,8 +67,7 @@ class SQLAuthDAOTest {
         Assertions.assertThrows(DataAccessException.class, () -> {
             Assertions.assertNull(authDAO.getAuth(authBad.authToken()));
             SQLException e = new SQLException();
-            throw new DataAccessException(
-                    String.format("Unable to read data: %s", e.getMessage()));
+            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
         });
     }
 
@@ -100,9 +94,7 @@ class SQLAuthDAOTest {
             Assertions.assertNotNull(authDAO.getAuth(badAuth.authToken()));
             SQLException e = new SQLException();
             throw new DataAccessException(
-                    String.format("Unable to update database: %s, %s",
-                            statement,
-                            e.getMessage()));
+                    String.format("Unable to update database: %s, %s", statement, e.getMessage()));
         });
     }
 

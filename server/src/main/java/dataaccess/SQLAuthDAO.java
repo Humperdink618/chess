@@ -2,7 +2,9 @@ package dataaccess;
 
 import model.AuthData;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class SQLAuthDAO implements AuthDAO {
@@ -13,9 +15,8 @@ public class SQLAuthDAO implements AuthDAO {
 
     public AuthData createAuth(AuthData authData) throws DataAccessException {
         String statement = "INSERT INTO authdata (authToken, username) VALUES (?, ?)";
-        try(var conn = DatabaseManager.getConnection()){
-            try (var preparedStatement
-                         = conn.prepareStatement(statement)) {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            try (PreparedStatement preparedStatement = conn.prepareStatement(statement)) {
                 preparedStatement.setString(1, authData.authToken());
                 preparedStatement.setString(2, authData.username());
 
@@ -23,7 +24,7 @@ public class SQLAuthDAO implements AuthDAO {
                 // note: primary keys that are strings do not require any generated keys, so don't worry about it
                 return new AuthData(authData.authToken(), authData.username());
             }
-        } catch (SQLException e){
+        } catch (SQLException e) {
             throw new DataAccessException(
                     String.format("Unable to update database: %s, %s", statement, e.getMessage()));
         }
@@ -33,12 +34,11 @@ public class SQLAuthDAO implements AuthDAO {
         // similar to query format
         // try (var conn = DatabaseManager.getConnection()) {
         String statement = "SELECT authToken, username FROM authdata WHERE authToken=?";
-        try (var conn = DatabaseManager.getConnection()){
-            try (var preparedStatement
-                         = conn.prepareStatement(statement)) {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            try (PreparedStatement preparedStatement = conn.prepareStatement(statement)) {
                 preparedStatement.setString(1, authToken);
-                try (var rs = preparedStatement.executeQuery()) {
-                    while (rs.next()){
+                try (ResultSet rs = preparedStatement.executeQuery()) {
+                    while (rs.next()) {
                         String myAuthToken = rs.getString("authToken");
                         String username = rs.getString("username");
                         return new AuthData(myAuthToken, username);
@@ -53,13 +53,12 @@ public class SQLAuthDAO implements AuthDAO {
 
     public void deleteAuth(String authToken) throws DataAccessException {
         String statement = "DELETE FROM authdata WHERE authToken=?";
-        try(var conn = DatabaseManager.getConnection()){
-            try (var preparedStatement
-                         = conn.prepareStatement(statement)) {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            try (PreparedStatement preparedStatement = conn.prepareStatement(statement)) {
                 preparedStatement.setString(1, authToken);
                 preparedStatement.executeUpdate();
             }
-        } catch (SQLException e){
+        } catch (SQLException e) {
             throw new DataAccessException(
                     String.format("Unable to update database: %s, %s", statement, e.getMessage()));
         }
@@ -67,12 +66,11 @@ public class SQLAuthDAO implements AuthDAO {
 
     public void clear() throws DataAccessException {
         String statement = "TRUNCATE authdata";
-        try(var conn = DatabaseManager.getConnection()){
-            try (var preparedStatement
-                         = conn.prepareStatement(statement)) {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            try (PreparedStatement preparedStatement = conn.prepareStatement(statement)) {
                 preparedStatement.executeUpdate();
             }
-        } catch (SQLException e){
+        } catch (SQLException e) {
             throw new DataAccessException(
                     String.format("Unable to update database: %s, %s", statement, e.getMessage()));
         }
@@ -81,11 +79,10 @@ public class SQLAuthDAO implements AuthDAO {
     // for testing purposes only
     public boolean empty() {
         String statement = "SELECT COUNT(*) FROM authdata";
-        try(var conn = DatabaseManager.getConnection()){
-            try (PreparedStatement preparedStatement
-                         = conn.prepareStatement(statement)) {
-                try(var rs = preparedStatement.executeQuery()) {
-                    if(rs.next()){
+        try (Connection conn = DatabaseManager.getConnection()) {
+            try (PreparedStatement preparedStatement = conn.prepareStatement(statement)) {
+                try (ResultSet rs = preparedStatement.executeQuery()) {
+                    if (rs.next()) {
                         return rs.getInt(1) == 0;
                     }
                 }
