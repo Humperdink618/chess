@@ -30,7 +30,6 @@ public class MemoryGameDAO implements GameDAO {
 
     public void updateGame(GameData gameData){
         games.put(gameData.gameID(), gameData);
-        // TODO eventually update in database
     }
 
     public GameData getGame(int gameID){
