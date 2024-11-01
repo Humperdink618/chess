@@ -1,5 +1,6 @@
 package dataaccess;
 
+import java.io.InputStream;
 import java.sql.*;
 import java.util.Properties;
 
@@ -14,7 +15,7 @@ public class DatabaseManager {
      */
     static {
         try {
-            try (var propStream =
+            try (InputStream propStream =
                          Thread.currentThread().getContextClassLoader().getResourceAsStream("db.properties")) {
                 if (propStream == null) {
                     throw new Exception("Unable to load db.properties");
@@ -25,8 +26,8 @@ public class DatabaseManager {
                 USER = props.getProperty("db.user");
                 PASSWORD = props.getProperty("db.password");
 
-                var host = props.getProperty("db.host");
-                var port = Integer.parseInt(props.getProperty("db.port"));
+                String host = props.getProperty("db.host");
+                int port = Integer.parseInt(props.getProperty("db.port"));
                 CONNECTION_URL = String.format("jdbc:mysql://%s:%d", host, port);
             }
         } catch (Exception ex) {
@@ -39,9 +40,9 @@ public class DatabaseManager {
      */
     static void createDatabase() throws DataAccessException {
         try {
-            var statement = "CREATE DATABASE IF NOT EXISTS " + DATABASE_NAME;
-            var conn = DriverManager.getConnection(CONNECTION_URL, USER, PASSWORD);
-            try (var preparedStatement = conn.prepareStatement(statement)) {
+            String statement = "CREATE DATABASE IF NOT EXISTS " + DATABASE_NAME;
+            Connection conn = DriverManager.getConnection(CONNECTION_URL, USER, PASSWORD);
+            try (PreparedStatement preparedStatement = conn.prepareStatement(statement)) {
                 preparedStatement.executeUpdate();
             }
         } catch (SQLException e) {
@@ -63,7 +64,7 @@ public class DatabaseManager {
      */
     static Connection getConnection() throws DataAccessException {
         try {
-            var conn = DriverManager.getConnection(CONNECTION_URL, USER, PASSWORD);
+            Connection conn = DriverManager.getConnection(CONNECTION_URL, USER, PASSWORD);
             conn.setCatalog(DATABASE_NAME);
             return conn;
         } catch (SQLException e) {
