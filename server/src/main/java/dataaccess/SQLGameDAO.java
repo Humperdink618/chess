@@ -118,7 +118,7 @@ public class SQLGameDAO implements GameDAO {
         try (Connection conn = DatabaseManager.getConnection()) {
             try (PreparedStatement preparedStatement = conn.prepareStatement(statement)) {
                 try (ResultSet rs = preparedStatement.executeQuery()) {
-                    if(rs.next()) {
+                    if (rs.next()) {
                         return rs.getInt(1) == 0;
                     }
                 }

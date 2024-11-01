@@ -80,7 +80,7 @@ public class SQLAuthDAO implements AuthDAO {
     public boolean empty() {
         String statement = "SELECT COUNT(*) FROM authdata";
         try (Connection conn = DatabaseManager.getConnection()) {
-            try (PreparedStatement preparedStatement = conn.prepareStatement(statement)) {
+            try (var preparedStatement = conn.prepareStatement(statement)) {
                 try (ResultSet rs = preparedStatement.executeQuery()) {
                     if (rs.next()) {
                         return rs.getInt(1) == 0;

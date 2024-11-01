@@ -68,9 +68,9 @@ public class SQLUserDAO implements UserDAO {
         // for testing purposes only
 
         String statement = "SELECT COUNT(*) FROM user";
-        try (var conn = DatabaseManager.getConnection()) {
+        try (Connection conn = DatabaseManager.getConnection()) {
             try (PreparedStatement preparedStatement = conn.prepareStatement(statement)) {
-                try(var rs = preparedStatement.executeQuery()) {
+                try (var rs = preparedStatement.executeQuery()) {
                     if (rs.next()) {
                         return rs.getInt(1) == 0;
                     }
