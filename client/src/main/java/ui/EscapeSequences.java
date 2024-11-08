@@ -26,9 +26,12 @@ public class EscapeSequences {
 
     public static final String SET_TEXT_COLOR_BLACK = SET_TEXT_COLOR + "0m";
     public static final String SET_TEXT_COLOR_LIGHT_GREY = SET_TEXT_COLOR + "242m";
+    public static final String SET_TEXT_COLOR_GREY = SET_TEXT_COLOR + "239m";
+    public static final String SET_TEXT_COLOR_VERY_LIGHT_GREY = SET_TEXT_COLOR + "249m";
     public static final String SET_TEXT_COLOR_DARK_GREY = SET_TEXT_COLOR + "235m";
     public static final String SET_TEXT_COLOR_RED = SET_TEXT_COLOR + "160m";
     public static final String SET_TEXT_COLOR_GREEN = SET_TEXT_COLOR + "46m";
+    public static final String SET_TEXT_COLOR_DARK_GREEN = SET_TEXT_COLOR + "22m";
     public static final String SET_TEXT_COLOR_YELLOW = SET_TEXT_COLOR + "226m";
     public static final String SET_TEXT_COLOR_BLUE = SET_TEXT_COLOR + "12m";
     public static final String SET_TEXT_COLOR_MAGENTA = SET_TEXT_COLOR + "5m";
@@ -37,6 +40,8 @@ public class EscapeSequences {
 
     public static final String SET_BG_COLOR_BLACK = SET_BG_COLOR + "0m";
     public static final String SET_BG_COLOR_LIGHT_GREY = SET_BG_COLOR + "242m";
+    public static final String SET_BG_COLOR_GREY = SET_BG_COLOR + "239m";
+    public static final String SET_BG_COLOR_VERY_LIGHT_GREY = SET_BG_COLOR + "249m";
     public static final String SET_BG_COLOR_DARK_GREY = SET_BG_COLOR + "235m";
     public static final String SET_BG_COLOR_RED = SET_BG_COLOR + "160m";
     public static final String SET_BG_COLOR_GREEN = SET_BG_COLOR + "46m";
@@ -47,19 +52,35 @@ public class EscapeSequences {
     public static final String SET_BG_COLOR_WHITE = SET_BG_COLOR + "15m";
     public static final String RESET_BG_COLOR = UNICODE_ESCAPE + "[49m";
 
-    public static final String WHITE_KING = " ♔ ";
-    public static final String WHITE_QUEEN = " ♕ ";
-    public static final String WHITE_BISHOP = " ♗ ";
-    public static final String WHITE_KNIGHT = " ♘ ";
-    public static final String WHITE_ROOK = " ♖ ";
-    public static final String WHITE_PAWN = " ♙ ";
-    public static final String BLACK_KING = " ♚ ";
-    public static final String BLACK_QUEEN = " ♛ ";
-    public static final String BLACK_BISHOP = " ♝ ";
-    public static final String BLACK_KNIGHT = " ♞ ";
-    public static final String BLACK_ROOK = " ♜ ";
-    public static final String BLACK_PAWN = " ♟ ";
-    public static final String EMPTY = " \u2003 ";
+    // chess symbols
+//    public static final String WHITE_KING = " ♔ "; //" \u2654 ";
+//    public static final String WHITE_QUEEN = " ♕ "; //" \u2655 ";
+//    public static final String WHITE_BISHOP = " ♗ "; //" \u2656 ";
+//    public static final String WHITE_KNIGHT = " ♘ "; //" \u2657 ";
+//    public static final String WHITE_ROOK = " ♖ "; //" \u2658 ";
+//    public static final String WHITE_PAWN = " ♙ "; //" \u2659 ";
+//    public static final String BLACK_KING = " ♚ "; //" \u265A ";
+//    public static final String BLACK_QUEEN = " ♛ "; //" \u265B ";
+//    public static final String BLACK_BISHOP = " ♝ "; //" \u265C ";
+//    public static final String BLACK_KNIGHT = " ♞ "; //" \u265D ";
+//    public static final String BLACK_ROOK = " ♜ "; //" \u265E ";
+//    public static final String BLACK_PAWN = " ♟ "; //" \u265F ";
+//    public static final String EMPTY = " \u2003 ";
+
+    // if you just want to use the letters (which is probably recommended), use these instead
+    public static final String WHITE_KING = " K ";
+    public static final String WHITE_QUEEN = " Q ";
+    public static final String WHITE_BISHOP = " B ";
+    public static final String WHITE_KNIGHT = " N ";
+    public static final String WHITE_ROOK = " R ";
+    public static final String WHITE_PAWN = " P ";
+    public static final String BLACK_KING = " k ";
+    public static final String BLACK_QUEEN = " q ";
+    public static final String BLACK_BISHOP = " b ";
+    public static final String BLACK_KNIGHT = " n ";
+    public static final String BLACK_ROOK = " r ";
+    public static final String BLACK_PAWN = " p ";
+    public static final String EMPTY = "   ";
 
     public static String moveCursorToLocation(int x, int y) { return UNICODE_ESCAPE + "[" + y + ";" + x + "H"; }
 }
