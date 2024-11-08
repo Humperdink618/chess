@@ -34,6 +34,7 @@ public class EscapeSequences {
     public static final String SET_TEXT_COLOR_DARK_GREEN = SET_TEXT_COLOR + "22m";
     public static final String SET_TEXT_COLOR_YELLOW = SET_TEXT_COLOR + "226m";
     public static final String SET_TEXT_COLOR_BLUE = SET_TEXT_COLOR + "12m";
+    public static final String SET_TEXT_COLOR_DARK_BLUE = SET_TEXT_COLOR + "26m";
     public static final String SET_TEXT_COLOR_MAGENTA = SET_TEXT_COLOR + "5m";
     public static final String SET_TEXT_COLOR_WHITE = SET_TEXT_COLOR + "15m";
     public static final String RESET_TEXT_COLOR = UNICODE_ESCAPE + "[39m";
@@ -68,19 +69,19 @@ public class EscapeSequences {
 //    public static final String EMPTY = " \u2003 ";
 
     // if you just want to use the letters (which is probably recommended), use these instead
-    public static final String WHITE_KING = " K ";
-    public static final String WHITE_QUEEN = " Q ";
-    public static final String WHITE_BISHOP = " B ";
-    public static final String WHITE_KNIGHT = " N ";
-    public static final String WHITE_ROOK = " R ";
-    public static final String WHITE_PAWN = " P ";
-    public static final String BLACK_KING = " k ";
-    public static final String BLACK_QUEEN = " q ";
-    public static final String BLACK_BISHOP = " b ";
-    public static final String BLACK_KNIGHT = " n ";
-    public static final String BLACK_ROOK = " r ";
-    public static final String BLACK_PAWN = " p ";
-    public static final String EMPTY = "   ";
+    public static final String WHITE_KING = "K";
+    public static final String WHITE_QUEEN = "Q";
+    public static final String WHITE_BISHOP = "B";
+    public static final String WHITE_KNIGHT = "N";
+    public static final String WHITE_ROOK = "R";
+    public static final String WHITE_PAWN = "P";
+    public static final String BLACK_KING = "k";
+    public static final String BLACK_QUEEN = "q";
+    public static final String BLACK_BISHOP = "b";
+    public static final String BLACK_KNIGHT = "n";
+    public static final String BLACK_ROOK = "r";
+    public static final String BLACK_PAWN = "p";
+    public static final String EMPTY = " ";
 
     public static String moveCursorToLocation(int x, int y) { return UNICODE_ESCAPE + "[" + y + ";" + x + "H"; }
 }
