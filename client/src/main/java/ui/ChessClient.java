@@ -27,6 +27,8 @@ public class ChessClient {
 
     // create matrix for chesspiece locations
     public static ChessBoard chessPiecePositions() {
+        // note: this may be a temporary solution, as it may or may not be compatible with Phase 6
+        // for now though, it works fine
         ChessBoard board = new ChessBoard();
         board.resetBoard();
 
