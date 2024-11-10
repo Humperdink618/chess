@@ -12,14 +12,18 @@ import static ui.EscapeSequences.*;
 
 public class DrawChessboard {
 
-    private ChessBoard board;
+    private static ChessBoard board;
 
     public enum boardColor {
         WHITE,
         BLACK,
     }
 
-    public static void drawChessBoard(ChessBoard board) {
+    public DrawChessboard(ChessBoard board){
+        this.board = board;
+    }
+
+    public void run() {
 
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
 
@@ -184,8 +188,13 @@ public class DrawChessboard {
         out.print(EMPTY.repeat(1));
     }
 
+    private static ChessBoard getBoard(){
+        return board;
+    }
+
     private static ChessPiece getChessPiece(int j, int i) {
-        ChessBoard board = ChessClient.chessPiecePositions();
+        //ChessBoard board = ChessClient.chessPiecePositions();
+        ChessBoard chessBoard = DrawChessboard.getBoard();
         ChessPosition myPos = new ChessPosition(j + 1, i + 1);
         ChessPiece myPiece = board.getPiece(myPos);
         return myPiece;

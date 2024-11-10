@@ -167,7 +167,8 @@ public class ChessClient {
         // TODO: figure out gameIDs with associated games to figure out which game to display.
         //   for now, until the above is completed, just print out the board for an unspecified game. Fix this later.
         ChessBoard board = chessPiecePositions();
-        //DrawChessboard.main();
+        DrawChessboard drawChessboard = new DrawChessboard(board);
+        drawChessboard.run();
     }
 
     private static void logoutUser(){
