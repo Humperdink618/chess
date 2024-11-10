@@ -120,7 +120,7 @@ public class ChessClient {
         } else if(input.equals("3")) {
             //playGames();
         } else if(input.equals("4")) {
-            //observeGame();
+            observeGame();
         } else if(input.equals("5")) {
             logoutUser();
             return false;
