@@ -12,12 +12,15 @@ import static ui.EscapeSequences.*;
 
 public class DrawChessboard {
 
+    private ChessBoard board;
+
     public enum boardColor {
         WHITE,
         BLACK,
     }
 
-    public static void main(String[] args) {
+    public static void drawChessBoard(ChessBoard board) {
+
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
 
         out.print(ERASE_SCREEN);
