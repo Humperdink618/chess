@@ -201,7 +201,6 @@ public class ChessClient {
             gameIDs.add(gameID);
             System.out.println("Game successfully created!");
         }
-
     }
 
     private static void listGames(){
