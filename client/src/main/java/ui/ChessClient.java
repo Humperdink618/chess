@@ -4,6 +4,8 @@ import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
+import com.google.gson.Gson;
+import model.GameData;
 import ui.serverfacade.ServerFacade;
 
 import java.util.*;
@@ -14,8 +16,15 @@ public class ChessClient {
     private static Scanner scanner = new Scanner(System.in);
     private static String auth = "";
     // TODO: edit this code when I've actually implemented the ServerFacade
-    private final ServerFacade serverFacade = new ServerFacade();
+    private final String serverURL;
+    private final ServerFacade serverFacade;
     private static Boolean isLoggedIn = false;
+    private static Collection<Integer> gameIDs = new HashSet<>();
+
+    public ChessClient(String serverURL){
+        serverFacade = new ServerFacade(serverURL);
+        this.serverURL = serverURL;
+    }
 
     // write code for menu items here
     public static int main(String[] args) {
@@ -116,9 +125,9 @@ public class ChessClient {
         if(input.equals("1")){
             createGame();
         } else if(input.equals("2")) {
-            //listGames();
+            listGames();
         } else if(input.equals("3")) {
-            //playGames();
+            playGame();
         } else if(input.equals("4")) {
             observeGame();
         } else if(input.equals("5")) {
@@ -131,6 +140,15 @@ public class ChessClient {
             notLoggedInHelp();
         }
         return true;
+    }
+
+    private static boolean isNumeric(String str){
+        try {
+            Integer.parseInt(str);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 
     private static void createGame(){
@@ -148,6 +166,75 @@ public class ChessClient {
         //  store gameID but don't print it out
         //  print out result ("Game successfully created" or "Game not created")
 
+    }
+
+    private static void listGames(){
+        System.out.println("Here are all the available games: ");
+
+        // plug in the authToken given from the register/login
+        GameData[] games = ServerFacade.list(auth);
+        // TODO call server facade list game
+        //  next get response back and store in a variable
+        //  check the variable to see if the list game was successful
+        //  store gameID but don't print it out
+        //  print out result ("Games successfully listed" or "Games not listed")
+        StringBuilder result = new StringBuilder();
+        Gson gson = new Gson();
+        for(int i = 0; i < games.length; i++){
+            result.append(i + 1 + ". " + gson.toJson(games[i])).append('\n');
+            gameIDs.add(i + 1);
+        }
+        System.out.println(result.toString());
+    }
+
+    private static void playGame(){
+        listGames();
+        Collection<String> inputGameIDs = new ArrayList<>();
+
+        for(Integer i : gameIDs){
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append(i + 1);
+            inputGameIDs.add(stringBuilder.toString());
+        }
+
+        System.out.println("Pick a game you want to play: ");
+        String gameID = scanner.nextLine();
+        while(gameID.isBlank()){
+            System.out.println("Pick a game you want to play: ");
+            gameID = scanner.nextLine();
+        }
+        while(!inputGameIDs.contains(gameID) || !isNumeric(gameID)){
+            System.out.println("Error: not a valid option.");
+            System.out.println("Pick a game you want to play: ");
+            gameID = scanner.nextLine();
+        }
+        Integer newID = 0;
+        for(int ID : gameIDs) {
+            if(Integer.parseInt(gameID) == ID){
+                newID = ID;
+                break;
+            }
+        }
+
+        System.out.println("Choose what team you wish to play (White or Black): ");
+        String playerColor = scanner.nextLine().toLowerCase();
+        while(playerColor.isBlank() || !playerColor.equals("white") || !playerColor.equals("black")){
+            System.out.println("Choose what team you wish to play (White or Black): ");
+            playerColor = scanner.nextLine().toLowerCase();
+        }
+        // check to see if that teamcolor is taken or not.
+
+        // plug in the authToken given from the register/login
+        ServerFacade.join(auth, newID, playerColor);
+        // TODO call server facade join game
+        //  next get response back and store in a variable
+        //  check the variable to see if the join game was successful
+        //  print out result ("Game successfully joined" or "Join failed")
+        // TODO: figure out gameIDs with associated games to figure out which game to display.
+        //   for now, until the above is completed, just print out the board for an unspecified game. Fix this later.
+        ChessBoard board = chessPiecePositions();
+        DrawChessboard drawChessboard = new DrawChessboard(board);
+        drawChessboard.run();
     }
 
     private static void observeGame(){
