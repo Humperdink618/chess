@@ -14,7 +14,7 @@ public class ChessClient {
     // TODO: implement the Chess client.
     // These are variables which you will need for multiple functions
     private static Scanner scanner = new Scanner(System.in);
-    private static String auth = "";
+    private static String auth = null;
     // TODO: edit this code when I've actually implemented the ServerFacade
     private final String serverURL;
     private final ServerFacade serverFacade;
@@ -314,7 +314,7 @@ public class ChessClient {
         //  print out result ("logout successful!" or "logout failed")
         if(logoutMessage.equals("logout successful!")){
             System.out.println("logout successful!");
-            auth = "";
+            auth = null;
             isLoggedIn = false;
             notLoggedInHelp();
         } else {

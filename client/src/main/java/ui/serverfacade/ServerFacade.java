@@ -1,6 +1,8 @@
 package ui.serverfacade;
 
 import model.GameData;
+import request.LoginRequest;
+import result.LoginResult;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -10,8 +12,14 @@ public class ServerFacade {
 
     private final String serverURL;
 
+    //private static boolean isCreate = false;
+
     public ServerFacade(String url) {
         serverURL = url;
+    }
+
+    public String getServerURL() {
+        return serverURL;
     }
 
     // TODO: implement ServerFacade class
@@ -23,6 +31,10 @@ public class ServerFacade {
         // if good -> ? return auth token (might consider returning full http response if code in ui needs more info)
         // if bad -> return "" for ease of knowing what's wrong
         // want to pass result back to ui
+        //String serverURL = getServerURL();
+        String path = "/session";
+        LoginRequest loginRequest = new LoginRequest(username, password);
+        //var authData = ClientCommunicator.makeRequest("POST",path,loginRequest,LoginResult.class,serverURL,null);
         // TODO: for testing purposes only: delete when this method is actually implemented
         //return "authToken";
         return "";
@@ -60,6 +72,9 @@ public class ServerFacade {
         // if good -> ? return gameID (might consider returning full http response if code in ui needs more info)
         // if bad -> return 0 for ease of knowing what's wrong
         // want to pass result back to ui
+        //isCreate = true;
+        // write request to serverFacade
+        //isCreate = false; // for cleanup purposes
         // TODO: for testing purposes only: delete when this method is actually implemented
         //return 1;
         return 0;
