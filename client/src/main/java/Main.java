@@ -9,7 +9,6 @@ public class Main {
       /*  String serverUrl = "I'm a URL"; // DEFINITELY fix this later.
         ChessClient client = new ChessClient(serverUrl);
         client.run();
-
        */
     }
 }
