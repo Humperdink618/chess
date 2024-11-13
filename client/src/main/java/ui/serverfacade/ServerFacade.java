@@ -212,6 +212,16 @@ public class ServerFacade {
         String path = "/db";
         ClientCommunicator.makeRequest("DELETE", path, null, null, serverURL, null);
     }
+    // note: I am putting this here so that it can be used by both my ChessClient AND my ServerFacadeTests
+    public boolean isNumeric(String str){
+        try {
+            Integer.parseInt(str);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
 
 
 

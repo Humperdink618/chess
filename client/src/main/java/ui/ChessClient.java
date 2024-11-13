@@ -19,7 +19,6 @@ public class ChessClient {
     private final ServerFacade serverFacade;
     private Boolean isLoggedIn = false;
     private Collection<Integer> gameIDs = new HashSet<>();
-    private Collection<GameData> gameList = new HashSet<>();
 
     public ChessClient(String serverURL){
         serverFacade = new ServerFacade(serverURL);
@@ -179,14 +178,7 @@ public class ChessClient {
         return true;
     }
 
-    private boolean isNumeric(String str){
-        try {
-            Integer.parseInt(str);
-            return true;
-        } catch (NumberFormatException e) {
-            return false;
-        }
-    }
+
 
     private void createGame() throws ResponseException{
         System.out.println("Create a name for your Chessgame: ");
@@ -202,7 +194,7 @@ public class ChessClient {
         //  check the variable to see if the create game was successful
         //  store gameID but don't print it out
         //  print out result ("Game successfully created" or "Game not created")
-        if(!isNumeric(gameID)){
+        if(!serverFacade.isNumeric(gameID)){
             HashMap errorMessageMap = new Gson().fromJson(gameID, HashMap.class);
             String errorMessage = errorMessageMap.get("message").toString();
             System.out.println(errorMessage);
@@ -317,7 +309,7 @@ public class ChessClient {
     }
 
     private String checkIfValidGameID(String gameID) {
-        while(!gameIDs.contains(Integer.parseInt(gameID)) || !isNumeric(gameID)){
+        while(!gameIDs.contains(Integer.parseInt(gameID)) || !serverFacade.isNumeric(gameID)){
             System.out.println("Error: not a valid option.");
             System.out.println("Pick a game you want to play: ");
             gameID = scanner.nextLine();
