@@ -19,6 +19,7 @@ public class ChessClient {
     private final ServerFacade serverFacade;
     private Boolean isLoggedIn = false;
     private Collection<Integer> gameIDs = new HashSet<>();
+    private Collection<GameData> gameList = new HashSet<>();
 
     public ChessClient(String serverURL){
         serverFacade = new ServerFacade(serverURL);
@@ -82,16 +83,17 @@ public class ChessClient {
             System.out.println("Enter your Password: ");
             inputPassword = scanner.nextLine();
         }
-        boolean isError = false;
-        String authToken = serverFacade.login(inputUserName,inputPassword, isError);
+        String authToken = serverFacade.login(inputUserName,inputPassword);
         // TODO call server facade login
         //  next get response back and store in a variable
         //  check the variable to see if the login was successful
         //  if it was, change logged in to true
         //  set auth = authtoken returned from result
         //  print out result ("Yay you are in!" or "Boo you are dumb")
-        if(isError){
-            System.out.println(authToken);
+        if(authToken.contains("message")){
+            HashMap errorMessageMap = new Gson().fromJson(authToken, HashMap.class);
+            String errorMessage = errorMessageMap.get("message").toString();
+            System.out.println(errorMessage);
             System.out.println("If you want to try again, Enter 1. If you want to return to the main menu, Enter 2.");
             String inputAnswer = scanner.nextLine();
             if(inputAnswer.equals("1")){
@@ -132,16 +134,17 @@ public class ChessClient {
             System.out.println("Please enter your Email: ");
             inputEmail = scanner.nextLine();
         }
-        boolean isError = false;
-        String authToken = serverFacade.register(inputUserName,inputPassword, inputEmail, isError);
+        String authToken = serverFacade.register(inputUserName,inputPassword, inputEmail);
         // TODO call server facade register
         //  next get response back and store in a variable
         //  check the variable to see if the register was successful
         //  if it was, change logged in to true
         //  set auth = authtoken returned from result
         //  print out result ("Yay you are in!" or "Boo you are dumb")
-        if(isError){
-            System.out.println(authToken);
+        if(authToken.contains("message")){
+            HashMap errorMessageMap = new Gson().fromJson(authToken, HashMap.class);
+            String errorMessage = errorMessageMap.get("message").toString();
+            System.out.println(errorMessage);
             notLoggedInHelp();
             notLoggedIn();
 
@@ -167,6 +170,9 @@ public class ChessClient {
             return false;
         } else if(input.equals("6")) {
             loggedInHelp();
+     /*   } else if(input.equals("7")) { // DELETE THIS LINE
+            clearDB();
+      */
         } else {
             System.out.println("Not a valid option.\n");
         }
@@ -197,20 +203,23 @@ public class ChessClient {
         //  store gameID but don't print it out
         //  print out result ("Game successfully created" or "Game not created")
         if(!isNumeric(gameID)){
-            System.out.println(gameID);
+            HashMap errorMessageMap = new Gson().fromJson(gameID, HashMap.class);
+            String errorMessage = errorMessageMap.get("message").toString();
+            System.out.println(errorMessage);
         } else {
-            gameIDs.add(Integer.parseInt(gameID));
+            //gameIDs.add(Integer.parseInt(gameID));
             System.out.println("Game successfully created!");
         }
     }
 
     private void listGames() throws ResponseException{
-        boolean isError = false;
 
         // plug in the authToken given from the register/login
-        String listString = serverFacade.list(auth, isError);
-        if(isError){
-            System.out.println(listString);
+        String listString = serverFacade.list(auth);
+        if(listString.contains("message")){
+            HashMap errorMessageMap = new Gson().fromJson(listString, HashMap.class);
+            String errorMessage = errorMessageMap.get("message").toString();
+            System.out.println(errorMessage);
             loggedInHelp();
             loggedIn();
         }
@@ -219,6 +228,11 @@ public class ChessClient {
         ListResult listResult = new Gson().fromJson(listString, ListResult.class);
 
         Collection<GameData> gameList = listResult.games();
+        if(gameList == null){
+            System.out.println("No available games to display.");
+            loggedInHelp();
+            loggedIn();
+        }
 
         ArrayList<String> games = new ArrayList<>();
         for(GameData game : gameList){
@@ -226,6 +240,7 @@ public class ChessClient {
             individualGameData.append(" " + game.whiteUsername() + ", ");
             individualGameData.append(game.blackUsername() + ", " + game.gameName());
             games.add(individualGameData.toString());
+            gameIDs.add(game.gameID());
         }
 
         // TODO call server facade list game
@@ -234,35 +249,32 @@ public class ChessClient {
         //  store gameID but don't print it out
         //  print out result ("Games successfully listed" or "Games not listed")
         StringBuilder result = new StringBuilder();
-        Gson gson = new Gson();
         for(int i = 0; i < games.size(); i++){
-            result.append(i + 1 + ". " + gson.toJson(games.get(i))).append('\n');
+            result.append(i + 1 + ". " + games.get(i)).append('\n');
             //gameIDs.add(i + 1);
         }
         System.out.println(result.toString());
+        //TODO: DELETE THIS STRING!
+        System.out.println(gameIDs);
     }
 
     private void playGame() throws ResponseException{
         listGames();
-        Collection<String> inputGameIDs = new ArrayList<>();
-
+       // Collection<String> inputGameIDs = new ArrayList<>();
+/*
         for(Integer i : gameIDs){
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.append(i);
             inputGameIDs.add(stringBuilder.toString());
         }
-
+*/
         System.out.println("Pick a game you want to play: ");
         String gameID = scanner.nextLine();
         while(gameID.isBlank()){
             System.out.println("Pick a game you want to play: ");
             gameID = scanner.nextLine();
         }
-        while(!inputGameIDs.contains(gameID) || !isNumeric(gameID)){
-            System.out.println("Error: not a valid option.");
-            System.out.println("Pick a game you want to play: ");
-            gameID = scanner.nextLine();
-        }
+        gameID = checkIfValidGameID(gameID);
         Integer newID = 0;
         for(int ID : gameIDs) {
             if(Integer.parseInt(gameID) == ID){
@@ -272,14 +284,14 @@ public class ChessClient {
         }
 
         System.out.println("Choose what team you wish to play (White or Black): ");
-        String playerColor = scanner.nextLine().toLowerCase();
+        String playerColor = scanner.nextLine().toUpperCase();
         while(playerColor.isBlank()){
             System.out.println("Choose what team you wish to play (White or Black): ");
-            playerColor = scanner.nextLine().toLowerCase();
+            playerColor = scanner.nextLine().toUpperCase();
         }
-        while(!playerColor.equals("white") && !playerColor.equals("black")){
+        while(!playerColor.equals("WHITE") && !playerColor.equals("BLACK")){
             System.out.println("Choose what team you wish to play (White or Black): ");
-            playerColor = scanner.nextLine().toLowerCase();
+            playerColor = scanner.nextLine().toUpperCase();
         }
         // check to see if that teamcolor is taken or not.
 
@@ -298,14 +310,26 @@ public class ChessClient {
             DrawChessboard drawChessboard = new DrawChessboard(board);
             drawChessboard.run();
         } else {
-            System.out.println(joinMessage);
+            HashMap errorMessageMap = new Gson().fromJson(joinMessage, HashMap.class);
+            String errorMessage = errorMessageMap.get("message").toString();
+            System.out.println(errorMessage);
             loggedInHelp();
             loggedIn();
         }
     }
 
-    private void observeGame(){
+    private String checkIfValidGameID(String gameID) {
+        while(!gameIDs.contains(Integer.parseInt(gameID)) || !isNumeric(gameID)){
+            System.out.println("Error: not a valid option.");
+            System.out.println("Pick a game you want to play: ");
+            gameID = scanner.nextLine();
+        }
+        return gameID;
+    }
+
+    private void observeGame() throws ResponseException{
         // print out the list of games with associated numbers starting at 1 (independent of gameID)
+        listGames();
         System.out.println("Choose a game to observe: ");
         // note: gameplay will not be implemented until Phase 6. For now, just display the ChessBoard
         String gameName = scanner.nextLine();
@@ -316,6 +340,8 @@ public class ChessClient {
             // print out the list of games with associated numbers starting at 1 (independent of gameID)
             gameName = scanner.nextLine();
         }
+        gameName = checkIfValidGameID(gameName);
+
         // TODO: figure out gameIDs with associated games to figure out which game to display.
         //   for now, until the above is completed, just print out the board for an unspecified game. Fix this later.
         ChessBoard board = chessPiecePositions();
@@ -326,19 +352,16 @@ public class ChessClient {
     private void logoutUser() throws ResponseException {
 
         String logoutMessage = serverFacade.logout(auth);
-        // TODO call server facade logout
-        //  next get response back and store in a variable
-        //  check the variable to see if the logout was successful
-        //  reset auth = ""
-        //  print out result ("logout successful!" or "logout failed")
-        //  if an exception is thrown, print out the error message.
+
         if(logoutMessage.equals("logout successful!")){
             System.out.println("logout successful!");
             auth = null;
             isLoggedIn = false;
             notLoggedInHelp();
         } else {
-            System.out.println(logoutMessage);
+            HashMap errorMessageMap = new Gson().fromJson(logoutMessage, HashMap.class);
+            String errorMessage = errorMessageMap.get("message").toString();
+            System.out.println(errorMessage);
             loggedInHelp();
             loggedIn();
         }
@@ -354,6 +377,22 @@ public class ChessClient {
         System.out.println("  5. Logout");
         System.out.println("  6. Help");
     }
+    // note: only for testing purposes. Delete afterwards
+    /*
+    private void clearDB() throws ResponseException{
+        serverFacade.clear();
+
+     */
+    /*
+        System.out.println("CLEARED");
+        isLoggedIn = false;
+
+     */
+    /*
+        notLoggedInHelp();
+    }
+
+     */
 
     // create matrix for chesspiece locations
     public ChessBoard chessPiecePositions() {

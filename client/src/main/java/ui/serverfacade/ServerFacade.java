@@ -22,7 +22,7 @@ public class ServerFacade {
 
     // TODO: implement ServerFacade class
 
-    public String login(String username, String password, boolean isError) throws ResponseException {
+    public String login(String username, String password) throws ResponseException {
         // note: may need to change the return type at some point
         // send http request to server
         // check result
@@ -42,7 +42,6 @@ public class ServerFacade {
             return authData.authToken();
 
         } catch (Exception e) {
-            isError = true;
             return getErrorMessage(e);
         }
         // String authToken = authData.authToken;
@@ -56,7 +55,7 @@ public class ServerFacade {
         return body;
     }
 
-    public String register(String username, String password, String email, boolean isError) throws ResponseException{
+    public String register(String username, String password, String email) throws ResponseException{
         // note: may need to change the return type at some point
         // send http request to server
         // check result
@@ -78,7 +77,6 @@ public class ServerFacade {
                     null);
             return authData.authToken();
         } catch (Exception e) {
-            isError = true;
             return getErrorMessage(e);
         }
     }
@@ -93,7 +91,8 @@ public class ServerFacade {
         // want to pass result back to ui
         // TODO: for testing purposes only: delete when this method is actually implemented
         try {
-            String path = String.format("/session/%s", authToken);
+            //String path = String.format("/session/%s", authToken);
+            String path = "/session";
             LogoutRequest logoutRequest = new LogoutRequest(authToken);
             ClientCommunicator.makeRequest(
                     "DELETE",
@@ -140,7 +139,7 @@ public class ServerFacade {
         }
     }
 
-    public String list(String authToken, boolean isError) throws ResponseException {
+    public String list(String authToken) throws ResponseException {
         // note: may need to change the return type at some point
         // send http request to server
         // check result
@@ -155,16 +154,16 @@ public class ServerFacade {
             ListResult listGames = ClientCommunicator.makeRequest(
                     "GET",
                     path,
-                    listRequest,
+                    null,
                     ListResult.class,
                     serverURL,
                     authToken
             );
-            isError = false;
+
             return new Gson().toJson(listGames);
 
         } catch (Exception e) {
-            isError = true;
+
             return getErrorMessage(e);
         }
         // note: do NOT have this list of games display the internal game IDs.
@@ -194,7 +193,7 @@ public class ServerFacade {
         // TODO: for testing purposes only: delete when this method is actually implemented
         try {
             String path = "/game";
-            JoinRequest joinRequest = new JoinRequest(authToken, playerColor, gameID);
+            JoinRequest joinRequest = new JoinRequest(null, playerColor, gameID);
             ClientCommunicator.makeRequest(
                     "PUT",
                     path,

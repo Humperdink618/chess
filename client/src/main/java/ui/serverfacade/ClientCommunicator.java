@@ -29,7 +29,6 @@ public class ClientCommunicator {
             if (auth != null) {
                 conn.addRequestProperty("authorization", auth);
             }
-
             writeBody(request, conn);
             conn.connect();
             throwIfNotSuccessful(conn);
