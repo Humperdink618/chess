@@ -254,8 +254,6 @@ public class ChessClient {
             //gameIDs.add(i + 1);
         }
         System.out.println(result.toString());
-        //TODO: DELETE THIS STRING!
-        System.out.println(gameIDs);
     }
 
     private void playGame() throws ResponseException{
