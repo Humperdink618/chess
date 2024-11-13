@@ -1,7 +1,6 @@
 package client;
 
 import com.google.gson.Gson;
-import dataaccess.DataAccessException;
 import exceptions.ResponseException;
 import model.GameData;
 import org.junit.jupiter.api.*;
@@ -9,8 +8,6 @@ import result.ListResult;
 import server.Server;
 import ui.serverfacade.ServerFacade;
 
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;

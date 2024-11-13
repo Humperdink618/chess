@@ -82,12 +82,7 @@ public class ChessClient {
             inputPassword = scanner.nextLine();
         }
         String authToken = serverFacade.login(inputUserName,inputPassword);
-        // TODO call server facade login
-        //  next get response back and store in a variable
-        //  check the variable to see if the login was successful
-        //  if it was, change logged in to true
-        //  set auth = authtoken returned from result
-        //  print out result ("Yay you are in!" or "Boo you are dumb")
+
         if(authToken.contains("message")){
             HashMap errorMessageMap = new Gson().fromJson(authToken, HashMap.class);
             String errorMessage = errorMessageMap.get("message").toString();
@@ -133,12 +128,6 @@ public class ChessClient {
             inputEmail = scanner.nextLine();
         }
         String authToken = serverFacade.register(inputUserName,inputPassword, inputEmail);
-        // TODO call server facade register
-        //  next get response back and store in a variable
-        //  check the variable to see if the register was successful
-        //  if it was, change logged in to true
-        //  set auth = authtoken returned from result
-        //  print out result ("Yay you are in!" or "Boo you are dumb")
         if(authToken.contains("message")){
             HashMap errorMessageMap = new Gson().fromJson(authToken, HashMap.class);
             String errorMessage = errorMessageMap.get("message").toString();
@@ -188,11 +177,7 @@ public class ChessClient {
         }
         // plug in the authToken given from the register/login
         String gameID = serverFacade.create(gameName, auth);
-        // TODO call server facade create game
-        //  next get response back and store in a variable
-        //  check the variable to see if the create game was successful
-        //  store gameID but don't print it out
-        //  print out result ("Game successfully created" or "Game not created")
+
         if(!serverFacade.isNumeric(gameID)){
             HashMap errorMessageMap = new Gson().fromJson(gameID, HashMap.class);
             String errorMessage = errorMessageMap.get("message").toString();
@@ -253,11 +238,16 @@ public class ChessClient {
        // Collection<String> inputGameIDs = new ArrayList<>();
 /*
         for(Integer i : gameIDs){
+
             StringBuilder stringBuilder = new StringBuilder();
+            */
+        /*
             stringBuilder.append(i);
+
             inputGameIDs.add(stringBuilder.toString());
-        }
-*/
+            */
+    //    }
+
         System.out.println("Pick a game you want to play: ");
         String gameID = scanner.nextLine();
         while(gameID.isBlank() || !serverFacade.isNumeric(gameID)){

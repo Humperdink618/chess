@@ -57,7 +57,6 @@ public class ClientCommunicator {
         }
     }
 
-
     private static <T> T readBody(HttpURLConnection conn, Class<T> responseClass) throws IOException {
         T response = null;
         if (conn.getContentLength() < 0) {
@@ -82,66 +81,7 @@ public class ClientCommunicator {
         return response;
     }
 
-
     private static boolean isSuccessful(int status) {
         return status / 100 == 2;
     }
 }
-/*
-    public void doGet(String urlString, String auth) throws IOException {
-        URL url = new URL(urlString);
-
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-
-        connection.setReadTimeout(5000);
-        connection.setRequestMethod("GET");
-        connection.addRequestProperty("authorization", auth);
-
-        connection.connect();
-
-        if(connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-            // Get HTTP response headers, if necessary
-            //connection.getHeaderField("Content-Length");
-
-            InputStream responseBody = connection.getInputStream();
-            // read and process body from InputStream ...
-        } else {
-            // SERVER RETURNED AN HTTP ERROR
-
-            InputStream responseBody = connection.getErrorStream();
-            // read and process error response body from InputStream ...
-        }
-    }
-
-    public void doPost(String urlString, boolean isCreate, String auth) throws IOException {
-        URL url = new URL(urlString);
-
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-
-        connection.setReadTimeout(5000);
-        connection.setRequestMethod("POST");
-        connection.setDoOutput(true);
-
-        if(isCreate){
-            connection.addRequestProperty("authorization", auth);
-        }
-
-        connection.connect();
-
-        try(OutputStream requestBody = connection.getOutputStream();) {
-            // write request body to OutputStream ...
-        }
-
-        if(connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-
-            InputStream responseBody = connection.getInputStream();
-            // read response body from InputStream ...
-        } else {
-            // SERVER RETURNED AN HTTP ERROR
-
-            InputStream responseBody = connection.getErrorStream();
-            // read and process error response body from InputStream ...
-        }
-    }
-}
- */
