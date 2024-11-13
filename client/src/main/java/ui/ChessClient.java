@@ -182,9 +182,13 @@ public class ChessClient {
             HashMap errorMessageMap = new Gson().fromJson(gameID, HashMap.class);
             String errorMessage = errorMessageMap.get("message").toString();
             System.out.println(errorMessage);
+            loggedInHelp();
+            loggedIn();
         } else {
             //gameIDs.add(Integer.parseInt(gameID));
             System.out.println("Game successfully created!");
+            loggedInHelp();
+            loggedIn();
         }
     }
 
@@ -218,6 +222,7 @@ public class ChessClient {
             games.add(individualGameData.toString());
             gameIDs.add(game.gameID());
             gameDataList.add(game);
+            Collections.sort(games);
         }
 
         // TODO call server facade list game
