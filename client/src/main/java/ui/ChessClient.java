@@ -10,15 +10,14 @@ import ui.serverfacade.ServerFacade;
 import java.util.*;
 
 public class ChessClient {
-    // TODO: implement the Chess client.
     // These are variables which you will need for multiple functions
     private Scanner scanner = new Scanner(System.in);
     private String auth = null;
-    // TODO: edit this code when I've actually implemented the ServerFacade
     private final String serverURL;
     private final ServerFacade serverFacade;
     private Boolean isLoggedIn = false;
     private Collection<Integer> gameIDs = new HashSet<>();
+    private Collection<GameData> gameDataList = new HashSet<>();
 
     public ChessClient(String serverURL){
         serverFacade = new ServerFacade(serverURL);
@@ -169,9 +168,9 @@ public class ChessClient {
             return false;
         } else if(input.equals("6")) {
             loggedInHelp();
-     /*   } else if(input.equals("7")) { // DELETE THIS LINE
+/*       } else if(input.equals("7")) { // DELETE THIS LINE
             clearDB();
-      */
+*/
         } else {
             System.out.println("Not a valid option.\n");
         }
@@ -215,16 +214,16 @@ public class ChessClient {
             loggedInHelp();
             loggedIn();
         }
-        System.out.println("Here are all the available games: ");
 
         ListResult listResult = new Gson().fromJson(listString, ListResult.class);
 
         Collection<GameData> gameList = listResult.games();
-        if(gameList == null){
+        if(gameList == null || gameList.isEmpty()){
             System.out.println("No available games to display.");
             loggedInHelp();
             loggedIn();
         }
+        System.out.println("Here are all the available games: ");
 
         ArrayList<String> games = new ArrayList<>();
         for(GameData game : gameList){
@@ -233,6 +232,7 @@ public class ChessClient {
             individualGameData.append(game.blackUsername() + ", " + game.gameName());
             games.add(individualGameData.toString());
             gameIDs.add(game.gameID());
+            gameDataList.add(game);
         }
 
         // TODO call server facade list game
@@ -260,7 +260,7 @@ public class ChessClient {
 */
         System.out.println("Pick a game you want to play: ");
         String gameID = scanner.nextLine();
-        while(gameID.isBlank()){
+        while(gameID.isBlank() || !serverFacade.isNumeric(gameID)){
             System.out.println("Pick a game you want to play: ");
             gameID = scanner.nextLine();
         }
@@ -268,8 +268,10 @@ public class ChessClient {
         Integer newID = 0;
         for(int ID : gameIDs) {
             if(Integer.parseInt(gameID) == ID){
-                newID = ID;
-                break;
+                newID = getGameIDFromGameDataList(ID, gameID, newID);
+                if(newID != 0){
+                    break;
+                }
             }
         }
 
@@ -287,11 +289,6 @@ public class ChessClient {
 
         // plug in the authToken given from the register/login
         String joinMessage = serverFacade.join(auth, newID, playerColor);
-        // TODO call server facade join game
-        //  next get response back and store in a variable
-        //  check the variable to see if the join game was successful
-        //  print out result ("Game successfully joined" or "Join failed")
-
         // TODO: figure out gameIDs with associated games to figure out which game to display.
         //   for now, until the above is completed, just print out the board for an unspecified game. Fix this later.
         if(joinMessage.equals("join successful!")){
@@ -306,6 +303,16 @@ public class ChessClient {
             loggedInHelp();
             loggedIn();
         }
+    }
+
+    private Integer getGameIDFromGameDataList(int ID, String gameID, Integer newID) {
+        for(GameData game : gameDataList){
+            if(Integer.parseInt(gameID) == game.gameID()){
+                newID = ID;
+                return newID;
+            }
+        }
+        return 0;
     }
 
     private String checkIfValidGameID(String gameID) {
@@ -368,21 +375,13 @@ public class ChessClient {
         System.out.println("  6. Help");
     }
     // note: only for testing purposes. Delete afterwards
-    /*
+
     private void clearDB() throws ResponseException{
         serverFacade.clear();
-
-     */
-    /*
         System.out.println("CLEARED");
         isLoggedIn = false;
-
-     */
-    /*
         notLoggedInHelp();
     }
-
-     */
 
     // create matrix for chesspiece locations
     public ChessBoard chessPiecePositions() {
