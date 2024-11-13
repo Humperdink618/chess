@@ -1,11 +1,10 @@
 package ui;
 
 import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
 import com.google.gson.Gson;
+import exceptions.ResponseException;
 import model.GameData;
+import result.ListResult;
 import ui.serverfacade.ServerFacade;
 
 import java.util.*;
@@ -13,13 +12,13 @@ import java.util.*;
 public class ChessClient {
     // TODO: implement the Chess client.
     // These are variables which you will need for multiple functions
-    private static Scanner scanner = new Scanner(System.in);
-    private static String auth = null;
+    private Scanner scanner = new Scanner(System.in);
+    private String auth = null;
     // TODO: edit this code when I've actually implemented the ServerFacade
     private final String serverURL;
     private final ServerFacade serverFacade;
-    private static Boolean isLoggedIn = false;
-    private static Collection<Integer> gameIDs = new HashSet<>();
+    private Boolean isLoggedIn = false;
+    private Collection<Integer> gameIDs = new HashSet<>();
 
     public ChessClient(String serverURL){
         serverFacade = new ServerFacade(serverURL);
@@ -27,7 +26,7 @@ public class ChessClient {
     }
 
     // write code for menu items here
-    public static int run() {
+    public int run() throws ResponseException{
         System.out.println("Welcome to 240 chess!");
         notLoggedInHelp();
         while (true) {
@@ -44,7 +43,7 @@ public class ChessClient {
         }
     }
 
-    private static Boolean notLoggedIn(){
+    private Boolean notLoggedIn() throws ResponseException{
         String input = scanner.nextLine();
         if(input.equals("1")){
             loginUser();
@@ -61,7 +60,7 @@ public class ChessClient {
         return false;
     }
 
-    private static void notLoggedInHelp(){
+    private void notLoggedInHelp(){
         System.out.println("Choose an option: ");
         System.out.println("  1. Login");
         System.out.println("  2. Register");
@@ -69,7 +68,7 @@ public class ChessClient {
         System.out.println("  4. Help");
     }
 
-    private static void loginUser(){
+    private void loginUser() throws ResponseException{
         System.out.println("Please enter your username: ");
         String inputUserName = scanner.nextLine();
         while(inputUserName.isBlank()) {
@@ -83,15 +82,16 @@ public class ChessClient {
             System.out.println("Enter your Password: ");
             inputPassword = scanner.nextLine();
         }
-        String authToken = ServerFacade.login(inputUserName,inputPassword);
+        boolean isError = false;
+        String authToken = serverFacade.login(inputUserName,inputPassword, isError);
         // TODO call server facade login
         //  next get response back and store in a variable
         //  check the variable to see if the login was successful
         //  if it was, change logged in to true
         //  set auth = authtoken returned from result
         //  print out result ("Yay you are in!" or "Boo you are dumb")
-        if(authToken.equals("")){
-            System.out.println("Error: Login unsuccessful.");
+        if(isError){
+            System.out.println(authToken);
             System.out.println("If you want to try again, Enter 1. If you want to return to the main menu, Enter 2.");
             String inputAnswer = scanner.nextLine();
             if(inputAnswer.equals("1")){
@@ -113,7 +113,7 @@ public class ChessClient {
         }
     }
 
-    private static void registerUser(){
+    private void registerUser() throws ResponseException{
         System.out.println("Please create a valid username: ");
         String inputUserName = scanner.nextLine();
         while(inputUserName.isBlank()) {
@@ -132,15 +132,16 @@ public class ChessClient {
             System.out.println("Please enter your Email: ");
             inputEmail = scanner.nextLine();
         }
-        String authToken = ServerFacade.register(inputUserName,inputPassword, inputEmail);
+        boolean isError = false;
+        String authToken = serverFacade.register(inputUserName,inputPassword, inputEmail, isError);
         // TODO call server facade register
         //  next get response back and store in a variable
         //  check the variable to see if the register was successful
         //  if it was, change logged in to true
         //  set auth = authtoken returned from result
         //  print out result ("Yay you are in!" or "Boo you are dumb")
-        if(authToken.equals("")){
-            System.out.println("Error: Register unsuccessful.");
+        if(isError){
+            System.out.println(authToken);
             notLoggedInHelp();
             notLoggedIn();
 
@@ -151,7 +152,7 @@ public class ChessClient {
         }
     }
 
-    private static Boolean loggedIn(){
+    private Boolean loggedIn() throws ResponseException{
         String input = scanner.nextLine();
         if(input.equals("1")){
             createGame();
@@ -172,7 +173,7 @@ public class ChessClient {
         return true;
     }
 
-    private static boolean isNumeric(String str){
+    private boolean isNumeric(String str){
         try {
             Integer.parseInt(str);
             return true;
@@ -181,7 +182,7 @@ public class ChessClient {
         }
     }
 
-    private static void createGame(){
+    private void createGame() throws ResponseException{
         System.out.println("Create a name for your Chessgame: ");
         String gameName = scanner.nextLine();
         while(gameName.isBlank()){
@@ -189,25 +190,44 @@ public class ChessClient {
             gameName = scanner.nextLine();
         }
         // plug in the authToken given from the register/login
-        int gameID = ServerFacade.create(gameName, auth);
+        String gameID = serverFacade.create(gameName, auth);
         // TODO call server facade create game
         //  next get response back and store in a variable
         //  check the variable to see if the create game was successful
         //  store gameID but don't print it out
         //  print out result ("Game successfully created" or "Game not created")
-        if(gameID == 0){
-            System.out.println("Error: game not created");
+        if(!isNumeric(gameID)){
+            System.out.println(gameID);
         } else {
-            gameIDs.add(gameID);
+            gameIDs.add(Integer.parseInt(gameID));
             System.out.println("Game successfully created!");
         }
     }
 
-    private static void listGames(){
-        System.out.println("Here are all the available games: ");
+    private void listGames() throws ResponseException{
+        boolean isError = false;
 
         // plug in the authToken given from the register/login
-        ArrayList<String> games = ServerFacade.list(auth);
+        String listString = serverFacade.list(auth, isError);
+        if(isError){
+            System.out.println(listString);
+            loggedInHelp();
+            loggedIn();
+        }
+        System.out.println("Here are all the available games: ");
+
+        ListResult listResult = new Gson().fromJson(listString, ListResult.class);
+
+        Collection<GameData> gameList = listResult.games();
+
+        ArrayList<String> games = new ArrayList<>();
+        for(GameData game : gameList){
+            StringBuilder individualGameData = new StringBuilder();
+            individualGameData.append(" " + game.whiteUsername() + ", ");
+            individualGameData.append(game.blackUsername() + ", " + game.gameName());
+            games.add(individualGameData.toString());
+        }
+
         // TODO call server facade list game
         //  next get response back and store in a variable
         //  check the variable to see if the list game was successful
@@ -222,7 +242,7 @@ public class ChessClient {
         System.out.println(result.toString());
     }
 
-    private static void playGame(){
+    private void playGame() throws ResponseException{
         listGames();
         Collection<String> inputGameIDs = new ArrayList<>();
 
@@ -264,7 +284,7 @@ public class ChessClient {
         // check to see if that teamcolor is taken or not.
 
         // plug in the authToken given from the register/login
-        String joinMessage = ServerFacade.join(auth, newID, playerColor);
+        String joinMessage = serverFacade.join(auth, newID, playerColor);
         // TODO call server facade join game
         //  next get response back and store in a variable
         //  check the variable to see if the join game was successful
@@ -278,25 +298,24 @@ public class ChessClient {
             DrawChessboard drawChessboard = new DrawChessboard(board);
             drawChessboard.run();
         } else {
-            System.out.println("Error: Join failed");
+            System.out.println(joinMessage);
+            loggedInHelp();
+            loggedIn();
         }
-
     }
 
-    private static void observeGame(){
+    private void observeGame(){
         // print out the list of games with associated numbers starting at 1 (independent of gameID)
         System.out.println("Choose a game to observe: ");
+        // note: gameplay will not be implemented until Phase 6. For now, just display the ChessBoard
         String gameName = scanner.nextLine();
+        // note: no calling the ServerFacade here. The Client keeps track of which number is associated with which game
+        // may want to create a hashset that keeps track of server gameIDs and the ui gameIDs
         while(gameName.isBlank()){
             System.out.println("Choose a game to play: ");
             // print out the list of games with associated numbers starting at 1 (independent of gameID)
             gameName = scanner.nextLine();
         }
-        // note: no calling the ServerFacade here. The Client keeps track of which number is associated with which game
-        // may want to create a hashset that keeps track of server gameIDs and the ui gameIDs
-
-        // note: gameplay will not be implemented until Phase 6. For now, just display the ChessBoard
-
         // TODO: figure out gameIDs with associated games to figure out which game to display.
         //   for now, until the above is completed, just print out the board for an unspecified game. Fix this later.
         ChessBoard board = chessPiecePositions();
@@ -304,27 +323,28 @@ public class ChessClient {
         drawChessboard.run();
     }
 
-    private static void logoutUser(){
+    private void logoutUser() throws ResponseException {
 
-        String logoutMessage = ServerFacade.logout(auth);
+        String logoutMessage = serverFacade.logout(auth);
         // TODO call server facade logout
         //  next get response back and store in a variable
         //  check the variable to see if the logout was successful
         //  reset auth = ""
         //  print out result ("logout successful!" or "logout failed")
+        //  if an exception is thrown, print out the error message.
         if(logoutMessage.equals("logout successful!")){
             System.out.println("logout successful!");
             auth = null;
             isLoggedIn = false;
             notLoggedInHelp();
         } else {
-            System.out.println("Error: Logout unsuccessful.");
+            System.out.println(logoutMessage);
             loggedInHelp();
             loggedIn();
         }
     }
 
-    private static void loggedInHelp(){
+    private void loggedInHelp(){
         System.out.println("Welcome to Chess!");
         System.out.println("Choose an option: ");
         System.out.println("  1. Create Game");
@@ -335,23 +355,8 @@ public class ChessClient {
         System.out.println("  6. Help");
     }
 
-
-
-
-//    // create matrix for chesspiece locations
-//    public static Collection<ChessPiece> chessPiecePositions() {
-//        Collection<ChessPiece> chessPieces = new HashSet<>();
-//        ChessBoard board = new ChessBoard();
-//        board.resetBoard();
-//        Collection<ChessPosition> positions = board.getChessPositions();
-//        for (ChessPosition position : positions) {
-//            chessPieces.add(board.getPiece(position));
-//        }
-//        return chessPieces;
-//    }
-
     // create matrix for chesspiece locations
-    public static ChessBoard chessPiecePositions() {
+    public ChessBoard chessPiecePositions() {
         // note: this may be a temporary solution, as it may or may not be compatible with Phase 6
         // for now though, it works fine
         ChessBoard board = new ChessBoard();
@@ -359,5 +364,4 @@ public class ChessClient {
 
         return board;
     }
-
 }

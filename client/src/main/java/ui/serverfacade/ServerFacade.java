@@ -1,12 +1,14 @@
 package ui.serverfacade;
 
-import model.GameData;
-import request.LoginRequest;
+import com.google.gson.Gson;
+import exceptions.ResponseException;
+import request.*;
+import result.CreateResult;
+import result.ListResult;
 import result.LoginResult;
+import result.RegisterResult;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
+import java.util.Map;
 
 public class ServerFacade {
 
@@ -18,29 +20,43 @@ public class ServerFacade {
         serverURL = url;
     }
 
-    public String getServerURL() {
-        return serverURL;
-    }
-
     // TODO: implement ServerFacade class
 
-    public static String login(String username, String password) {
+    public String login(String username, String password, boolean isError) throws ResponseException {
         // note: may need to change the return type at some point
         // send http request to server
         // check result
         // if good -> ? return auth token (might consider returning full http response if code in ui needs more info)
         // if bad -> return "" for ease of knowing what's wrong
         // want to pass result back to ui
-        //String serverURL = getServerURL();
-        String path = "/session";
-        LoginRequest loginRequest = new LoginRequest(username, password);
-        //var authData = ClientCommunicator.makeRequest("POST",path,loginRequest,LoginResult.class,serverURL,null);
+        try {
+            String path = "/session";
+            LoginRequest loginRequest = new LoginRequest(username, password);
+            LoginResult authData = ClientCommunicator.makeRequest(
+                    "POST",
+                    path,
+                    loginRequest,
+                    LoginResult.class,
+                    serverURL,
+                    null);
+            return authData.authToken();
+
+        } catch (Exception e) {
+            isError = true;
+            return getErrorMessage(e);
+        }
+        // String authToken = authData.authToken;
         // TODO: for testing purposes only: delete when this method is actually implemented
         //return "authToken";
-        return "";
+        //return "";
     }
 
-    public static String register(String username, String password, String email){
+    private static String getErrorMessage(Exception e) {
+        String body = new Gson().toJson(Map.of("message", e.getMessage()));
+        return body;
+    }
+
+    public String register(String username, String password, String email, boolean isError) throws ResponseException{
         // note: may need to change the return type at some point
         // send http request to server
         // check result
@@ -49,10 +65,25 @@ public class ServerFacade {
         // want to pass result back to ui
         // TODO: for testing purposes only: delete when this method is actually implemented
         //return "authToken";
-        return "";
+        try {
+            String path = "/user";
+            RegisterRequest registerRequest = new RegisterRequest(username, password, email);
+            RegisterResult authData
+                    = ClientCommunicator.makeRequest(
+                    "POST",
+                    path,
+                    registerRequest,
+                    RegisterResult.class,
+                    serverURL,
+                    null);
+            return authData.authToken();
+        } catch (Exception e) {
+            isError = true;
+            return getErrorMessage(e);
+        }
     }
 
-    public static String logout(String authToken){
+    public String logout(String authToken) throws ResponseException {
         // note: may need to change the return type at some point
         // send http request to server
         // check result
@@ -61,11 +92,24 @@ public class ServerFacade {
         // if bad -> return "logout failed" for ease of knowing what's wrong
         // want to pass result back to ui
         // TODO: for testing purposes only: delete when this method is actually implemented
-        return "logout successful!";
-        //return "";
+        try {
+            String path = String.format("/session/%s", authToken);
+            LogoutRequest logoutRequest = new LogoutRequest(authToken);
+            ClientCommunicator.makeRequest(
+                    "DELETE",
+                    path,
+                    logoutRequest,
+                    null,
+                    serverURL,
+                    authToken);
+            return "logout successful!";
+
+        } catch (Exception e) {
+            return getErrorMessage(e);
+        }
     }
 
-    public static int create(String gameName, String authToken) {
+    public String create(String gameName, String authToken) throws ResponseException{
         // note: may need to change the return type at some point
         // send http request to server
         // check result
@@ -76,11 +120,27 @@ public class ServerFacade {
         // write request to serverFacade
         //isCreate = false; // for cleanup purposes
         // TODO: for testing purposes only: delete when this method is actually implemented
-        //return 1;
-        return 0;
+        try {
+            String path = "/game";
+            CreateRequest createRequest = new CreateRequest(authToken, gameName);
+            CreateResult createResult = ClientCommunicator.makeRequest(
+                    "POST",
+                    path,
+                    createRequest,
+                    CreateResult.class,
+                    serverURL,
+                    authToken);
+            int gameID = createResult.gameID();
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append(gameID);
+            //return 1;
+            return stringBuilder.toString();
+        } catch (Exception e) {
+            return getErrorMessage(e);
+        }
     }
 
-    public static ArrayList<String> list(String authToken) {
+    public String list(String authToken, boolean isError) throws ResponseException {
         // note: may need to change the return type at some point
         // send http request to server
         // check result
@@ -88,8 +148,25 @@ public class ServerFacade {
         // (might consider returning full http response if code in ui needs more info)
         // if bad -> return "" for ease of knowing what's wrong
         // want to pass result back to ui
-        //var path = "/game";
-        //record listGameResponse(GameData[] games){}
+
+        try {
+            String path = "/game";
+            ListRequest listRequest = new ListRequest(authToken);
+            ListResult listGames = ClientCommunicator.makeRequest(
+                    "GET",
+                    path,
+                    listRequest,
+                    ListResult.class,
+                    serverURL,
+                    authToken
+            );
+            isError = false;
+            return new Gson().toJson(listGames);
+
+        } catch (Exception e) {
+            isError = true;
+            return getErrorMessage(e);
+        }
         // note: do NOT have this list of games display the internal game IDs.
         // also, if you have something in JSON, parse it, and only display the information we want the user to see.
         // TODO: for testing purposes only: delete when this method is actually implemented
@@ -102,10 +179,10 @@ public class ServerFacade {
 
         return games;
         */
-        return null;
+        //return null;
     }
 
-    public static String join(String authToken, Integer gameID, String playerColor) {
+    public String join(String authToken, Integer gameID, String playerColor) throws ResponseException{
         // note: may need to change the return type at some point
         // send http request to server
         // check result
@@ -115,9 +192,28 @@ public class ServerFacade {
         // want to pass result back to ui
         //Integer.parseInt(gameID); // convert the string gameID to an int
         // TODO: for testing purposes only: delete when this method is actually implemented
-        return "join successful!";
-        //return "";
+        try {
+            String path = "/game";
+            JoinRequest joinRequest = new JoinRequest(authToken, playerColor, gameID);
+            ClientCommunicator.makeRequest(
+                    "PUT",
+                    path,
+                    joinRequest,
+                    null,
+                    serverURL,
+                    authToken);
+            return "join successful!";
+        } catch(Exception e) {
+            return getErrorMessage(e);
+        }
     }
+
+    // note: for testing purposes only:
+    public void clear() throws ResponseException {
+        String path = "/db";
+        ClientCommunicator.makeRequest("DELETE", path, null, null, serverURL, null);
+    }
+
 
 
 
