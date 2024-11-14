@@ -14,7 +14,7 @@ public class DrawChessboard {
 
     private static ChessBoard board;
 
-    public enum boardColor {
+    public enum BoardColor {
         WHITE,
         BLACK,
     }
@@ -30,7 +30,7 @@ public class DrawChessboard {
         out.print(ERASE_SCREEN);
 
         // draw white board
-        boardColor white = boardColor.WHITE;
+        BoardColor white = BoardColor.WHITE;
         drawHeaders(out, white);
         drawChessBoard(out, white);
         drawHeaders(out, white);
@@ -39,17 +39,17 @@ public class DrawChessboard {
         drawChessBoardDivision(out);
 
         // draw black board
-        boardColor black = boardColor.BLACK;
+        BoardColor black = BoardColor.BLACK;
         drawHeaders(out, black);
         drawChessBoard(out, black);
         drawHeaders(out, black);
     }
 
-    private static boolean isWhite(boardColor color) {
-        return color == boardColor.WHITE;
+    private static boolean isWhite(BoardColor color) {
+        return color == BoardColor.WHITE;
     }
 
-    private static void drawHeaders(PrintStream out, boardColor color) {
+    private static void drawHeaders(PrintStream out, BoardColor color) {
 
         setLightGrey(out);
 
@@ -86,7 +86,7 @@ public class DrawChessboard {
         setLightGrey(out);
     }
 
-    private static void drawChessBoard(PrintStream out, boardColor color) {
+    private static void drawChessBoard(PrintStream out, BoardColor color) {
 
         // note: first draw the board w/o the chesspieces, then pass in a matrix from ChessClient to populate
         // this chessboard with the right chesspieces in the right positions (use default board config for Phase 5)
@@ -105,7 +105,7 @@ public class DrawChessboard {
         }
     }
 
-    private static void createRowWithHeaders(PrintStream out, boardColor color, int j) {
+    private static void createRowWithHeaders(PrintStream out, BoardColor color, int j) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(j + 1);
         String rowHeader = stringBuilder.toString();
@@ -115,7 +115,7 @@ public class DrawChessboard {
         resetColor(out);
     }
 
-    private static void drawRowOfSquaresEvenIndex(PrintStream out, boardColor color, int j){
+    private static void drawRowOfSquaresEvenIndex(PrintStream out, BoardColor color, int j){
         if(isWhite(color)){
             for(int i = 0; i < 8; i++){
                 drawBlackSquareFirst(out, j, i);
@@ -136,7 +136,7 @@ public class DrawChessboard {
         }
     }
 
-    private static void drawRowOfSquaresOddIndex(PrintStream out, boardColor color, int j){
+    private static void drawRowOfSquaresOddIndex(PrintStream out, BoardColor color, int j){
         if(isWhite(color)){
             for(int i = 0; i < 8; i++){
                 drawWhiteSquareFirst(out, j, i);
@@ -157,7 +157,7 @@ public class DrawChessboard {
         }
     }
 
-    private static void drawRowOfSquares(PrintStream out, boardColor color, int j){
+    private static void drawRowOfSquares(PrintStream out, BoardColor color, int j){
         if(j % 2 == 0){
             drawRowOfSquaresEvenIndex(out, color, j);
         } else {
@@ -244,12 +244,12 @@ public class DrawChessboard {
 
     private static void printChessPiece(PrintStream out,
                                         String chessPiece,
-                                        String BGColor,
+                                        String backGroundColor,
                                         String textColor,
                                         int j,
                                         int i) {
         ChessPiece piece = getChessPiece(j, i);
-        out.print(BGColor);
+        out.print(backGroundColor);
         if(piece != null){
             if(isTeamColorWhite(piece)){
                 out.print(SET_TEXT_COLOR_RED);
@@ -261,7 +261,7 @@ public class DrawChessboard {
 
         out.print(chessPiece);
 
-        out.print(BGColor);
+        out.print(backGroundColor);
         out.print(textColor);
     }
 

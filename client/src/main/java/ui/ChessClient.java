@@ -243,9 +243,9 @@ public class ChessClient {
         }
         gameID = checkIfValidGameID(gameID);
         Integer newID = 0;
-        for(int ID : gameIDs) {
-            if(Integer.parseInt(gameID) == ID){
-                newID = getGameIDFromGameDataList(ID, gameID, newID);
+        for(int id : gameIDs) {
+            if(Integer.parseInt(gameID) == id){
+                newID = getGameIDFromGameDataList(id, gameID, newID);
                 if(newID != 0){
                     break;
                 }
@@ -282,10 +282,10 @@ public class ChessClient {
         }
     }
 
-    private Integer getGameIDFromGameDataList(int ID, String gameID, Integer newID) {
+    private Integer getGameIDFromGameDataList(int id, String gameID, Integer newID) {
         for(GameData game : gameDataList){
             if(Integer.parseInt(gameID) == game.gameID()){
-                newID = ID;
+                newID = id;
                 return newID;
             }
         }
@@ -353,13 +353,24 @@ public class ChessClient {
     }
     // note: only for testing purposes. Delete afterwards
 
+    /*
     private void clearDB() throws ResponseException{
+     */
+
+
         // ADMIN ONLY!
-        serverFacade.clear();
+        /*serverFacade.clear();
+
         System.out.println("CLEARED");
+         */
+
+    /*
         isLoggedIn = false;
+
         notLoggedInHelp();
-    }
+     */
+
+    //}
 
     // create matrix for chesspiece locations
     public ChessBoard chessPiecePositions() {
