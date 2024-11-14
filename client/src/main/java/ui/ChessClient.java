@@ -378,7 +378,6 @@ public class ChessClient {
         // for now though, it works fine
         ChessBoard board = new ChessBoard();
         board.resetBoard();
-
         return board;
     }
 }
