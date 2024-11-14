@@ -157,16 +157,14 @@ public class ChessClient {
             return false;
         } else if(input.equals("6")) {
             loggedInHelp();
-/*       } else if(input.equals("7")) { // DELETE THIS LINE
+       } else if(input.equals("7")) { // DELETE THIS LINE
             clearDB();
-*/
+
         } else {
             System.out.println("Not a valid option.\n");
         }
         return true;
     }
-
-
 
     private void createGame() throws ResponseException{
         System.out.println("Create a name for your Chessgame: ");
@@ -193,9 +191,11 @@ public class ChessClient {
     }
 
     private void listGames() throws ResponseException{
-
+        // call server facade list game
         // plug in the authToken given from the register/login
         String listString = serverFacade.list(auth);
+        //  next get response back and store in a variable
+
         if(listString.contains("message")){
             HashMap errorMessageMap = new Gson().fromJson(listString, HashMap.class);
             String errorMessage = errorMessageMap.get("message").toString();
@@ -207,52 +207,34 @@ public class ChessClient {
         ListResult listResult = new Gson().fromJson(listString, ListResult.class);
 
         Collection<GameData> gameList = listResult.games();
+        //  check the variable to see if the list game was successful
         if(gameList == null || gameList.isEmpty()){
             System.out.println("No available games to display.");
             loggedInHelp();
             loggedIn();
+        } else {
+            System.out.println("Here are all the available games: ");
+            HashMap<Integer, String> gameMap = new HashMap<>();
+            for (GameData game : gameList) {
+                StringBuilder individualGameData = new StringBuilder();
+                individualGameData.append(" " + game.whiteUsername() + ", ");
+                individualGameData.append(game.blackUsername() + ", " + game.gameName());
+                //  store gameID but don't print it out
+                gameIDs.add(game.gameID());
+                gameDataList.add(game);
+                gameMap.put(game.gameID(), individualGameData.toString());
+            }
+            //  print out result
+            StringBuilder result = new StringBuilder();
+            for (int i = 0; i < gameMap.size(); i++) {
+                result.append(i + 1 + ". " + gameMap.get(i+1)).append('\n');
+            }
+            System.out.println(result.toString());
         }
-        System.out.println("Here are all the available games: ");
-
-        ArrayList<String> games = new ArrayList<>();
-        for(GameData game : gameList){
-            StringBuilder individualGameData = new StringBuilder();
-            individualGameData.append(" " + game.whiteUsername() + ", ");
-            individualGameData.append(game.blackUsername() + ", " + game.gameName());
-            games.add(individualGameData.toString());
-            gameIDs.add(game.gameID());
-            gameDataList.add(game);
-            Collections.sort(games);
-        }
-
-        // TODO call server facade list game
-        //  next get response back and store in a variable
-        //  check the variable to see if the list game was successful
-        //  store gameID but don't print it out
-        //  print out result ("Games successfully listed" or "Games not listed")
-        StringBuilder result = new StringBuilder();
-        for(int i = 0; i < games.size(); i++){
-            result.append(i + 1 + ". " + games.get(i)).append('\n');
-            //gameIDs.add(i + 1);
-        }
-        System.out.println(result.toString());
     }
 
     private void playGame() throws ResponseException{
         listGames();
-       // Collection<String> inputGameIDs = new ArrayList<>();
-/*
-        for(Integer i : gameIDs){
-
-            StringBuilder stringBuilder = new StringBuilder();
-            */
-        /*
-            stringBuilder.append(i);
-
-            inputGameIDs.add(stringBuilder.toString());
-            */
-    //    }
-
         System.out.println("Pick a game you want to play: ");
         String gameID = scanner.nextLine();
         while(gameID.isBlank() || !serverFacade.isNumeric(gameID)){
@@ -328,7 +310,7 @@ public class ChessClient {
         // note: no calling the ServerFacade here. The Client keeps track of which number is associated with which game
         // may want to create a hashset that keeps track of server gameIDs and the ui gameIDs
         while(gameName.isBlank()){
-            System.out.println("Choose a game to play: ");
+            System.out.println("Choose a game to observe: ");
             // print out the list of games with associated numbers starting at 1 (independent of gameID)
             gameName = scanner.nextLine();
         }
