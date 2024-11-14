@@ -176,7 +176,7 @@ public class ChessClient {
         // plug in the authToken given from the register/login
         String gameID = serverFacade.create(gameName, auth);
 
-        if(!serverFacade.isNumeric(gameID)){
+        if(!isNumeric(gameID)){
             HashMap errorMessageMap = new Gson().fromJson(gameID, HashMap.class);
             String errorMessage = errorMessageMap.get("message").toString();
             System.out.println(errorMessage);
@@ -237,7 +237,7 @@ public class ChessClient {
         listGames();
         System.out.println("Pick a game you want to play: ");
         String gameID = scanner.nextLine();
-        while(gameID.isBlank() || !serverFacade.isNumeric(gameID)){
+        while(gameID.isBlank() || !isNumeric(gameID)){
             System.out.println("Pick a game you want to play: ");
             gameID = scanner.nextLine();
         }
@@ -293,7 +293,7 @@ public class ChessClient {
     }
 
     private String checkIfValidGameID(String gameID) {
-        while(!gameIDs.contains(Integer.parseInt(gameID)) || !serverFacade.isNumeric(gameID)){
+        while(!gameIDs.contains(Integer.parseInt(gameID)) || !isNumeric(gameID)){
             System.out.println("Error: not a valid option.");
             System.out.println("Pick a game you want to play: ");
             gameID = scanner.nextLine();
@@ -321,6 +321,16 @@ public class ChessClient {
         ChessBoard board = chessPiecePositions();
         DrawChessboard drawChessboard = new DrawChessboard(board);
         drawChessboard.run();
+    }
+
+    // note: I am putting this here so that it can be used by both my ChessClient AND my ServerFacadeTests
+    public boolean isNumeric(String str){
+        try {
+            Integer.parseInt(str);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 
     private void logoutUser() throws ResponseException {

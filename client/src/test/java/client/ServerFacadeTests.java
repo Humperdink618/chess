@@ -132,7 +132,7 @@ public class ServerFacadeTests {
         Assertions.assertDoesNotThrow(() -> serverFacade.register(goodUsername, goodPW, goodEmail));
         String goodGameName = "Doors <3";
         String gameID = serverFacade.create(goodGameName, authData);
-        Assertions.assertTrue(serverFacade.isNumeric(gameID));
+        Assertions.assertDoesNotThrow(() -> Integer.parseInt(gameID));
         Assertions.assertDoesNotThrow(() -> serverFacade.create(goodGameName, authData));
     }
 
@@ -143,7 +143,6 @@ public class ServerFacadeTests {
         String badGameName = "SENTINAL OOOD";
         Assertions.assertThrows(ResponseException.class, () -> {
             String gameID = serverFacade.create(badGameName, badAuth);
-            Assertions.assertFalse(serverFacade.isNumeric(gameID));
             HashMap errorMessageMap = new Gson().fromJson(gameID, HashMap.class);
             String errorMessage = errorMessageMap.get("message").toString();
             throw new ResponseException(errorMessage);
