@@ -121,7 +121,7 @@ public class DrawChessboard {
                 drawBlackSquareFirst(out, j, i);
             }
         } else {
-            for(int i = 0; i < 8; i++){
+            for(int i = 7; i > -1; i--){
                 drawWhiteSquareFirst(out, j, i);
             }
         }
@@ -142,7 +142,7 @@ public class DrawChessboard {
                 drawWhiteSquareFirst(out, j, i);
             }
         } else {
-            for(int i = 0; i < 8; i++){
+            for(int i = 7; i > -1; i--){
                 drawBlackSquareFirst(out, j, i);
             }
         }

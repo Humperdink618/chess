@@ -88,7 +88,11 @@ public class ChessClient {
         if(authToken.contains("message")){
             HashMap errorMessageMap = new Gson().fromJson(authToken, HashMap.class);
             String errorMessage = errorMessageMap.get("message").toString();
-            System.out.println(errorMessage);
+            if(errorMessage.equals("Error: unauthorized")) {
+                System.out.println("Error: invalid username or password.");
+            } else {
+                System.out.println(errorMessage);
+            };
             System.out.println("If you want to try again, Enter 1. If you want to return to the main menu, Enter 2.");
             String inputAnswer = scanner.nextLine();
             if(inputAnswer.equals("1")){
@@ -136,7 +140,13 @@ public class ChessClient {
         if(authToken.contains("message")){
             HashMap errorMessageMap = new Gson().fromJson(authToken, HashMap.class);
             String errorMessage = errorMessageMap.get("message").toString();
-            System.out.println(errorMessage);
+            if(errorMessage.equals("Error: bad request")){
+                System.out.println("Error: Failed to register user due to invalid username, password, or email.");
+            } else if(errorMessage.equals("Error: already taken")){
+                System.out.println(errorMessage);
+            } else {
+                System.out.println(errorMessage);
+            }
             notLoggedInHelp();
             notLoggedIn();
 
@@ -185,7 +195,13 @@ public class ChessClient {
         if(!isNumeric(gameID)){
             HashMap errorMessageMap = new Gson().fromJson(gameID, HashMap.class);
             String errorMessage = errorMessageMap.get("message").toString();
-            System.out.println(errorMessage);
+            if(errorMessage.equals("Error: unauthorized")) {
+                System.out.println(errorMessage);
+            } else if(errorMessage.equals("Error: bad request")){
+                System.out.println("Error: Failed to create game due to poor user input.");
+            } else {
+                System.out.println(errorMessage);
+            }
             loggedInHelp();
             loggedIn();
         } else {
