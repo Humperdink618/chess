@@ -285,7 +285,15 @@ public class ChessClient {
         } else {
             HashMap errorMessageMap = new Gson().fromJson(joinMessage, HashMap.class);
             String errorMessage = errorMessageMap.get("message").toString();
-            System.out.println(errorMessage);
+            if(errorMessage.equals("Error: unauthorized")) {
+                System.out.println(errorMessage);
+            } else if(errorMessage.equals("Error: bad request")){
+                System.out.println("Error: Join failed due to poor user input.");
+            } else if(errorMessage.equals("Error: already taken")){
+                System.out.println(errorMessage);
+            } else {
+                System.out.println(errorMessage);
+            }
             loggedInHelp();
             loggedIn();
         }
@@ -364,7 +372,9 @@ public class ChessClient {
         } else {
             HashMap errorMessageMap = new Gson().fromJson(logoutMessage, HashMap.class);
             String errorMessage = errorMessageMap.get("message").toString();
-            System.out.println(errorMessage);
+            if(errorMessage.equals("Error: unauthorized")) {
+                System.out.println(errorMessage);
+            }
             loggedInHelp();
             loggedIn();
         }

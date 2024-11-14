@@ -244,5 +244,23 @@ public class ServerFacadeTests {
         });
     }
     // note: no unit tests for getErrorMessage(Exception e), as it doesn't call my Server and is an internal method
-    // nor is there any unit test for clear(), as that method ONLY exists for testing purposes.
+    // Clear() only exists for testing.
+    @Test
+    @DisplayName("Should clear ServerData when clear() is called")
+    public void clearPass() throws ResponseException {
+        String goodUsername = "J";
+        String goodPW = "BrandedPens<3";
+        String goodEmail = "MotherOfCompanyLeadership@JCJenson.com";
+        String authData = serverFacade.register(goodUsername, goodPW, goodEmail);
+        Assertions.assertTrue(authData.length() > 10);
+        Assertions.assertDoesNotThrow(() -> serverFacade.register(goodUsername, goodPW, goodEmail));
+        serverFacade.clear();
+        Assertions.assertDoesNotThrow(() -> serverFacade.clear());
+        Assertions.assertThrows(ResponseException.class, () -> {
+            String badAuthData = serverFacade.login(goodUsername, goodPW);
+            HashMap errorMessageMap = new Gson().fromJson(badAuthData, HashMap.class);
+            String errorMessage = errorMessageMap.get("message").toString();
+            throw new ResponseException(errorMessage);
+        });
+    }
 }
