@@ -157,9 +157,9 @@ public class ChessClient {
             return false;
         } else if(input.equals("6")) {
             loggedInHelp();
-       } else if(input.equals("7")) { // DELETE THIS LINE
+/*       } else if(input.equals("7")) { // DELETE THIS LINE
             clearDB();
-
+*/
         } else {
             System.out.println("Not a valid option.\n");
         }
@@ -354,6 +354,7 @@ public class ChessClient {
     // note: only for testing purposes. Delete afterwards
 
     private void clearDB() throws ResponseException{
+        // ADMIN ONLY!
         serverFacade.clear();
         System.out.println("CLEARED");
         isLoggedIn = false;
