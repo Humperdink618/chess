@@ -158,10 +158,18 @@ public class DrawChessboard {
     }
 
     private static void drawRowOfSquares(PrintStream out, BoardColor color, int j){
-        if(j % 2 == 0){
-            drawRowOfSquaresEvenIndex(out, color, j);
+        if(isWhite(color)) {
+            if (j % 2 == 0) {
+                drawRowOfSquaresEvenIndex(out, color, j);
+            } else {
+                drawRowOfSquaresOddIndex(out, color, j);
+            }
         } else {
-            drawRowOfSquaresOddIndex(out, color, j);
+            if (j % 2 == 0) {
+                drawRowOfSquaresOddIndex(out, color, j);
+            } else {
+                drawRowOfSquaresEvenIndex(out, color, j);
+            }
         }
     }
 

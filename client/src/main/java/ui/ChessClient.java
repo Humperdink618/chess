@@ -72,12 +72,14 @@ public class ChessClient {
         String inputUserName = scanner.nextLine();
         while(inputUserName.isBlank()) {
             // isBlank() returns true if input is empty string or only composed of whitespace characters.
+            System.out.println("Error: not a valid option.");
             System.out.println("Please enter your username: ");
             inputUserName = scanner.nextLine();
         }
         System.out.println("Enter your Password: ");
         String inputPassword = scanner.nextLine();
         while(inputPassword.isBlank()) {
+            System.out.println("Error: not a valid option.");
             System.out.println("Enter your Password: ");
             inputPassword = scanner.nextLine();
         }
@@ -112,18 +114,21 @@ public class ChessClient {
         System.out.println("Please create a valid username: ");
         String inputUserName = scanner.nextLine();
         while(inputUserName.isBlank()) {
+            System.out.println("Error: not a valid option.");
             System.out.println("Please create a valid username: ");
             inputUserName = scanner.nextLine();
         }
         System.out.println("Create your Password: ");
         String inputPassword = scanner.nextLine();
         while(inputPassword.isBlank()) {
+            System.out.println("Error: not a valid option.");
             System.out.println("Create your Password: ");
             inputPassword = scanner.nextLine();
         }
         System.out.println("Please enter your Email: ");
         String inputEmail = scanner.nextLine();
         while(inputEmail.isBlank()){
+            System.out.println("Error: not a valid option.");
             System.out.println("Please enter your Email: ");
             inputEmail = scanner.nextLine();
         }
@@ -170,6 +175,7 @@ public class ChessClient {
         System.out.println("Create a name for your Chessgame: ");
         String gameName = scanner.nextLine();
         while(gameName.isBlank()){
+            System.out.println("Error: not a valid option.");
             System.out.println("Create a name for your Chessgame: ");
             gameName = scanner.nextLine();
         }
@@ -238,10 +244,11 @@ public class ChessClient {
         System.out.println("Pick a game you want to play: ");
         String gameID = scanner.nextLine();
         while(gameID.isBlank() || !isNumeric(gameID)){
+            System.out.println("Error: not a valid option.");
             System.out.println("Pick a game you want to play: ");
             gameID = scanner.nextLine();
         }
-        gameID = checkIfValidGameID(gameID);
+        gameID = checkIfValidGameIDPlay(gameID);
         Integer newID = 0;
         for(int id : gameIDs) {
             if(Integer.parseInt(gameID) == id){
@@ -255,10 +262,12 @@ public class ChessClient {
         System.out.println("Choose what team you wish to play (White or Black): ");
         String playerColor = scanner.nextLine().toUpperCase();
         while(playerColor.isBlank()){
+            System.out.println("Error: not a valid option.");
             System.out.println("Choose what team you wish to play (White or Black): ");
             playerColor = scanner.nextLine().toUpperCase();
         }
         while(!playerColor.equals("WHITE") && !playerColor.equals("BLACK")){
+            System.out.println("Error: not a valid option.");
             System.out.println("Choose what team you wish to play (White or Black): ");
             playerColor = scanner.nextLine().toUpperCase();
         }
@@ -292,10 +301,19 @@ public class ChessClient {
         return 0;
     }
 
-    private String checkIfValidGameID(String gameID) {
+    private String checkIfValidGameIDPlay(String gameID) {
         while(!gameIDs.contains(Integer.parseInt(gameID)) || !isNumeric(gameID)){
             System.out.println("Error: not a valid option.");
             System.out.println("Pick a game you want to play: ");
+            gameID = scanner.nextLine();
+        }
+        return gameID;
+    }
+
+    private String checkIfValidGameIDObserve(String gameID) {
+        while(!gameIDs.contains(Integer.parseInt(gameID)) || !isNumeric(gameID)){
+            System.out.println("Error: not a valid option.");
+            System.out.println("Pick a game you want to observe: ");
             gameID = scanner.nextLine();
         }
         return gameID;
@@ -309,12 +327,13 @@ public class ChessClient {
         String gameName = scanner.nextLine();
         // note: no calling the ServerFacade here. The Client keeps track of which number is associated with which game
         // may want to create a hashset that keeps track of server gameIDs and the ui gameIDs
-        while(gameName.isBlank()){
+        while(gameName.isBlank() || !isNumeric(gameName)){
+            System.out.println("Error: not a valid option.");
             System.out.println("Choose a game to observe: ");
             // print out the list of games with associated numbers starting at 1 (independent of gameID)
             gameName = scanner.nextLine();
         }
-        gameName = checkIfValidGameID(gameName);
+        gameName = checkIfValidGameIDObserve(gameName);
 
         // TODO: figure out gameIDs with associated games to figure out which game to display.
         //   for now, until the above is completed, just print out the board for an unspecified game. Fix this later.
