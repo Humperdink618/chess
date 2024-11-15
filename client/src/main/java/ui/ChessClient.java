@@ -1,6 +1,7 @@
 package ui;
 
 import chess.ChessBoard;
+import chess.ChessGame;
 import com.google.gson.Gson;
 import exceptions.ResponseException;
 import model.GameData;
@@ -16,6 +17,7 @@ public class ChessClient {
     private final String serverURL;
     private final ServerFacade serverFacade;
     private Boolean isLoggedIn = false;
+    private Boolean isPlayingGame = false;
     private Collection<Integer> gameIDs = new HashSet<>();
     private Collection<GameData> gameDataList = new HashSet<>();
 
@@ -406,6 +408,87 @@ public class ChessClient {
         System.out.println("  5. Logout");
         System.out.println("  6. Help");
     }
+
+    private Boolean gameMenu() throws ResponseException{
+        String input = scanner.nextLine();
+        if(input.equals("1")){
+            redrawChessBoard();
+        } else if(input.equals("2")) {
+            makeMove();
+        } else if(input.equals("3")) {
+            highlightLegalMoves();
+        } else if(input.equals("4")) {
+            resign();
+        } else if(input.equals("5")) {
+            leave();
+            return false;
+        } else if(input.equals("6")) {
+            gamePlayHelp();
+            gameMenu(); // possibly may not need this line
+        } else {
+            System.out.println("Not a valid option.\n");
+            displayGamePlayMenu();
+        }
+        return true;
+    }
+
+    private void displayGamePlayMenu(){
+        System.out.println("Choose an option: ");
+        System.out.println("  1. Redraw Chess Board");
+        System.out.println("  2. Make Move");
+        System.out.println("  3. Highlight Legal Moves");
+        System.out.println("  4. Resign");
+        System.out.println("  5. Leave");
+        System.out.println("  6. Help");
+    }
+
+    private void redrawChessBoard(){
+        // redraws the current chessboard
+        // TODO: not implemented
+    }
+
+    private void makeMove(){
+        // makes a move on the ChessBoard during a game
+        // TODO: not implemented
+    }
+
+    private void highlightLegalMoves(){
+        // highlights all legal moves a chesspiece can make on a ChessBoard during a game
+        // TODO: not implemented
+    }
+
+    private void resign(){
+        // prompts the user to confirm they want to resign.
+        // If they do, the user forfeits the game and the game is over.
+        // Does not cause the user to leave the game.
+        // TODO: not implemented
+    }
+
+    private void leave() throws ResponseException{
+        // removes the user from the game (whether they are playing or observing the game).
+        // The client transitions back to the Post-Login UI.
+        // TODO: not implemented
+        isPlayingGame = false;
+        loggedInHelp();
+        loggedIn();
+    }
+
+    private void gamePlayHelp() throws ResponseException{
+        System.out.println("Enter 1 to redraw the game board.");
+        System.out.println("Enter 2 to make a move.");
+        System.out.println("  (Note: This option is only valid for users actually playing the game. If you are just " +
+                "observing, you may NOT use this option.");
+        System.out.println("Enter 3 to highlight all legal moves for a specific chess piece.");
+        System.out.println("Enter 4 to forfeit, ending the game.");
+        System.out.println("  (Note: you may not forfeit if you are merely observing a game and not playing it.");
+        System.out.println("   Also, resigning from the game does not cause the user to leave the game, " +
+                " whether you are playing or merely obseving.)");
+        System.out.println("Enter 5 to leave the game.");
+        System.out.println(" (Note: This is not the same thing as resigning from a game you are playing.)");
+        System.out.println("Enter 6 to see this message again.\n");
+        displayGamePlayMenu();
+    }
+
     // note: only for testing purposes. Delete afterwards
 
     /*
@@ -431,8 +514,10 @@ public class ChessClient {
     public ChessBoard chessPiecePositions() {
         // note: this may be a temporary solution, as it may or may not be compatible with Phase 6
         // for now though, it works fine
-        ChessBoard board = new ChessBoard();
-        board.resetBoard();
+        ChessGame chessGame = new ChessGame(); // may change this by inputting a parameter
+        ChessBoard board = chessGame.getBoard();
+        //ChessBoard board = new ChessBoard();
+        //board.resetBoard();
         return board;
     }
 }
