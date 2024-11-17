@@ -2,6 +2,7 @@ package ui;
 
 import chess.ChessBoard;
 import chess.ChessGame;
+import chess.ChessPosition;
 import com.google.gson.Gson;
 import exceptions.ResponseException;
 import model.GameData;
@@ -174,9 +175,13 @@ public class ChessClient {
             return false;
         } else if(input.equals("6")) {
             loggedInHelp();
-/*       } else if(input.equals("7")) { // DELETE THIS LINE
+       } else if(input.equals("7")) { // DELETE THIS LINE
             clearDB();
-*/
+
+        } else if(input.equals("8")) { // DELETE THIS LINE
+            highlightLegalMoves();
+
+
         } else {
             System.out.println("Not a valid option.\n");
         }
@@ -297,8 +302,9 @@ public class ChessClient {
         //   for now, until the above is completed, just print out the board for an unspecified game. Fix this later.
         if(joinMessage.equals("join successful!")){
             System.out.println("Join successful!");
-            ChessBoard board = chessPiecePositions();
-            DrawChessboard drawChessboard = new DrawChessboard(board);
+            //ChessBoard board = chessPiecePositions();
+            ChessGame chessGame = chessPiecePositions();
+            DrawChessboard drawChessboard = new DrawChessboard(chessGame, 0);
             drawChessboard.run();
         } else {
             HashMap errorMessageMap = new Gson().fromJson(joinMessage, HashMap.class);
@@ -363,8 +369,9 @@ public class ChessClient {
 
         // TODO: figure out gameIDs with associated games to figure out which game to display.
         //   for now, until the above is completed, just print out the board for an unspecified game. Fix this later.
-        ChessBoard board = chessPiecePositions();
-        DrawChessboard drawChessboard = new DrawChessboard(board);
+        //ChessBoard board = chessPiecePositions();
+        ChessGame chessGame = new ChessGame();
+        DrawChessboard drawChessboard = new DrawChessboard(chessGame, 0);
         drawChessboard.run();
     }
 
@@ -452,9 +459,66 @@ public class ChessClient {
         // TODO: not implemented
     }
 
-    private void highlightLegalMoves(){
+    private void highlightLegalMoves() throws ResponseException{
         // highlights all legal moves a chesspiece can make on a ChessBoard during a game
         // TODO: not implemented
+        System.out.println("Enter the piece's position: ");
+        String chessPos = scanner.nextLine();
+
+        char[] inputCharPos = chessPos.toCharArray();
+        for(int i = 0; i < inputCharPos.length; i++){
+            if(!Character.isLetter(inputCharPos[0])) {
+                System.out.println("Error: Invalid position.");
+                // for testing purposes ONLY. Replace these values with the values from the gamePlayMenu later
+                loggedInHelp();
+                loggedIn();
+                //displayGamePlayMenu();
+                //gameMenu();
+            } else if(!Character.isDigit(inputCharPos[1])){
+                System.out.println("Error: Invalid position.");
+                // for testing purposes ONLY. Replace these values with the values from the gamePlayMenu later
+                loggedInHelp();
+                loggedIn();
+                //displayGamePlayMenu();
+                //gameMenu();
+            } else if(inputCharPos.length > 2) {
+                System.out.println("Error: Invalid position.");
+                // for testing purposes ONLY. Replace these values with the values from the gamePlayMenu later
+                loggedInHelp();
+                loggedIn();
+                //displayGamePlayMenu();
+                //gameMenu();
+            }
+        }
+
+        int x = 0;
+        int y = 0;
+        for(char c : inputCharPos){
+            if(Character.isLetter(c)){
+                x = c - 'a' + 1;
+            } else if(Character.isDigit(c)){
+                y = Character.getNumericValue(c);
+            } else {
+                System.out.println("Error: Invalid position.");
+                // for testing purposes ONLY. Replace these values with the values from the gamePlayMenu later
+                loggedInHelp();
+                loggedIn();
+                //displayGamePlayMenu();
+                //gameMenu();
+
+            }
+        }
+
+        ChessPosition inputPos = new ChessPosition(y, x);
+        ChessBoard board = chessPiecePositions().getBoard();
+        Collection<ChessPosition> chessPositions = board.getChessPositions();
+        for(ChessPosition position : chessPositions){
+            if(position.getRow() == inputPos.getRow() && position.getColumn() == inputPos.getColumn()){
+                DrawChessboard drawChessboard = new DrawChessboard(chessPiecePositions(), 1);
+                drawChessboard.runHighlight(inputPos);
+            }
+        }
+
     }
 
     private void resign(){
@@ -491,33 +555,35 @@ public class ChessClient {
 
     // note: only for testing purposes. Delete afterwards
 
-    /*
+
     private void clearDB() throws ResponseException{
-     */
+
 
 
         // ADMIN ONLY!
-        /*serverFacade.clear();
+        serverFacade.clear();
 
         System.out.println("CLEARED");
-         */
 
-    /*
+
+
         isLoggedIn = false;
 
         notLoggedInHelp();
-     */
 
-    //}
+
+    }
 
     // create matrix for chesspiece locations
-    public ChessBoard chessPiecePositions() {
+    //public ChessBoard chessPiecePositions() {
+    public ChessGame chessPiecePositions() {
         // note: this may be a temporary solution, as it may or may not be compatible with Phase 6
         // for now though, it works fine
         ChessGame chessGame = new ChessGame(); // may change this by inputting a parameter
-        ChessBoard board = chessGame.getBoard();
+        //ChessBoard board = chessGame.getBoard();
         //ChessBoard board = new ChessBoard();
         //board.resetBoard();
-        return board;
+        //return board;
+        return chessGame;
     }
 }
