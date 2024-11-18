@@ -5,6 +5,7 @@ import chess.*;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.Objects;
 
 import static ui.EscapeSequences.*;
 
@@ -160,15 +161,19 @@ public class DrawChessboard {
 
             if (isWhite(color)) {
                 for (int i = 0; i < 8; i++) {
-                    ChessPosition startPos = getStartPos(j, i, highlightMoves, pos);
-                    ChessPosition endPos = getEndPos(j, i, highlightMoves);
-                    drawBlackSquareFirstHilight(out, j, i, startPos, endPos, pos);
+                    int x = j + 1;
+                    int y = i + 1;
+                    ChessPosition startPos = getStartPos(x, y, highlightMoves, pos);
+                    ChessPosition endPos = getEndPos(x, y, highlightMoves);
+                    drawBlackSquareFirstHilight(out, j, i, startPos, endPos, pos, x, y);
                 }
             } else {
                 for (int i = 7; i > -1; i--) {
-                    ChessPosition startPos = getStartPos(j, i, highlightMoves, pos);
-                    ChessPosition endPos = getEndPos(j, i, highlightMoves);
-                    drawWhiteSquareFirstHilight(out, j, i, startPos, endPos, pos);
+                    int x = j + 1;
+                    int y = i + 1;
+                    ChessPosition startPos = getStartPos(x, y, highlightMoves, pos);
+                    ChessPosition endPos = getEndPos(x, y, highlightMoves);
+                    drawWhiteSquareFirstHilight(out, j, i, startPos, endPos, pos, x, y);
                 }
             }
             setLightGrey(out);
@@ -189,30 +194,41 @@ public class DrawChessboard {
             int i,
             ChessPosition startPos,
             ChessPosition endPos,
-            ChessPosition pos) {
-        int k = j - 1;
-        int z = i - 1;
+            ChessPosition pos,
+            int x,
+            int y) {
+        int k = pos.getColumn() - 1;
+        int z = pos.getRow() - 1;
         if(i % 2 == 0){
-            if(startPos == null || endPos == null || k < 0 || z < 0){
+            if(startPos == null ||
+                    endPos == null){
                 drawWhiteSquare(out, j, i);
             } else if(startPos == pos){
-                drawYellowSquare(out, k, z);
-            } else if(j == startPos.getRow() && i == startPos.getColumn() && startPos != pos){
-                drawLightGreenSquare(out, k, z);
+                if(j == startPos.getRow() && i == startPos.getColumn()){
+                    drawYellowSquare(out, k, z);
+                } else {
+                    drawLightGreenSquare(out, x, y);
+                }
+            } else if(j == startPos.getRow() && i == startPos.getColumn()){
+                drawLightGreenSquare(out, j, i);
             } else if(j == endPos.getRow() && i == endPos.getColumn()){
-                drawLightGreenSquare(out, k, z);
+                drawLightGreenSquare(out, j, i);
             } else {
                 drawWhiteSquare(out, j, i);
             }
         } else {
-            if(startPos == null || endPos == null || k < 0 || z < 0){
+            if(startPos == null || endPos == null){
                 drawBlackSquare(out, j, i);
             } else if (startPos == pos) {
-                drawYellowSquare(out, pos.getColumn(), pos.getRow());
+                if(j == startPos.getRow() && i == startPos.getColumn()){
+                    drawYellowSquare(out, k, z);
+                } else {
+                    drawDarkGreenSquare(out, x, y);
+                }
             } else if(j == startPos.getRow() && i == startPos.getColumn() && startPos != pos){
-                drawDarkGreenSquare(out, k, z);
+                drawDarkGreenSquare(out, j, i);
             } else if(j == endPos.getRow() && i == endPos.getColumn()){
-                drawDarkGreenSquare(out, k, z);
+                drawDarkGreenSquare(out, endPos.getColumn(), endPos.getRow());
             } else {
                 drawBlackSquare(out, j, i);
             }
@@ -225,34 +241,43 @@ public class DrawChessboard {
             int i,
             ChessPosition startPos,
             ChessPosition endPos,
-            ChessPosition pos){
-        int k = j - 1;
-        int z = i - 1;
+            ChessPosition pos,
+            int x,
+            int y){
+        int k = pos.getColumn() - 1;
+        int z = pos.getRow() - 1;
         if(i % 2 == 0){
-            if(startPos == null || k < 0 || z < 0) {
+            if(startPos == null) {
                 drawBlackSquare(out, j, i);
             } else if(endPos == null){
                 drawBlackSquare(out, j, i);
             } else if(startPos == pos){
-                drawYellowSquare(out, pos.getColumn(), pos.getRow());
-            } else if(j == startPos.getRow() && i == startPos.getColumn() && startPos != pos){
-                drawDarkGreenSquare(out, k, z);
+                if(j == k + 1 && i == z + 1) {
+                    drawYellowSquare(out, j, i);
+                } else {
+                    drawDarkGreenSquare(out, x, y);
+                }
+            } else if(j == startPos.getRow() && i == startPos.getColumn()){
+                drawDarkGreenSquare(out, x, y);
             } else if(j == endPos.getRow() && i == endPos.getColumn()){
-                drawDarkGreenSquare(out, k, z);
+                drawDarkGreenSquare(out, endPos.getColumn(), endPos.getRow());
             } else {
                 drawBlackSquare(out, j, i);
             }
         } else {
 
-            if(startPos == null || endPos == null || k < 0 || z < 0){
+            if(startPos == null || endPos == null){
                 drawWhiteSquare(out, j, i);
-            }
-            else if (startPos == pos) {
-                drawYellowSquare(out, pos.getColumn(), pos.getRow());
-            } else if(j == startPos.getRow() && i == startPos.getColumn() && startPos != pos){
-                drawLightGreenSquare(out, k, z);
+            } else if (startPos == pos) {
+                if(j == pos.getRow() && i == pos.getColumn()) {
+                    drawYellowSquare(out, j, i);
+                } else {
+                    drawLightGreenSquare(out, x, y);
+                }
+            } else if(j == startPos.getRow() && i == startPos.getColumn()){
+                drawLightGreenSquare(out, x, y);
             } else if(j == endPos.getRow() && i == endPos.getColumn()){
-                drawLightGreenSquare(out, k, z);
+                drawLightGreenSquare(out, endPos.getColumn(), endPos.getRow());
             } else {
                 drawWhiteSquare(out, j, i);
             }
@@ -275,15 +300,19 @@ public class DrawChessboard {
             Collection<ChessMove> highlightMoves = validMoves(pos);
             if (isWhite(color)) {
                 for (int i = 0; i < 8; i++) {
-                    ChessPosition startPos = getStartPos(j, i, highlightMoves, pos);
-                    ChessPosition endPos = getEndPos(j, i, highlightMoves);
-                    drawWhiteSquareFirstHilight(out, j, i, startPos, endPos, pos);
+                    int x = j + 1;
+                    int y = i + 1;
+                    ChessPosition startPos = getStartPos(x, y, highlightMoves, pos);
+                    ChessPosition endPos = getEndPos(x, y, highlightMoves);
+                    drawWhiteSquareFirstHilight(out, j, i, startPos, endPos, pos, x, y);
                 }
             } else {
                 for (int i = 7; i > -1; i--) {
-                    ChessPosition startPos = getStartPos(j, i, highlightMoves, pos);
-                    ChessPosition endPos = getEndPos(j, i, highlightMoves);
-                    drawBlackSquareFirstHilight(out, j, i, startPos, endPos, pos);
+                    int x = j + 1;
+                    int y = i + 1;
+                    ChessPosition startPos = getStartPos(x, y, highlightMoves, pos);
+                    ChessPosition endPos = getEndPos(x, y, highlightMoves);
+                    drawBlackSquareFirstHilight(out, j, i, startPos, endPos, pos, x, y);
                 }
             }
             setLightGrey(out);
@@ -295,7 +324,7 @@ public class DrawChessboard {
             ChessPosition startPos = move.getStartPosition();
             if(startPos.getRow() == pos.getRow() && startPos.getColumn() == pos.getColumn()){
                 return pos;
-            } else if(startPos.getRow() == j && startPos.getColumn() == i){
+            } else if(startPos.getRow() == j && startPos.getColumn() == i && startPos != pos){
                 return startPos;
             }
         }
@@ -449,17 +478,17 @@ public class DrawChessboard {
         out.print(backGroundColor);
         if(piece != null){
             if(isTeamColorWhite(piece)){
-                if(backGroundColor == SET_BG_COLOR_GREEN
-                        || backGroundColor == SET_BG_COLOR_YELLOW
-                        || backGroundColor == SET_BG_COLOR_DARK_GREEN){
+                if(backGroundColor.equals(SET_BG_COLOR_GREEN)
+                        || backGroundColor.equals(SET_BG_COLOR_YELLOW)
+                        || backGroundColor.equals(SET_BG_COLOR_DARK_GREEN)){
                     out.print(SET_TEXT_COLOR_BLACK);
                 } else {
                     out.print(SET_TEXT_COLOR_RED);
                 }
             } else {
-                if(backGroundColor == SET_BG_COLOR_GREEN
-                        || backGroundColor == SET_BG_COLOR_YELLOW
-                        || backGroundColor == SET_BG_COLOR_DARK_GREEN){
+                if(backGroundColor.equals(SET_BG_COLOR_GREEN)
+                        || backGroundColor.equals(SET_BG_COLOR_YELLOW)
+                        || backGroundColor.equals(SET_BG_COLOR_DARK_GREEN)){
                     out.print(SET_TEXT_COLOR_BLACK);
                 } else {
                     out.print(SET_TEXT_COLOR_DARK_BLUE);
