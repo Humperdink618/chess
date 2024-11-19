@@ -200,6 +200,9 @@ public class ChessClient {
             }
 
         } else {
+            if(!isSarcasticText){
+                counter = 0;
+            }
             auth = authToken;
             System.out.println("Login successful!");
             isLoggedIn = true;
