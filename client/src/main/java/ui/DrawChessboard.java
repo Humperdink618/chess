@@ -25,6 +25,9 @@ public class DrawChessboard {
         this.board = game.getBoard();
         this.checkIfHighlight = checkIfHighlight;
     }
+    // TODO: (OPTIONAL: not sure if I would need to do this or not, but if I so desired (and if I have time),
+    //  maybe add some functionality where if a KING is in Check or Checkmate, it and the piece attacking it's
+    //  squares turn red or something (same with runHighLight())).
 
     public void run() {
         // note: will eventually need to pass in the chosen player's color and only print out one side of the board

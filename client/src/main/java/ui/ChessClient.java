@@ -21,6 +21,10 @@ public class ChessClient {
     private Boolean isPlayingGame = false;
     private Collection<Integer> gameIDs = new HashSet<>();
     private Collection<GameData> gameDataList = new HashSet<>();
+    // Optional: This is just for fun!
+    private Boolean isSarcasticText = false;
+    private int counter = 0;
+    private Boolean bootUser = false;
 
     public ChessClient(String serverURL){
         serverFacade = new ServerFacade(serverURL);
@@ -46,20 +50,62 @@ public class ChessClient {
     }
 
     private Boolean notLoggedIn() throws ResponseException{
+         if(bootUser) {
+             return true;
+         }
         String input = scanner.nextLine();
         if(input.equals("1")){
             loginUser();
         } else if(input.equals("2")) {
-            registerUser();
+            if(isSarcasticText){
+                System.out.println("Oh thank goodness! Someone new.");
+                System.out.println("Let's hope you're not as cheeky as the last person who tried to log in. Have fun!");
+                isSarcasticText = false;
+                counter = 0;
+                registerUser();
+            } else {
+                registerUser();
+            }
         } else if(input.equals("3")) {
+            counter = 0;
+            isSarcasticText = false;
             return true;
         } else if(input.equals("4")) {
-            notLoggedInHelp();
+            if(isSarcasticText){
+                notLoggedInHelpSarcastic();
+                notLoggedInHelp();
+            } else {
+                notLoggedInHelp();
+            }
         } else {
-            System.out.println("Not a valid option.\n");
+            if(isSarcasticText){
+                System.out.println("Not a valid option, idiot!\n");
+            } else {
+                System.out.println("Not a valid option.\n");
+            }
             notLoggedInHelp();
         }
         return false;
+    }
+
+    private void notLoggedInHelpSarcastic(){
+        System.out.println("Oh, so you need help, do you?");
+        System.out.println("Well, and here I was assuming that this lovely little menu was straightforward enough");
+        System.out.println(" for any normal human being to understand. Thank you for proving me wrong.");
+        System.out.println("Anyway, since you somehow can't understand these simple instructions, I guess I'll");
+        System.out.println("  explain this again in a way that your simple minds can understand: \n");
+        System.out.println("  Enter 1 to login to play our magical chess game.");
+        System.out.println("  Enter 2 to register a new player if you're new around here and haven't played yet ");
+        System.out.println("    (in which case, why are you even reading this? My sarcasm doesn't unlock unless some" +
+                " cheeky monkey decided to screw around with the login prompt. ");
+        System.out.println("    If you are that cheeky monkey, why the heck did you try to log in if you don't have" +
+                "an existing account yet?!)");
+        System.out.println("  Enter 3 to quit out of this program (and to get me to shut up if you've unlocked my " +
+                "built-in sarcasm).");
+        System.out.println("  Enter 4 if somehow you STILL can't understand what we're asking for you," +
+                " in which case, I'll just display this message all over again. I've got all day people.\n ");
+        System.out.println(" Anyway, here's your stupid menu again. At least TRY to understand it this time...\n");
+
     }
 
     private void notLoggedInHelp(){
@@ -71,20 +117,40 @@ public class ChessClient {
     }
 
     private void loginUser() throws ResponseException{
-        System.out.println("Please enter your username: ");
-        String inputUserName = scanner.nextLine();
-        while(inputUserName.isBlank()) {
-            // isBlank() returns true if input is empty string or only composed of whitespace characters.
-            System.out.println("Error: not a valid option.");
+        String inputUserName = null;
+        String inputPassword = null;
+        if(isSarcasticText){
+            System.out.println("Please enter your username or whatever. And PLEASE get it right this time!: ");
+            inputUserName = scanner.nextLine();
+            while(inputUserName.isBlank()) {
+                // isBlank() returns true if input is empty string or only composed of whitespace characters.
+                System.out.println("Error: not a valid option, stupid.");
+                System.out.println("Please enter the CORRECT username. We don't have all day: ");
+                inputUserName = scanner.nextLine();
+            }
+            System.out.println("Enter your Password or whatever. And please don't mess this up: ");
+            inputPassword = scanner.nextLine();
+            while(inputPassword.isBlank()) {
+                System.out.println("Error: not a valid option, stupid.");
+                System.out.println("Please enter the CORRECT password: ");
+                inputPassword = scanner.nextLine();
+            }
+        } else {
             System.out.println("Please enter your username: ");
             inputUserName = scanner.nextLine();
-        }
-        System.out.println("Enter your Password: ");
-        String inputPassword = scanner.nextLine();
-        while(inputPassword.isBlank()) {
-            System.out.println("Error: not a valid option.");
+            while (inputUserName.isBlank()) {
+                // isBlank() returns true if input is empty string or only composed of whitespace characters.
+                System.out.println("Error: not a valid option.");
+                System.out.println("Please enter your username: ");
+                inputUserName = scanner.nextLine();
+            }
             System.out.println("Enter your Password: ");
             inputPassword = scanner.nextLine();
+            while (inputPassword.isBlank()) {
+                System.out.println("Error: not a valid option.");
+                System.out.println("Enter your Password: ");
+                inputPassword = scanner.nextLine();
+            }
         }
         String authToken = serverFacade.login(inputUserName,inputPassword);
 
@@ -104,10 +170,33 @@ public class ChessClient {
                 notLoggedInHelp();
                 notLoggedIn();
             } else {
-                System.out.println("Oh, so you think you're funny, eh? " +
-                        "Well, I guess I'll make the decision FOR you...");
-                notLoggedInHelp();
-                notLoggedIn();
+                if(isSarcasticText){
+                    if(counter == 10){
+                        System.out.println("You know what? I'm done here!");
+                        System.out.println("If you're not going to take this seriously, " +
+                                "then you don't deserve to play!");
+                        System.out.println("I am making an executive decision here, and closing this session myself.");
+                        System.out.println("Come back when you're ready to behave and actually take this seriously!");
+                        bootUser = true;
+                        notLoggedIn();
+                    } else {
+                        System.out.println("Ok, this is getting ridiculous. Just Enter 1 or 2 for crying out loud!");
+                        System.out.println("It's not rocket science! It's just tapping two keys on a keyboard.");
+                        System.out.println("It's so simple! Heck, a BABY could do it! Please stop wasting my time!");
+                        counter += 1;
+                        notLoggedInHelp();
+                        notLoggedIn();
+                    }
+                } else {
+                    System.out.println("Oh, so you think you're funny, eh? " +
+                            "Well, I guess I'll make the decision FOR you...");
+                    counter += 1;
+                    if (counter >= 3) {
+                        isSarcasticText = true;
+                    }
+                    notLoggedInHelp();
+                    notLoggedIn();
+                }
             }
 
         } else {
@@ -172,6 +261,8 @@ public class ChessClient {
             observeGame();
         } else if(input.equals("5")) {
             logoutUser();
+            isSarcasticText = false;
+            counter = 0;
             return false;
         } else if(input.equals("6")) {
             loggedInHelp();
@@ -184,7 +275,11 @@ public class ChessClient {
 */
 
         } else {
-            System.out.println("Not a valid option.\n");
+            if(isSarcasticText){
+                System.out.println("Not a valid option, idiot!\n");
+            } else {
+                System.out.println("Not a valid option.\n");
+            }
         }
         return true;
     }
@@ -193,9 +288,15 @@ public class ChessClient {
         System.out.println("Create a name for your Chessgame: ");
         String gameName = scanner.nextLine();
         while(gameName.isBlank()){
-            System.out.println("Error: not a valid option.");
-            System.out.println("Create a name for your Chessgame: ");
-            gameName = scanner.nextLine();
+            if(isSarcasticText){
+                System.out.println("Um, you actually need to write something here. It's NOT hard. Try again:");
+                System.out.println("Create a name for your Chessgame: ");
+                gameName = scanner.nextLine();
+            } else {
+                System.out.println("Error: not a valid option.");
+                System.out.println("Create a name for your Chessgame: ");
+                gameName = scanner.nextLine();
+            }
         }
         // plug in the authToken given from the register/login
         String gameID = serverFacade.create(gameName, auth);
@@ -243,7 +344,11 @@ public class ChessClient {
             loggedInHelp();
             loggedIn();
         } else {
-            System.out.println("Here are all the available games: ");
+            if(isSarcasticText){
+                System.out.println("Here are all the available games, or whatever: ");
+            } else {
+                System.out.println("Here are all the available games: ");
+            }
             HashMap<Integer, String> gameMap = new HashMap<>();
             for (GameData game : gameList) {
                 StringBuilder individualGameData = new StringBuilder();
@@ -395,6 +500,13 @@ public class ChessClient {
         String logoutMessage = serverFacade.logout(auth);
 
         if(logoutMessage.equals("logout successful!")){
+            if(isSarcasticText){
+                System.out.println("Logout successful! Good riddance...");
+                auth = null;
+                isLoggedIn = false;
+
+                notLoggedInHelp();
+            }
             System.out.println("logout successful!");
             auth = null;
             isLoggedIn = false;
