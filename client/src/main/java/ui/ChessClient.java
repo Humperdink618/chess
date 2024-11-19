@@ -470,6 +470,8 @@ public class ChessClient {
         //  (observers will view it from White's perspective by default)
         System.out.println("Enter the piece's position: ");
         String chessPos = scanner.nextLine();
+        // TODO: check this method again once I've done all the websocket stuff and implemented a way that displays
+        //  only one side of the board at a time.
 
         char[] inputCharPos = chessPos.toCharArray();
         for(int i = 0; i < inputCharPos.length; i++){
