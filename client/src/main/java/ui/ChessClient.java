@@ -175,12 +175,13 @@ public class ChessClient {
             return false;
         } else if(input.equals("6")) {
             loggedInHelp();
-       } else if(input.equals("7")) { // DELETE THIS LINE
+/*       } else if(input.equals("7")) { // DELETE THIS LINE
             clearDB();
-
+*/
+            /*
         } else if(input.equals("8")) { // DELETE THIS LINE
             highlightLegalMoves();
-
+*/
 
         } else {
             System.out.println("Not a valid option.\n");
@@ -263,6 +264,8 @@ public class ChessClient {
     }
 
     private void playGame() throws ResponseException{
+        // TODO: make it so that it only prints one side of the board depending on the teamcolor of the player
+        //  (observers will view it from White's perspective by default)
         listGames();
         System.out.println("Pick a game you want to play: ");
         String gameID = scanner.nextLine();
@@ -354,6 +357,8 @@ public class ChessClient {
     private void observeGame() throws ResponseException{
         // print out the list of games with associated numbers starting at 1 (independent of gameID)
         listGames();
+        // TODO: make it so that it only prints one side of the board depending on the teamcolor of the player
+        //  (observers will view it from White's perspective by default)
         System.out.println("Choose a game to observe: ");
         // note: gameplay will not be implemented until Phase 6. For now, just display the ChessBoard
         String gameName = scanner.nextLine();
@@ -461,7 +466,8 @@ public class ChessClient {
 
     private void highlightLegalMoves() throws ResponseException{
         // highlights all legal moves a chesspiece can make on a ChessBoard during a game
-        // TODO: not implemented
+        // TODO: make it so that it only prints one side of the board depending on the teamcolor of the player
+        //  (observers will view it from White's perspective by default)
         System.out.println("Enter the piece's position: ");
         String chessPos = scanner.nextLine();
 
@@ -470,24 +476,24 @@ public class ChessClient {
             if(!Character.isLetter(inputCharPos[0])) {
                 System.out.println("Error: Invalid position.");
                 // for testing purposes ONLY. Replace these values with the values from the gamePlayMenu later
-                loggedInHelp();
-                loggedIn();
-                //displayGamePlayMenu();
-                //gameMenu();
+                displayGamePlayMenu();
+                gameMenu();
+                //loggedInHelp();
+                //loggedIn();
             } else if(!Character.isDigit(inputCharPos[1])){
                 System.out.println("Error: Invalid position.");
                 // for testing purposes ONLY. Replace these values with the values from the gamePlayMenu later
-                loggedInHelp();
-                loggedIn();
-                //displayGamePlayMenu();
-                //gameMenu();
+                displayGamePlayMenu();
+                gameMenu();
+                //loggedInHelp();
+                //loggedIn();
             } else if(inputCharPos.length > 2) {
                 System.out.println("Error: Invalid position.");
                 // for testing purposes ONLY. Replace these values with the values from the gamePlayMenu later
-                loggedInHelp();
-                loggedIn();
-                //displayGamePlayMenu();
-                //gameMenu();
+                displayGamePlayMenu();
+                gameMenu();
+                //loggedInHelp();
+                //loggedIn();
             }
         }
 
@@ -555,24 +561,24 @@ public class ChessClient {
 
     // note: only for testing purposes. Delete afterwards
 
-
+/*
     private void clearDB() throws ResponseException{
 
-
+*/
 
         // ADMIN ONLY!
-        serverFacade.clear();
+/*        serverFacade.clear();
 
         System.out.println("CLEARED");
+*/
 
-
-
+/*
         isLoggedIn = false;
 
         notLoggedInHelp();
+*/
 
-
-    }
+  //  }
 
     // create matrix for chesspiece locations
     //public ChessBoard chessPiecePositions() {
