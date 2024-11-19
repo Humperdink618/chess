@@ -471,7 +471,9 @@ public class ChessClient {
         System.out.println("Enter the piece's position: ");
         String chessPos = scanner.nextLine();
         // TODO: check this method again once I've done all the websocket stuff and implemented a way that displays
-        //  only one side of the board at a time.
+        //  only one side of the board at a time. Will need to see if this still works for other chesspieces in other
+        //  positions on the board (currently, this only checks Pawns and Knights, as no other piece can move from the
+        //  default position.
 
         char[] inputCharPos = chessPos.toCharArray();
         for(int i = 0; i < inputCharPos.length; i++){
