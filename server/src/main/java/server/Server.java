@@ -5,6 +5,7 @@ import dataaccess.*;
 import exceptions.AlreadyTakenException;
 import exceptions.BadRequestExceptionChess;
 import exceptions.UnauthorizedException;
+import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import request.*;
 import result.CreateResult;
 import result.ListResult;
@@ -17,7 +18,7 @@ import spark.*;
 
 import java.util.Map;
 
-
+@WebSocket
 public class Server {
 
     private UserDAO userDAO;
@@ -44,6 +45,7 @@ public class Server {
         Spark.staticFiles.location("web");
 
         // Register your endpoints and handle exceptions here.
+        Spark.webSocket("/ws", new WebSocketRequestHandler());
         Spark.delete("/db", this::clearHandler);
         Spark.post("/user", this::registerHandler);
         Spark.post("/session", this::loginHandler);

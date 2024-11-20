@@ -414,9 +414,10 @@ public class ChessClient {
         if(joinMessage.equals("join successful!")){
             System.out.println("Join successful!");
             //ChessBoard board = chessPiecePositions();
-            ChessGame chessGame = chessPiecePositions();
-            DrawChessboard drawChessboard = new DrawChessboard(chessGame, 0);
-            drawChessboard.run();
+//            ChessGame chessGame = chessPiecePositions();
+//            DrawChessboard drawChessboard = new DrawChessboard(chessGame, 0);
+//            drawChessboard.run();
+            // websocketCommunicator does this for you
         } else {
             HashMap errorMessageMap = new Gson().fromJson(joinMessage, HashMap.class);
             String errorMessage = errorMessageMap.get("message").toString();
@@ -483,9 +484,10 @@ public class ChessClient {
         // TODO: figure out gameIDs with associated games to figure out which game to display.
         //   for now, until the above is completed, just print out the board for an unspecified game. Fix this later.
         //ChessBoard board = chessPiecePositions();
-        ChessGame chessGame = new ChessGame();
-        DrawChessboard drawChessboard = new DrawChessboard(chessGame, 0);
-        drawChessboard.run();
+//        ChessGame chessGame = new ChessGame();
+//        DrawChessboard drawChessboard = new DrawChessboard(chessGame, 0);
+//        drawChessboard.run();
+        // websocketCommunicator should print it for you
     }
 
     // note: I am putting this here so that it can be used by both my ChessClient AND my ServerFacadeTests
@@ -639,6 +641,7 @@ public class ChessClient {
         Collection<ChessPosition> chessPositions = board.getChessPositions();
         for(ChessPosition position : chessPositions){
             if(position.getRow() == inputPos.getRow() && position.getColumn() == inputPos.getColumn()){
+                // TODO: make this code grab the most up-to-date chessboard/chessgame
                 DrawChessboard drawChessboard = new DrawChessboard(chessPiecePositions(), 1);
                 drawChessboard.runHighlight(inputPos);
             }
