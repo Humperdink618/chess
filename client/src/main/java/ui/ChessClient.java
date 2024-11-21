@@ -8,10 +8,14 @@ import exceptions.ResponseException;
 import model.GameData;
 import result.ListResult;
 import ui.serverfacade.ServerFacade;
+import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
+import websocket.messages.ServerMessage;
 
 import java.util.*;
 
-public class ChessClient {
+public class ChessClient implements ServerMessageObserver {
     // These are variables which you will need for multiple functions
     private Scanner scanner = new Scanner(System.in);
     private String auth = null;
@@ -701,6 +705,29 @@ public class ChessClient {
 */
 
   //  }
+    @Override
+    public void notify(ServerMessage serverMessage) {
+        switch (serverMessage.getServerMessageType()) {
+            case NOTIFICATION -> displayNotification(((NotificationMessage) serverMessage));
+            // create a subclass
+            case ERROR -> displayError(((ErrorMessage) serverMessage));
+            case LOAD_GAME -> loadGame(((LoadGameMessage) serverMessage).getGame());
+        }
+    }
+
+
+    private void loadGame(ChessGame game) {
+        DrawChessboard drawChessboard = new DrawChessboard(game, 0);
+        drawChessboard.run();
+    }
+
+    private void displayNotification(NotificationMessage serverMessage) {
+        System.out.println(serverMessage.getMessage());
+    }
+
+    public void displayError(ErrorMessage errorMessage){
+        System.out.println(errorMessage.getErrorMessage());
+    }
 
     // create matrix for chesspiece locations
     //public ChessBoard chessPiecePositions() {
