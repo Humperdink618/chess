@@ -45,7 +45,7 @@ public class Server {
         Spark.staticFiles.location("web");
 
         // Register your endpoints and handle exceptions here.
-        Spark.webSocket("/ws", new WebSocketRequestHandler());
+        Spark.webSocket("/ws", new WebSocketRequestHandler(authDAO, gameDAO));
         Spark.delete("/db", this::clearHandler);
         Spark.post("/user", this::registerHandler);
         Spark.post("/session", this::loginHandler);

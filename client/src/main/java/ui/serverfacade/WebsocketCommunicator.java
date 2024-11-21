@@ -45,7 +45,7 @@ public class WebsocketCommunicator extends Endpoint {
 //                }
                      observer.notify(serverMessage);
                 } catch(Exception e) {
-                     //observer.notify(new ErrorMessage(e.getMessage()));
+                     observer.notify(new ErrorMessage(e.getMessage()));
                 }
             }
         });
