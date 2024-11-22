@@ -638,6 +638,7 @@ public class ChessClient implements ServerMessageObserver {
             }
         }
 
+
         ChessPosition inputPos = new ChessPosition(y, x);
 
         ChessBoard board = chessPiecePositions().getBoard();

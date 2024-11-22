@@ -145,5 +145,4 @@ public class WebSocketRequestHandler {
     public void sendMessage(Session session, String msg) throws Exception {
         session.getRemote().sendString(msg);
     }
-
 }
