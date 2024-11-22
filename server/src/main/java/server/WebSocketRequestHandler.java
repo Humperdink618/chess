@@ -146,5 +146,4 @@ public class WebSocketRequestHandler {
         session.getRemote().sendString(msg);
     }
 
-
 }

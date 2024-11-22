@@ -649,7 +649,6 @@ public class ChessClient implements ServerMessageObserver {
                 drawChessboard.runHighlight(inputPos);
             }
         }
-
     }
 
     private void returnToMenuBecauseBadPos(String playerColor, int gameID, String isInvalidPos) throws ResponseException {
