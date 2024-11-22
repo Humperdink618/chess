@@ -16,13 +16,17 @@ public class ChessGame  {
     private TeamColor teamTurn; // which team's turn it is
     private boolean isWhiteInCheck; // is white in check in current board
     private boolean isBlackInCheck; // is black in check in current board
+    private boolean isGameOver; // checks if player has resigned.
+    private int userHasResigned;
 
     public ChessGame() {
         teamTurn = TeamColor.WHITE;
         isWhiteInCheck = false;
         isBlackInCheck = false;
+        isGameOver = false;
         board = new ChessBoard();
         board.resetBoard();
+        userHasResigned = 1;
     }
 
     /**
@@ -169,6 +173,10 @@ public class ChessGame  {
         }
         if(board.getPiece(move.getStartPosition()).getTeamColor() != getTeamTurn()) {
             throw new InvalidMoveException("Not your turn, Moron!");
+        }
+        this.isGameOver = isGameOver(userHasResigned);
+        if(isGameOver){
+            throw new InvalidMoveException("The game is now over. No further moves can be made.");
         }
         if(!validMoves(move.getStartPosition()).contains(move)){
             throw new InvalidMoveException("You can't make that move, Stupid!");
@@ -337,6 +345,18 @@ public class ChessGame  {
         this.teamTurn = getTeamTurn();
         setTeamTurn(getTeamTurn());
         return board;
+    }
+
+    // TODO: create a boolean that checks if a player has resigned or not, in which case, end the game, make sure no
+    //  more moves can be made.
+    public boolean isGameOver(int userHasResigned) {
+        if(userHasResigned == 0){
+            this.userHasResigned = 0;
+            return true;
+        }
+        this.userHasResigned = 1;
+        return false;
+        // checks to see if a player has resigned, in which case the game is over and no further moves can be made
     }
 
     @Override

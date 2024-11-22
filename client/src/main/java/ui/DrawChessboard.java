@@ -14,16 +14,18 @@ public class DrawChessboard {
     private static ChessBoard board;
     private static Integer checkIfHighlight;
     private static ChessGame game;
+    private static String playerColor;
 
     public enum BoardColor {
         WHITE,
         BLACK,
     }
 
-    public DrawChessboard(ChessGame chessGame, Integer checkIfHighlight){
+    public DrawChessboard(ChessGame chessGame, String playerColor, Integer checkIfHighlight){
         this.game = chessGame;
         this.board = game.getBoard();
         this.checkIfHighlight = checkIfHighlight;
+        this.playerColor = playerColor;
     }
     // TODO: (OPTIONAL: not sure if I would need to do this or not, but if I so desired (and if I have time),
     //  maybe add some functionality where if a KING is in Check or Checkmate, it and the piece attacking it's
@@ -34,24 +36,33 @@ public class DrawChessboard {
         // based on that player's color (observers will always view from white's perspective).
         // TODO: make it so that it only prints one side of the board depending on the teamcolor of the player
         //  (observers will view it from White's perspective by default)
-        var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+        PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
 
         out.print(ERASE_SCREEN);
 
-        // draw white board
-        BoardColor white = BoardColor.WHITE;
-        drawHeaders(out, white);
-        drawChessBoard(out, white, null);
-        drawHeaders(out, white);
+        if(playerColor.equals("WHITE")) {
+            // draw white board
+            BoardColor white = BoardColor.WHITE;
+            drawHeaders(out, white);
+            drawChessBoard(out, white, null);
+            drawHeaders(out, white);
+        }
 
         // draw division
-        drawChessBoardDivision(out);
+  //      drawChessBoardDivision(out);
 
-        // draw black board
-        BoardColor black = BoardColor.BLACK;
-        drawHeaders(out, black);
-        drawChessBoard(out, black, null);
-        drawHeaders(out, black);
+        else if(playerColor.equals("BLACK")) {
+            // draw black board
+            BoardColor black = BoardColor.BLACK;
+            drawHeaders(out, black);
+            drawChessBoard(out, black, null);
+            drawHeaders(out, black);
+        }
+        else {
+            // draw division
+            drawChessBoardDivision(out);
+            System.out.println("Error: Not a valid team color.");
+        }
     }
 
     public void runHighlight(ChessPosition inputPos) {
@@ -59,24 +70,31 @@ public class DrawChessboard {
         // based on that player's color (observers will always view from white's perspective).
         // TODO: make it so that it only prints one side of the board depending on the teamcolor of the player
         //  (observers will view it from White's perspective by default)
-        var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+        PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
 
         out.print(ERASE_SCREEN);
 
-        // draw white board
-        BoardColor white = BoardColor.WHITE;
-        drawHeaders(out, white);
-        drawChessBoard(out, white, inputPos);
-        drawHeaders(out, white);
-
+        if(playerColor.equals("WHITE")) {
+            // draw white board
+            BoardColor white = BoardColor.WHITE;
+            drawHeaders(out, white);
+            drawChessBoard(out, white, inputPos);
+            drawHeaders(out, white);
+        }
         // draw division
-        drawChessBoardDivision(out);
-
-        // draw black board
-        BoardColor black = BoardColor.BLACK;
-        drawHeaders(out, black);
-        drawChessBoard(out, black, inputPos);
-        drawHeaders(out, black);
+  //      drawChessBoardDivision(out);
+        else if(playerColor.equals("BLACK")) {
+            // draw black board
+            BoardColor black = BoardColor.BLACK;
+            drawHeaders(out, black);
+            drawChessBoard(out, black, inputPos);
+            drawHeaders(out, black);
+        }
+        else {
+            // draw division
+            drawChessBoardDivision(out);
+            System.out.println("Error: Not a valid team color");
+        }
     }
 
     private static boolean isWhite(BoardColor color) {

@@ -8,10 +8,8 @@ import exceptions.ResponseException;
 import model.GameData;
 import result.ListResult;
 import ui.serverfacade.ServerFacade;
-import websocket.messages.ErrorMessage;
-import websocket.messages.LoadGameMessage;
-import websocket.messages.NotificationMessage;
-import websocket.messages.ServerMessage;
+import ui.serverfacade.WebsocketCommunicator;
+import websocket.messages.*;
 
 import java.util.*;
 
@@ -292,16 +290,16 @@ public class ChessClient implements ServerMessageObserver {
     }
 
     private void createGame() throws ResponseException{
-        System.out.println("Create a name for your Chessgame: ");
+        System.out.println("Create a name for your Chess game: ");
         String gameName = scanner.nextLine();
         while(gameName.isBlank()){
             if(isSarcasticText){
                 System.out.println("Um, you actually need to write something here. It's NOT hard. Try again:");
-                System.out.println("Create a name for your Chessgame: ");
+                System.out.println("Create a name for your Chess game: ");
                 gameName = scanner.nextLine();
             } else {
                 System.out.println("Error: not a valid option.");
-                System.out.println("Create a name for your Chessgame: ");
+                System.out.println("Create a name for your Chess game: ");
                 gameName = scanner.nextLine();
             }
         }
@@ -375,8 +373,8 @@ public class ChessClient implements ServerMessageObserver {
         }
     }
 
-    private void playGame() throws ResponseException{
-        // TODO: make it so that it only prints one side of the board depending on the teamcolor of the player
+    private void playGame() throws ResponseException {
+        // TODO: make it so that it only prints one side of the board depending on the team color of the player
         //  (observers will view it from White's perspective by default)
         listGames();
         System.out.println("Pick a game you want to play: ");
@@ -409,7 +407,7 @@ public class ChessClient implements ServerMessageObserver {
             System.out.println("Choose what team you wish to play (White or Black): ");
             playerColor = scanner.nextLine().toUpperCase();
         }
-        // check to see if that teamcolor is taken or not.
+        // check to see if that team color is taken or not.
 
         // plug in the authToken given from the register/login
         String joinMessage = serverFacade.join(auth, newID, playerColor);
@@ -422,6 +420,14 @@ public class ChessClient implements ServerMessageObserver {
 //            DrawChessboard drawChessboard = new DrawChessboard(chessGame, 0);
 //            drawChessboard.run();
             // websocketCommunicator does this for you
+            displayGamePlayMenu();
+            gameMenu(playerColor);
+            try {
+                WebsocketCommunicator ws = new WebsocketCommunicator(this);
+                ws.enterGamePlayMode(auth, newID);
+            } catch (Exception e) {
+                displayError(new ErrorMessage(e.getMessage()));
+            }
         } else {
             HashMap errorMessageMap = new Gson().fromJson(joinMessage, HashMap.class);
             String errorMessage = errorMessageMap.get("message").toString();
@@ -470,7 +476,7 @@ public class ChessClient implements ServerMessageObserver {
     private void observeGame() throws ResponseException{
         // print out the list of games with associated numbers starting at 1 (independent of gameID)
         listGames();
-        // TODO: make it so that it only prints one side of the board depending on the teamcolor of the player
+        // TODO: make it so that it only prints one side of the board depending on the team color of the player
         //  (observers will view it from White's perspective by default)
         System.out.println("Choose a game to observe: ");
         // note: gameplay will not be implemented until Phase 6. For now, just display the ChessBoard
@@ -483,7 +489,9 @@ public class ChessClient implements ServerMessageObserver {
             // print out the list of games with associated numbers starting at 1 (independent of gameID)
             gameName = scanner.nextLine();
         }
-        gameName = checkIfValidGameIDObserve(gameName);
+        String gameIDString = checkIfValidGameIDObserve(gameName);
+        int gameID = Integer.parseInt(gameIDString);
+
 
         // TODO: figure out gameIDs with associated games to figure out which game to display.
         //   for now, until the above is completed, just print out the board for an unspecified game. Fix this later.
@@ -492,6 +500,15 @@ public class ChessClient implements ServerMessageObserver {
 //        DrawChessboard drawChessboard = new DrawChessboard(chessGame, 0);
 //        drawChessboard.run();
         // websocketCommunicator should print it for you
+        // TODO: I have no idea if this is going to work
+        displayGamePlayMenu();
+        gameMenu("WHITE");
+        try {
+            WebsocketCommunicator ws = new WebsocketCommunicator(this);
+            ws.enterGamePlayMode(auth, gameID);
+        } catch (Exception e) {
+            displayError(new ErrorMessage(e.getMessage()));
+        }
     }
 
     // note: I am putting this here so that it can be used by both my ChessClient AND my ServerFacadeTests
@@ -542,14 +559,14 @@ public class ChessClient implements ServerMessageObserver {
         System.out.println("  6. Help");
     }
 
-    private Boolean gameMenu() throws ResponseException{
+    private Boolean gameMenu(String playerColor) throws ResponseException{
         String input = scanner.nextLine();
         if(input.equals("1")){
-            redrawChessBoard();
+            redrawChessBoard(playerColor);
         } else if(input.equals("2")) {
             makeMove();
         } else if(input.equals("3")) {
-            highlightLegalMoves();
+            highlightLegalMoves(playerColor);
         } else if(input.equals("4")) {
             resign();
         } else if(input.equals("5")) {
@@ -557,7 +574,7 @@ public class ChessClient implements ServerMessageObserver {
             return false;
         } else if(input.equals("6")) {
             gamePlayHelp();
-            gameMenu(); // possibly may not need this line
+            gameMenu(playerColor); // possibly may not need this line
         } else {
             System.out.println("Not a valid option.\n");
             displayGamePlayMenu();
@@ -575,7 +592,7 @@ public class ChessClient implements ServerMessageObserver {
         System.out.println("  6. Help");
     }
 
-    private void redrawChessBoard(){
+    private void redrawChessBoard(String playerColor){
         // redraws the current chessboard
         // TODO: not implemented
     }
@@ -585,14 +602,14 @@ public class ChessClient implements ServerMessageObserver {
         // TODO: not implemented
     }
 
-    private void highlightLegalMoves() throws ResponseException{
-        // highlights all legal moves a chesspiece can make on a ChessBoard during a game
-        // TODO: make it so that it only prints one side of the board depending on the teamcolor of the player
+    private void highlightLegalMoves(String playerColor) throws ResponseException{
+        // highlights all legal moves a chess piece can make on a ChessBoard during a game
+        // TODO: make it so that it only prints one side of the board depending on the team color of the player
         //  (observers will view it from White's perspective by default)
         System.out.println("Enter the piece's position: ");
         String chessPos = scanner.nextLine();
         // TODO: check this method again once I've done all the websocket stuff and implemented a way that displays
-        //  only one side of the board at a time. Will need to see if this still works for other chesspieces in other
+        //  only one side of the board at a time. Will need to see if this still works for other chess pieces in other
         //  positions on the board (currently, this only checks Pawns and Knights, as no other piece can move from the
         //  default position.
 
@@ -602,21 +619,21 @@ public class ChessClient implements ServerMessageObserver {
                 System.out.println("Error: Invalid position.");
                 // for testing purposes ONLY. Replace these values with the values from the gamePlayMenu later
                 displayGamePlayMenu();
-                gameMenu();
+                gameMenu(playerColor);
                 //loggedInHelp();
                 //loggedIn();
             } else if(!Character.isDigit(inputCharPos[1])){
                 System.out.println("Error: Invalid position.");
                 // for testing purposes ONLY. Replace these values with the values from the gamePlayMenu later
                 displayGamePlayMenu();
-                gameMenu();
+                gameMenu(playerColor);
                 //loggedInHelp();
                 //loggedIn();
             } else if(inputCharPos.length > 2) {
                 System.out.println("Error: Invalid position.");
                 // for testing purposes ONLY. Replace these values with the values from the gamePlayMenu later
                 displayGamePlayMenu();
-                gameMenu();
+                gameMenu(playerColor);
                 //loggedInHelp();
                 //loggedIn();
             }
@@ -645,8 +662,8 @@ public class ChessClient implements ServerMessageObserver {
         Collection<ChessPosition> chessPositions = board.getChessPositions();
         for(ChessPosition position : chessPositions){
             if(position.getRow() == inputPos.getRow() && position.getColumn() == inputPos.getColumn()){
-                // TODO: make this code grab the most up-to-date chessboard/chessgame
-                DrawChessboard drawChessboard = new DrawChessboard(chessPiecePositions(), 1);
+                // TODO: make this code grab the most up-to-date chessboard/chess game
+                DrawChessboard drawChessboard = new DrawChessboard(chessPiecePositions(), playerColor, 1);
                 drawChessboard.runHighlight(inputPos);
             }
         }
@@ -678,14 +695,14 @@ public class ChessClient implements ServerMessageObserver {
         System.out.println("Enter 4 to forfeit, ending the game.");
         System.out.println("  (Note: you may not forfeit if you are merely observing a game and not playing it.");
         System.out.println("   Also, resigning from the game does not cause the user to leave the game, " +
-                " whether you are playing or merely obseving.)");
+                " whether you are playing or merely observing.)");
         System.out.println("Enter 5 to leave the game.");
         System.out.println(" (Note: This is not the same thing as resigning from a game you are playing.)");
         System.out.println("Enter 6 to see this message again.\n");
         displayGamePlayMenu();
     }
 
-    // note: only for testing purposes. Delete afterwards
+    // note: only for testing purposes. Delete afterward
 
 /*
     private void clearDB() throws ResponseException{
@@ -716,8 +733,10 @@ public class ChessClient implements ServerMessageObserver {
     }
 
 
-    private void loadGame(ChessGame game) {
-        DrawChessboard drawChessboard = new DrawChessboard(game, 0);
+    private void loadGame(Game gameClass) {
+        ChessGame game = gameClass.game;
+        String playerColor = gameClass.playerColor;
+        DrawChessboard drawChessboard = new DrawChessboard(game, playerColor, 0);
         drawChessboard.run();
     }
 
@@ -729,7 +748,7 @@ public class ChessClient implements ServerMessageObserver {
         System.out.println(errorMessage.getErrorMessage());
     }
 
-    // create matrix for chesspiece locations
+    // create matrix for chess piece locations
     //public ChessBoard chessPiecePositions() {
     public ChessGame chessPiecePositions() {
         // note: this may be a temporary solution, as it may or may not be compatible with Phase 6

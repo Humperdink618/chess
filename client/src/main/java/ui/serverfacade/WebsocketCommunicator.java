@@ -2,8 +2,10 @@ package ui.serverfacade;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
+import exceptions.ResponseException;
 import ui.DrawChessboard;
 import ui.ServerMessageObserver;
+import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
@@ -14,6 +16,7 @@ import javax.websocket.ContainerProvider;
 import javax.websocket.*;
 import javax.websocket.MessageHandler;
 import javax.websocket.WebSocketContainer;
+import java.io.IOException;
 import java.net.URI;
 
 public class WebsocketCommunicator extends Endpoint {
@@ -65,6 +68,25 @@ public class WebsocketCommunicator extends Endpoint {
     }
 
     public void onOpen(Session session, EndpointConfig endpointConfig) {
+    }
+
+    public void enterGamePlayMode(String authToken, Integer gameID) throws ResponseException {
+        try {
+            UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
+        } catch (IOException e) {
+            throw new ResponseException(e.getMessage());
+        }
+    }
+
+    public void leaveGamePlayMode(String authToken, Integer gameID) throws ResponseException {
+        try {
+            UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, gameID);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
+            this.session.close();
+        } catch (IOException e) {
+            throw new ResponseException(e.getMessage());
+        }
     }
 
 //    public void displayError(ErrorMessage errorMessage){
