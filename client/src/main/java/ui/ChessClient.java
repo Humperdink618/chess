@@ -13,6 +13,8 @@ import websocket.messages.*;
 
 import java.util.*;
 
+import static ui.EscapeSequences.*;
+
 public class ChessClient implements ServerMessageObserver {
     // These are variables which you will need for multiple functions
     private Scanner scanner = new Scanner(System.in);
@@ -27,6 +29,7 @@ public class ChessClient implements ServerMessageObserver {
     private Boolean isSarcasticText = false;
     private int counter = 0;
     private Boolean bootUser = false;
+    private ChessGame chessGame;
 
     public ChessClient(String serverURL){
         serverFacade = new ServerFacade(serverURL);
@@ -414,17 +417,11 @@ public class ChessClient implements ServerMessageObserver {
         // TODO: figure out gameIDs with associated games to figure out which game to display.
         //   for now, until the above is completed, just print out the board for an unspecified game. Fix this later.
         if(joinMessage.equals("join successful!")){
-            System.out.println("Join successful!");
-            //ChessBoard board = chessPiecePositions();
-//            ChessGame chessGame = chessPiecePositions();
-//            DrawChessboard drawChessboard = new DrawChessboard(chessGame, 0);
-//            drawChessboard.run();
-            // websocketCommunicator does this for you
-            displayGamePlayMenu();
-            gameMenu(playerColor);
+            returnToMenuBecauseBadPos(playerColor, newID, "Join successful!");
             try {
                 WebsocketCommunicator ws = new WebsocketCommunicator(this);
                 ws.enterGamePlayMode(auth, newID);
+                isPlayingGame = true;
             } catch (Exception e) {
                 displayError(new ErrorMessage(e.getMessage()));
             }
@@ -502,10 +499,11 @@ public class ChessClient implements ServerMessageObserver {
         // websocketCommunicator should print it for you
         // TODO: I have no idea if this is going to work
         displayGamePlayMenu();
-        gameMenu("WHITE");
+        gameMenu("WHITE", gameID);
         try {
             WebsocketCommunicator ws = new WebsocketCommunicator(this);
             ws.enterGamePlayMode(auth, gameID);
+            isPlayingGame = true;
         } catch (Exception e) {
             displayError(new ErrorMessage(e.getMessage()));
         }
@@ -559,22 +557,22 @@ public class ChessClient implements ServerMessageObserver {
         System.out.println("  6. Help");
     }
 
-    private Boolean gameMenu(String playerColor) throws ResponseException{
+    private Boolean gameMenu(String playerColor, int gameID) throws ResponseException{
         String input = scanner.nextLine();
         if(input.equals("1")){
-            redrawChessBoard(playerColor);
+            redrawChessBoard(playerColor, gameID);
         } else if(input.equals("2")) {
             makeMove();
         } else if(input.equals("3")) {
-            highlightLegalMoves(playerColor);
+            highlightLegalMoves(playerColor, gameID);
         } else if(input.equals("4")) {
             resign();
         } else if(input.equals("5")) {
-            leave();
+            leave(gameID);
             return false;
         } else if(input.equals("6")) {
             gamePlayHelp();
-            gameMenu(playerColor); // possibly may not need this line
+            gameMenu(playerColor, gameID); // possibly may not need this line
         } else {
             System.out.println("Not a valid option.\n");
             displayGamePlayMenu();
@@ -592,9 +590,12 @@ public class ChessClient implements ServerMessageObserver {
         System.out.println("  6. Help");
     }
 
-    private void redrawChessBoard(String playerColor){
+    private void redrawChessBoard(String playerColor, int gameID) throws ResponseException {
         // redraws the current chessboard
-        // TODO: not implemented
+        DrawChessboard drawChessboard = new DrawChessboard(this.chessGame, playerColor, 0);
+        drawChessboard.run();
+        displayGamePlayMenu();
+        gameMenu(playerColor, gameID);
     }
 
     private void makeMove(){
@@ -602,7 +603,7 @@ public class ChessClient implements ServerMessageObserver {
         // TODO: not implemented
     }
 
-    private void highlightLegalMoves(String playerColor) throws ResponseException{
+    private void highlightLegalMoves(String playerColor, int gameID) throws ResponseException{
         // highlights all legal moves a chess piece can make on a ChessBoard during a game
         // TODO: make it so that it only prints one side of the board depending on the team color of the player
         //  (observers will view it from White's perspective by default)
@@ -612,30 +613,16 @@ public class ChessClient implements ServerMessageObserver {
         //  only one side of the board at a time. Will need to see if this still works for other chess pieces in other
         //  positions on the board (currently, this only checks Pawns and Knights, as no other piece can move from the
         //  default position.
-
+        String isInvalidPos = "Error: Invalid position.";
         char[] inputCharPos = chessPos.toCharArray();
         for(int i = 0; i < inputCharPos.length; i++){
             if(!Character.isLetter(inputCharPos[0])) {
-                System.out.println("Error: Invalid position.");
-                // for testing purposes ONLY. Replace these values with the values from the gamePlayMenu later
-                displayGamePlayMenu();
-                gameMenu(playerColor);
-                //loggedInHelp();
-                //loggedIn();
+                returnToMenuBecauseBadPos(playerColor, gameID, isInvalidPos);
+
             } else if(!Character.isDigit(inputCharPos[1])){
-                System.out.println("Error: Invalid position.");
-                // for testing purposes ONLY. Replace these values with the values from the gamePlayMenu later
-                displayGamePlayMenu();
-                gameMenu(playerColor);
-                //loggedInHelp();
-                //loggedIn();
+                returnToMenuBecauseBadPos(playerColor, gameID, isInvalidPos);
             } else if(inputCharPos.length > 2) {
-                System.out.println("Error: Invalid position.");
-                // for testing purposes ONLY. Replace these values with the values from the gamePlayMenu later
-                displayGamePlayMenu();
-                gameMenu(playerColor);
-                //loggedInHelp();
-                //loggedIn();
+                returnToMenuBecauseBadPos(playerColor, gameID, isInvalidPos);
             }
         }
 
@@ -647,16 +634,12 @@ public class ChessClient implements ServerMessageObserver {
             } else if(Character.isDigit(c)){
                 y = Character.getNumericValue(c);
             } else {
-                System.out.println("Error: Invalid position.");
-                // for testing purposes ONLY. Replace these values with the values from the gamePlayMenu later
-                displayGamePlayMenu();
-                gameMenu(playerColor);
-                //loggedInHelp();
-                //loggedIn();
+                returnToMenuBecauseBadPos(playerColor, gameID, isInvalidPos);
             }
         }
 
         ChessPosition inputPos = new ChessPosition(y, x);
+
         ChessBoard board = chessPiecePositions().getBoard();
         Collection<ChessPosition> chessPositions = board.getChessPositions();
         for(ChessPosition position : chessPositions){
@@ -669,6 +652,15 @@ public class ChessClient implements ServerMessageObserver {
 
     }
 
+    private void returnToMenuBecauseBadPos(String playerColor, int gameID, String isInvalidPos) throws ResponseException {
+        System.out.println(isInvalidPos);
+        // for testing purposes ONLY. Replace these values with the values from the gamePlayMenu later
+        displayGamePlayMenu();
+        gameMenu(playerColor, gameID);
+        //loggedInHelp();
+        //loggedIn();
+    }
+
     private void resign(){
         // prompts the user to confirm they want to resign.
         // If they do, the user forfeits the game and the game is over.
@@ -676,13 +668,12 @@ public class ChessClient implements ServerMessageObserver {
         // TODO: not implemented
     }
 
-    private void leave() throws ResponseException{
+    private void leave(int gameID) throws ResponseException{
         // removes the user from the game (whether they are playing or observing the game).
         // The client transitions back to the Post-Login UI.
-        // TODO: not implemented
         try {
             WebsocketCommunicator ws = new WebsocketCommunicator(this);
-            // ws.leaveGamePlayMode(auth, newID);
+             ws.leaveGamePlayMode(auth, gameID);
         } catch (Exception e) {
             displayError(new ErrorMessage(e.getMessage()));
         }
@@ -740,17 +731,22 @@ public class ChessClient implements ServerMessageObserver {
 
     private void loadGame(Game gameClass) {
         ChessGame game = gameClass.game;
+        this.chessGame = game;
         String playerColor = gameClass.playerColor;
         DrawChessboard drawChessboard = new DrawChessboard(game, playerColor, 0);
         drawChessboard.run();
     }
 
     private void displayNotification(NotificationMessage serverMessage) {
+        System.out.print(SET_TEXT_COLOR_GREEN);
         System.out.println(serverMessage.getMessage());
+        System.out.print(RESET_TEXT_COLOR);
     }
 
     public void displayError(ErrorMessage errorMessage){
+        System.out.print(SET_TEXT_COLOR_RED);
         System.out.println(errorMessage.getErrorMessage());
+        System.out.print(RESET_TEXT_COLOR);
     }
 
     // create matrix for chess piece locations
@@ -758,11 +754,11 @@ public class ChessClient implements ServerMessageObserver {
     public ChessGame chessPiecePositions() {
         // note: this may be a temporary solution, as it may or may not be compatible with Phase 6
         // for now though, it works fine
-        ChessGame chessGame = new ChessGame(); // may change this by inputting a parameter
+        //ChessGame chessGame = new ChessGame(); // may change this by inputting a parameter
         //ChessBoard board = chessGame.getBoard();
         //ChessBoard board = new ChessBoard();
         //board.resetBoard();
         //return board;
-        return chessGame;
+        return this.chessGame;
     }
 }

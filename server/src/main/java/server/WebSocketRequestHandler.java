@@ -76,7 +76,7 @@ public class WebSocketRequestHandler {
             sendMessage(session, new Gson().toJson(new ErrorMessage("Error: " + e.getMessage())));
         }
     }
-    // TODO: not sure if I am doing this right.
+
     public void connect(Session session, String username, UserGameCommand command) throws Exception{
 
         ConnectionManager userSessions = sessionCollection.get(command.getGameID());
