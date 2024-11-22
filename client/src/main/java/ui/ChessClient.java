@@ -649,11 +649,10 @@ public class ChessClient implements ServerMessageObserver {
             } else {
                 System.out.println("Error: Invalid position.");
                 // for testing purposes ONLY. Replace these values with the values from the gamePlayMenu later
-                loggedInHelp();
-                loggedIn();
-                //displayGamePlayMenu();
-                //gameMenu();
-
+                displayGamePlayMenu();
+                gameMenu(playerColor);
+                //loggedInHelp();
+                //loggedIn();
             }
         }
 
@@ -681,6 +680,12 @@ public class ChessClient implements ServerMessageObserver {
         // removes the user from the game (whether they are playing or observing the game).
         // The client transitions back to the Post-Login UI.
         // TODO: not implemented
+        try {
+            WebsocketCommunicator ws = new WebsocketCommunicator(this);
+            // ws.leaveGamePlayMode(auth, newID);
+        } catch (Exception e) {
+            displayError(new ErrorMessage(e.getMessage()));
+        }
         isPlayingGame = false;
         loggedInHelp();
         loggedIn();
