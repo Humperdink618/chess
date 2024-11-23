@@ -1,5 +1,6 @@
 package server;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
@@ -32,6 +33,7 @@ public class WebSocketRequestHandler {
     // key is gameID, mapped to a set of Sessions
     // every time a player joins or observes, websocket automatically creates a session. Just have to add that session
     // to a collection, and pass that into a map.
+    private boolean hasResigned = false;
 
 
     @OnWebSocketMessage
@@ -68,6 +70,7 @@ public class WebSocketRequestHandler {
                 // case LEAVE -> leaveGame(session, username, (LeaveGameCommand) command);
                 case LEAVE -> leaveGame(session, username, command);
                 // case RESIGN -> resign(session, username, (ResignCommand) command);
+                case RESIGN -> resign(session, username, command);
             }
         } catch (UnauthorizedException e) {
             // Serializes and sends the error message
@@ -108,6 +111,40 @@ public class WebSocketRequestHandler {
 
     public void saveSession(int gameID, ConnectionManager userSessions){
         sessionCollection.put(gameID, userSessions);
+    }
+
+    public void resign(Session session, String username, UserGameCommand command) throws Exception{
+        // sets the game to game over
+        ConnectionManager userSessions = sessionCollection.get(command.getGameID());
+        if(userSessions == null){
+            sendMessage(session, new Gson().toJson(new ErrorMessage("Error: you can't resign if you were never part" +
+                    "of the game")));
+        }
+        GameData oldGD = gameDAO.getGame(command.getGameID());
+        if(oldGD.whiteUsername() == null || oldGD.blackUsername() == null) {
+            sendMessage(session, new Gson().toJson(new ErrorMessage("Error: you cannot resign if you're the" +
+                    " only one playing (or if you are simply observing).")));
+        } else if (!oldGD.blackUsername().equals(username) && !oldGD.whiteUsername().equals(username)) {
+            sendMessage(session, new Gson().toJson(new ErrorMessage("Error: you cannot resign if you are " +
+                            "observing.")));
+        } else if(oldGD.game().isGameOver()){
+            sendMessage(session, new Gson().toJson(new ErrorMessage("Error: The game is already over. No need to " +
+                    "resign.")));
+        } else {
+
+            ChessGame chessGame = oldGD.game();
+            chessGame.setGameOver(true);
+            gameDAO.updateGame(new GameData(
+                    oldGD.gameID(),
+                    oldGD.whiteUsername(),
+                    oldGD.blackUsername(),
+                    oldGD.gameName(),
+                    chessGame)
+            );
+            String message = String.format("%s has resigned.", username);
+            NotificationMessage notificationMessage = new NotificationMessage(message);
+            userSessions.broadcastToAll(notificationMessage);
+        }
     }
 
     public void leaveGame(Session session, String username, UserGameCommand command) throws Exception{

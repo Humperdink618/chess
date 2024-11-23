@@ -17,7 +17,6 @@ public class ChessGame  {
     private boolean isWhiteInCheck; // is white in check in current board
     private boolean isBlackInCheck; // is black in check in current board
     private boolean isGameOver; // checks if player has resigned.
-    private int userHasResigned;
 
     public ChessGame() {
         teamTurn = TeamColor.WHITE;
@@ -26,7 +25,6 @@ public class ChessGame  {
         isGameOver = false;
         board = new ChessBoard();
         board.resetBoard();
-        userHasResigned = 1;
     }
 
     /**
@@ -121,6 +119,7 @@ public class ChessGame  {
     }
 
 
+
     public void undoMoveHelper(ChessMove move, ChessBoard board1, ChessPiece myPiece, ChessPiece theirPiece) {
         board1.addPiece(move.getStartPosition(), myPiece);
         board1.addPiece(move.getEndPosition(), theirPiece);
@@ -174,7 +173,7 @@ public class ChessGame  {
         if(board.getPiece(move.getStartPosition()).getTeamColor() != getTeamTurn()) {
             throw new InvalidMoveException("Not your turn, Moron!");
         }
-        this.isGameOver = isGameOver(userHasResigned);
+        this.isGameOver = isGameOver();
         if(isGameOver){
             throw new InvalidMoveException("The game is now over. No further moves can be made.");
         }
@@ -301,6 +300,7 @@ public class ChessGame  {
      * @param teamColor which team to check for checkmate
      * @return True if the specified team is in checkmate
      */
+    // TODO: possibly set isGameOver to true here.
     public boolean isInCheckmate(TeamColor teamColor) {
         // validMoves() is empty, and isInCheck == true
         return noMovesLeft(teamColor) && isInCheck(teamColor);
@@ -313,6 +313,7 @@ public class ChessGame  {
      * @param teamColor which team to check for stalemate
      * @return True if the specified team is in stalemate, otherwise false
      */
+    // TODO: possibly set isGameOver to true here
     public boolean isInStalemate(TeamColor teamColor) {
         // same drill as in isInCheckmate()
         return noMovesLeft(teamColor) && !isInCheck(teamColor);
@@ -349,14 +350,13 @@ public class ChessGame  {
 
     // TODO: create a boolean that checks if a player has resigned or not, in which case, end the game, make sure no
     //  more moves can be made.
-    public boolean isGameOver(int userHasResigned) {
-        if(userHasResigned == 0){
-            this.userHasResigned = 0;
-            return true;
-        }
-        this.userHasResigned = 1;
-        return false;
-        // checks to see if a player has resigned, in which case the game is over and no further moves can be made
+
+    public boolean isGameOver() {
+        return isGameOver;
+    }
+
+    public void setGameOver(boolean gameOver) {
+        isGameOver = gameOver;
     }
 
     @Override

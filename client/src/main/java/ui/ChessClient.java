@@ -417,7 +417,7 @@ public class ChessClient implements ServerMessageObserver {
         // TODO: figure out gameIDs with associated games to figure out which game to display.
         //   for now, until the above is completed, just print out the board for an unspecified game. Fix this later.
         if(joinMessage.equals("join successful!")){
-            returnToMenuBecauseBadPos(playerColor, newID, "Join successful!");
+            returnToMenuBCBadPos(playerColor, newID, "Join successful!");
             try {
                 WebsocketCommunicator ws = new WebsocketCommunicator(this);
                 ws.enterGamePlayMode(auth, newID);
@@ -562,11 +562,11 @@ public class ChessClient implements ServerMessageObserver {
         if(input.equals("1")){
             redrawChessBoard(playerColor, gameID);
         } else if(input.equals("2")) {
-            makeMove();
+            makeMove(playerColor, gameID);
         } else if(input.equals("3")) {
             highlightLegalMoves(playerColor, gameID);
         } else if(input.equals("4")) {
-            resign();
+            resign(playerColor, gameID);
         } else if(input.equals("5")) {
             leave(gameID);
             return false;
@@ -598,7 +598,7 @@ public class ChessClient implements ServerMessageObserver {
         gameMenu(playerColor, gameID);
     }
 
-    private void makeMove(){
+    private void makeMove(String playerColor, int gameID){
         // makes a move on the ChessBoard during a game
         // TODO: not implemented
     }
@@ -617,12 +617,12 @@ public class ChessClient implements ServerMessageObserver {
         char[] inputCharPos = chessPos.toCharArray();
         for(int i = 0; i < inputCharPos.length; i++){
             if(!Character.isLetter(inputCharPos[0])) {
-                returnToMenuBecauseBadPos(playerColor, gameID, isInvalidPos);
+                returnToMenuBCBadPos(playerColor, gameID, isInvalidPos);
 
             } else if(!Character.isDigit(inputCharPos[1])){
-                returnToMenuBecauseBadPos(playerColor, gameID, isInvalidPos);
+                returnToMenuBCBadPos(playerColor, gameID, isInvalidPos);
             } else if(inputCharPos.length > 2) {
-                returnToMenuBecauseBadPos(playerColor, gameID, isInvalidPos);
+                returnToMenuBCBadPos(playerColor, gameID, isInvalidPos);
             }
         }
 
@@ -634,10 +634,9 @@ public class ChessClient implements ServerMessageObserver {
             } else if(Character.isDigit(c)){
                 y = Character.getNumericValue(c);
             } else {
-                returnToMenuBecauseBadPos(playerColor, gameID, isInvalidPos);
+                returnToMenuBCBadPos(playerColor, gameID, isInvalidPos);
             }
         }
-
 
         ChessPosition inputPos = new ChessPosition(y, x);
 
@@ -650,22 +649,51 @@ public class ChessClient implements ServerMessageObserver {
                 drawChessboard.runHighlight(inputPos);
             }
         }
+        displayGamePlayMenu();
+        gameMenu(playerColor, gameID);
     }
 
-    private void returnToMenuBecauseBadPos(String playerColor, int gameID, String isInvalidPos) throws ResponseException {
+    private void returnToMenuBCBadPos(String playerColor, int gameID, String isInvalidPos) throws ResponseException {
         System.out.println(isInvalidPos);
         // for testing purposes ONLY. Replace these values with the values from the gamePlayMenu later
         displayGamePlayMenu();
+
         gameMenu(playerColor, gameID);
         //loggedInHelp();
         //loggedIn();
     }
 
-    private void resign(){
+    private void resign(String playerColor, int gameID) throws ResponseException{
         // prompts the user to confirm they want to resign.
         // If they do, the user forfeits the game and the game is over.
         // Does not cause the user to leave the game.
         // TODO: not implemented
+        System.out.println("Are you sure you want to resign? (Y/N): ");
+        String input = scanner.nextLine().toUpperCase();
+        if(input.equals("Y") || input.equals("YES")){
+            // user has resigned
+            try {
+                WebsocketCommunicator ws = new WebsocketCommunicator(this);
+                ws.resignFromGame(auth, gameID);
+                if(isSarcasticText){
+                    System.out.println("The game is like, OVER. Excelsi-whatever.");
+                } else {
+                    System.out.println("Game over. Thanks for playing!");
+                }
+            } catch (Exception e) {
+                displayError(new ErrorMessage(e.getMessage()));
+            }
+            displayGamePlayMenu();
+            gameMenu(playerColor, gameID);
+
+        } else if(input.equals("N") || input.equals("NO")){
+            displayGamePlayMenu();
+            gameMenu(playerColor, gameID);
+        } else {
+            System.out.println("Error: Invalid option");
+            displayGamePlayMenu();
+            gameMenu(playerColor, gameID);
+        }
     }
 
     private void leave(int gameID) throws ResponseException{
