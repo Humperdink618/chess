@@ -16,7 +16,7 @@ import websocket.messages.NotificationMessage;
 
 import java.util.HashMap;
 
-
+@WebSocket
 public class WebSocketRequestHandler {
 
     private AuthDAO authDAO;
@@ -81,6 +81,8 @@ public class WebSocketRequestHandler {
 
         ConnectionManager userSessions = sessionCollection.get(command.getGameID());
         if(userSessions == null){
+            ConnectionManager newUserSessions = new ConnectionManager();
+            userSessions = newUserSessions;
             saveSession(command.getGameID(), userSessions);
         }
         userSessions.add(username, session);
@@ -115,26 +117,31 @@ public class WebSocketRequestHandler {
                     "begin with")));
         }
         GameData oldGD = gameDAO.getGame(command.getGameID());
-        if(oldGD.blackUsername().equals(username)){
-            GameData newGD
-                    = new GameData(
-                            oldGD.gameID(),
-                            oldGD.whiteUsername(),
-                            null,
-                            oldGD.gameName(),
-                            oldGD.game()
-                    );
-            gameDAO.updateGame(newGD);
-        } else if(oldGD.whiteUsername().equals(username)){
-            GameData newGD =
-                    new GameData(
-                            oldGD.gameID(),
-                            null,
-                            oldGD.blackUsername(),
-                            oldGD.gameName(),
-                            oldGD.game()
-                    );
-            gameDAO.updateGame(newGD);
+        if(oldGD.blackUsername() != null){
+            if(oldGD.blackUsername().equals(username)) {
+                GameData newGD
+                        = new GameData(
+                        oldGD.gameID(),
+                        oldGD.whiteUsername(),
+                        null,
+                        oldGD.gameName(),
+                        oldGD.game()
+                );
+                gameDAO.updateGame(newGD);
+            }
+        }
+        if(oldGD.whiteUsername() != null) {
+            if (oldGD.whiteUsername().equals(username)) {
+                GameData newGD =
+                        new GameData(
+                                oldGD.gameID(),
+                                null,
+                                oldGD.blackUsername(),
+                                oldGD.gameName(),
+                                oldGD.game()
+                        );
+                gameDAO.updateGame(newGD);
+            }
         }
         userSessions.remove(username);
         String message = String.format("%s has left the game", username);

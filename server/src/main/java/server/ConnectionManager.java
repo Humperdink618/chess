@@ -1,6 +1,8 @@
 package server;
 
+import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.Session;
+import websocket.messages.Game;
 import websocket.messages.ServerMessage;
 
 import java.util.ArrayList;
@@ -25,7 +27,7 @@ public class ConnectionManager {
         for(Connection c : userSessions.values()){
             if(c.session.isOpen()){
                 if(!c.username.equals(excludeUsername)) {
-                    c.send(serverMessage.toString());
+                    c.send(new Gson().toJson(serverMessage));
                 }
             } else {
                 removeList.add(c);
@@ -43,7 +45,7 @@ public class ConnectionManager {
         for(Connection c : userSessions.values()){
             if(c.session.isOpen()){
                 if(c.username.equals(username)) {
-                    c.send(serverMessage.toString());
+                    c.send(new Gson().toJson(serverMessage));
                 }
             } else {
                 removeList.add(c);
@@ -60,7 +62,7 @@ public class ConnectionManager {
         ArrayList<Connection> removeList = new ArrayList<>();
         for(Connection c : userSessions.values()){
             if(c.session.isOpen()){
-                c.send(serverMessage.toString());
+                c.send(new Gson().toJson(serverMessage));
             } else {
                 removeList.add(c);
             }
