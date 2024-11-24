@@ -1,6 +1,6 @@
 package server;
 
-import chess.ChessGame;
+import chess.*;
 import com.google.gson.Gson;
 import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
@@ -9,6 +9,7 @@ import model.AuthData;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import org.eclipse.jetty.websocket.api.*;
+import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
 import websocket.messages.Game;
@@ -66,7 +67,7 @@ public class WebSocketRequestHandler {
                 case CONNECT -> connect(session, username, command) ;
                 // -- add user to the collection of sessions and send a message to everyone else that that player
                 //     has joined the game. Use send() method.
-                // case MAKE_MOVE -> makeMove(session, username, (MakeMoveCommand) command);
+                case MAKE_MOVE -> makeMove(session, username, ((MakeMoveCommand) command));
                 // case LEAVE -> leaveGame(session, username, (LeaveGameCommand) command);
                 case LEAVE -> leaveGame(session, username, command);
                 // case RESIGN -> resign(session, username, (ResignCommand) command);
@@ -144,7 +145,147 @@ public class WebSocketRequestHandler {
             String message = String.format("%s has resigned.", username);
             NotificationMessage notificationMessage = new NotificationMessage(message);
             userSessions.broadcastToAll(notificationMessage);
+            hasResigned = true;
         }
+    }
+
+    public void makeMove(Session session, String username, MakeMoveCommand command) throws Exception{
+        // sets the game to game over
+        ConnectionManager userSessions = sessionCollection.get(command.getGameID());
+        if(userSessions == null){
+            sendMessage(session, new Gson().toJson(new ErrorMessage("Error: you can't make a move if you're " +
+                    "not in the game!")));
+        }
+        GameData oldGD = gameDAO.getGame(command.getGameID());
+        if(oldGD.whiteUsername() == null || oldGD.blackUsername() == null) {
+            sendMessage(session, new Gson().toJson(new ErrorMessage("Error: you cannot make a move if you're not " +
+                    "playing against anyone.")));
+        } else if (!oldGD.blackUsername().equals(username) && !oldGD.whiteUsername().equals(username)) {
+            sendMessage(session, new Gson().toJson(new ErrorMessage("Error: you cannot make a move if you are " +
+                    "observing.")));
+        } else if(oldGD.game().isGameOver()){
+            sendMessage(session, new Gson().toJson(new ErrorMessage("Error: The game is already over. No more moves" +
+                    " can be made.")));
+        } else {
+
+            ChessGame chessGame = oldGD.game();
+            ChessMove move = command.getMove();
+            ChessBoard board = chessGame.getBoard();
+            ChessPiece chessPiece = board.getPiece(move.getStartPosition());
+            String playerColor = "";
+            String endGameMessage = "";
+            String kingInCheckMessage = "";
+            String moveMessage = "";
+            ChessGame.TeamColor teamColor = chessPiece.getTeamColor();
+            ChessGame.TeamColor enemyTeamColor = null;
+            String opponentUserName = "";
+            ChessPosition startPos = move.getStartPosition();
+            ChessPosition endPos = move.getEndPosition();
+            int startRow = startPos.getRow();
+            int startCol = startPos.getColumn();
+            int endRow = endPos.getRow();
+            int endCol = endPos.getColumn();
+            String startRowLetter = "";
+            String endRowLetter = "";
+            for(int i = 1; i < 9; i++){
+                if(i == startRow){
+                    startRowLetter = getCharForNumber(i);
+                }
+                if(i == endRow){
+                    endRowLetter = getCharForNumber(i);
+                }
+            }
+            if(startRowLetter.isBlank() || endRowLetter.isBlank()){
+                sendMessage(session, new Gson().toJson(new ErrorMessage("Error: invalid move.")));
+            }
+
+            if(oldGD.whiteUsername().equals(username)){
+                if(teamColor != ChessGame.TeamColor.WHITE){
+                    sendMessage(session, new Gson().toJson(new ErrorMessage("Error: you can't move an opponent's " +
+                            "piece.")));
+                } else {
+                    playerColor = "WHITE";
+                    enemyTeamColor = ChessGame.TeamColor.BLACK;
+                    opponentUserName = oldGD.blackUsername();
+                }
+            } else if(oldGD.blackUsername().equals(username)){
+                if(teamColor != ChessGame.TeamColor.BLACK){
+                    sendMessage(session, new Gson().toJson(new ErrorMessage("Error: you can't move an opponent's " +
+                            "piece.")));
+                } else {
+                    playerColor = "BLACK";
+                    enemyTeamColor = ChessGame.TeamColor.WHITE;
+                    opponentUserName = oldGD.whiteUsername();
+                }
+            }
+
+            try {
+                chessGame.makeMove(move);
+
+                moveMessage =
+                        String.format(
+                                "%s moved a piece from %s%s to %s%s",
+                                username,
+                                startRowLetter,
+                                startCol,
+                                endRowLetter,
+                                endCol);
+
+                if(move.getPromotionPiece() != null){
+                    moveMessage =
+                            String.format(
+                                    "%s moved a PAWN from %s%s to %s%s and promoted it to a %s",
+                                    username,
+                                    startRowLetter,
+                                    startCol,
+                                    endRowLetter,
+                                    endCol,
+                                    move.getPromotionPiece()
+                            );
+                }
+
+                if(chessGame.isInCheck(enemyTeamColor)){
+                    kingInCheckMessage = String.format("%s has put %s's king in Check", username, opponentUserName);
+                }
+                if(chessGame.isInCheckmate(enemyTeamColor)) {
+                    endGameMessage = String.format("GAME OVER: %s has put %s's king in Checkmate. " +
+                            "%s Team WINS! Thank you for playing!", username, opponentUserName, teamColor);
+                    chessGame.setGameOver(true);
+                } else if(chessGame.isInStalemate(enemyTeamColor)){
+                    endGameMessage = "GAME OVER: game ends in Stalemate. No one wins. Better luck next time!";
+                    chessGame.setGameOver(true);
+                }
+
+
+            } catch (InvalidMoveException e) {
+                sendMessage(session, new Gson().toJson(new ErrorMessage("Error: " + e.getMessage())));
+            }
+
+            gameDAO.updateGame(new GameData(
+                    oldGD.gameID(),
+                    oldGD.whiteUsername(),
+                    oldGD.blackUsername(),
+                    oldGD.gameName(),
+                    chessGame)
+            );
+            Game game = new Game(chessGame, playerColor);
+            LoadGameMessage loadGameMessage = new LoadGameMessage(game);
+            userSessions.broadcastToAll(loadGameMessage);
+            NotificationMessage notifyThatPlayerHasMadeMove = new NotificationMessage(moveMessage);
+            userSessions.broadcastToAllButRootClient(username, notifyThatPlayerHasMadeMove);
+            if(chessGame.isInCheck(enemyTeamColor)){
+                NotificationMessage notifyIsInCheck = new NotificationMessage(kingInCheckMessage);
+                userSessions.broadcastToAll(notifyIsInCheck);
+            }
+            if(chessGame.isInCheckmate(enemyTeamColor) || chessGame.isInStalemate(enemyTeamColor)){
+                NotificationMessage notifyGameOver = new NotificationMessage(endGameMessage);
+                userSessions.broadcastToAll(notifyGameOver);
+            }
+        }
+    }
+
+    private String getCharForNumber(int i){
+        return i > 0 && i < 27 ? String.valueOf((char)(i + 'a' - 1)) : null;
     }
 
     public void leaveGame(Session session, String username, UserGameCommand command) throws Exception{

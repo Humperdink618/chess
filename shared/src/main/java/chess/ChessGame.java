@@ -137,12 +137,13 @@ public class ChessGame  {
         return isWhiteInCheck == chessGame.isWhiteInCheck
                 && isBlackInCheck == chessGame.isBlackInCheck
                 && Objects.equals(board, chessGame.board)
-                && teamTurn == chessGame.teamTurn;
+                && teamTurn == chessGame.teamTurn
+                && isGameOver == chessGame.isGameOver;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(board, teamTurn, isWhiteInCheck, isBlackInCheck);
+        return Objects.hash(board, teamTurn, isWhiteInCheck, isBlackInCheck, isGameOver);
     }
 
     private TeamColor opponentTeam(TeamColor team){

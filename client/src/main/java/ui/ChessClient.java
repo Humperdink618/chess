@@ -1,8 +1,6 @@
 package ui;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPosition;
+import chess.*;
 import com.google.gson.Gson;
 import exceptions.ResponseException;
 import model.GameData;
@@ -598,33 +596,207 @@ public class ChessClient implements ServerMessageObserver {
         gameMenu(playerColor, gameID);
     }
 
-    private void makeMove(String playerColor, int gameID){
+    private void makeMove(String playerColor, int gameID) throws ResponseException{
         // makes a move on the ChessBoard during a game
         // TODO: not implemented
+        System.out.println("Enter the piece's start position in the form b2 (a letter from 'a' to 'h' " +
+                "followed by a number from 1 to 8): ");
+        String inputStartPos = scanner.nextLine().toLowerCase();
+        // TODO: check this method again once I've done all the websocket stuff
+        while(inputStartPos.isBlank()) {
+            System.out.println("Error: not a valid option.");
+            System.out.println("Enter the piece's start position in the form b2 (a letter from 'a' to 'h' " +
+                    "followed by a number from 1 to 8): ");
+            inputStartPos = scanner.nextLine().toLowerCase();
+        }
+
+        String isInvalidPos = "Error: Invalid position.";
+        char[] inputCharStartPos = inputStartPos.toCharArray();
+        checkIfCharArrayIsValidInput(playerColor, gameID, inputCharStartPos, isInvalidPos);
+
+        int x = 0;
+        int y = 0;
+
+        for(char c : inputCharStartPos){
+            if(Character.isLetter(c)){
+                x = c - 'a' + 1;
+            } else if(Character.isDigit(c)){
+                y = Character.getNumericValue(c);
+            } else {
+                returnToMenuBCBadPos(playerColor, gameID, isInvalidPos);
+            }
+        }
+
+        if(x < 1 || x > 8 || y < 1 || y > 8){
+            returnToMenuBCBadPos(playerColor, gameID, isInvalidPos);
+        }
+
+        ChessPosition startPos = new ChessPosition(y, x);
+
+        System.out.println("Where would you like to move this piece? (Enter the piece's end position in the form b2 " +
+                "(a letter from 'a' to 'h' followed by a number from 1 to 8): ");
+        String inputEndPos = scanner.nextLine().toLowerCase();
+
+        while(inputEndPos.isBlank()) {
+            System.out.println("Error: not a valid option.");
+            System.out.println("Where would you like to move this piece? (Enter the piece's end position in the" +
+                    " form b2 (a letter from 'a' to 'h' followed by a number from 1 to 8): ");
+            inputEndPos = scanner.nextLine().toLowerCase();
+        }
+
+        char[] inputCharEndPos = inputEndPos.toCharArray();
+        checkIfCharArrayIsValidInput(playerColor, gameID, inputCharEndPos, isInvalidPos);
+
+        int z = 0;
+        int k = 0;
+
+        for(char c : inputCharEndPos){
+            if(Character.isLetter(c)){
+                z = c - 'a' + 1;
+            } else if(Character.isDigit(c)){
+                k = Character.getNumericValue(c);
+            } else {
+                returnToMenuBCBadPos(playerColor, gameID, isInvalidPos);
+            }
+        }
+
+        if(z < 1 || z > 8 || k < 1 || k > 8){
+            returnToMenuBCBadPos(playerColor, gameID, isInvalidPos);
+        }
+
+        ChessPosition endPos = new ChessPosition(k, z);
+
+
+        ChessBoard board = chessPiecePositions().getBoard();
+        Collection<ChessPosition> chessPositions = board.getChessPositions();
+        ChessPiece chessPiece = board.getPiece(startPos);
+        Boolean canPromote = false;
+        if(chessPiece == null){
+
+            returnToMenuBCBadPos(playerColor, gameID, isInvalidPos);
+
+        } else if(chessPiece.getPieceType() == ChessPiece.PieceType.PAWN){
+
+            if(chessPiece.getTeamColor() == ChessGame.TeamColor.WHITE){
+                if(endPos.getRow() == 8){
+                    canPromote = true;
+                } else {
+                    canPromote = false;
+                }
+            } else if(chessPiece.getTeamColor() == ChessGame.TeamColor.BLACK){
+                if(endPos.getRow() == 1){
+                    canPromote = true;
+                } else {
+                    canPromote = false;
+                }
+            }
+        }
+        ChessPiece promotionPiece = null;
+        if(canPromote) {
+            System.out.println("Enter the piece type you want to promote your pawn to (can be any piece except for " +
+                    "KING and PAWN): ");
+            String inputPromotionPiece = scanner.nextLine().toUpperCase();
+            while(inputPromotionPiece.isBlank()) {
+                System.out.println("Error: if you are moving a pawn to the opposite side of the board, it has to be " +
+                        "promoted to something.");
+                System.out.println("Enter the piece type you want to promote your pawn to (can be any piece except" +
+                        " for KING and PAWN): ");
+                inputPromotionPiece = scanner.nextLine().toUpperCase();
+            }
+            while (inputPromotionPiece.equals("KING")){
+                System.out.println("Ok, who's the wise guy who tried to promote his pawn to a king, eh?");
+                System.out.println("While I appreciate the attempt to sow a little bit of anarchy into the mix here, " +
+                        "unfortunately, promoting a pawn to a king is against the rules.");
+                System.out.println("In other words... \n");
+                System.out.println("Error: not a valid promotion.");
+                System.out.println("Enter the piece type you want to promote your pawn to (can be any piece except" +
+                        " for KING and PAWN): ");
+                inputPromotionPiece = scanner.nextLine().toUpperCase();
+            }
+            while(!inputPromotionPiece.equals("QUEEN") &&
+                    !inputPromotionPiece.equals("ROOK") &&
+                    !inputPromotionPiece.equals("KNIGHT") &&
+                    !inputPromotionPiece.equals("BISHOP") &&
+                    !inputPromotionPiece.equals("KING")){
+
+                System.out.println("Error: not a valid promotion.");
+                System.out.println("Enter the piece type you want to promote your pawn to (can be any piece except" +
+                        " for KING and PAWN): ");
+                inputPromotionPiece = scanner.nextLine().toUpperCase();
+            }
+            if(inputPromotionPiece.equals("QUEEN")){
+                promotionPiece = new ChessPiece(chessPiece.getTeamColor(), ChessPiece.PieceType.QUEEN);
+            } else if(inputPromotionPiece.equals("ROOK")){
+                promotionPiece = new ChessPiece(chessPiece.getTeamColor(), ChessPiece.PieceType.ROOK);
+            } else if(inputPromotionPiece.equals("KNIGHT")){
+                promotionPiece = new ChessPiece(chessPiece.getTeamColor(), ChessPiece.PieceType.KNIGHT);
+            } else if(inputPromotionPiece.equals("BISHOP")){
+                promotionPiece = new ChessPiece(chessPiece.getTeamColor(), ChessPiece.PieceType.BISHOP);
+            }
+        }
+        ChessMove move = null;
+        if(promotionPiece.getPieceType() != null) {
+            move = new ChessMove(startPos, endPos, promotionPiece.getPieceType());
+        } else {
+            move = new ChessMove(startPos, endPos, null);
+        }
+        if(move == null){
+            System.out.println("Error: invalid move");
+            displayGamePlayMenu();
+            gameMenu(playerColor, gameID);
+        }
+
+        try {
+            WebsocketCommunicator ws = new WebsocketCommunicator(this);
+            ws.clientMakeMove(auth, gameID, move);
+
+        } catch (Exception e) {
+            displayError(new ErrorMessage(e.getMessage()));
+        }
+
+        displayGamePlayMenu();
+        gameMenu(playerColor, gameID);
+    }
+
+    private void checkIfCharArrayIsValidInput(
+            String playerColor,
+            int gameID,
+            char[] inputCharPos,
+            String isInvalidPos) throws ResponseException {
+
+        for(int i = 0; i < inputCharPos.length; i++){
+            if(!Character.isLetter(inputCharPos[0])) {
+                returnToMenuBCBadPos(playerColor, gameID, isInvalidPos);
+
+            } else if(!Character.isDigit(inputCharPos[1])) {
+                returnToMenuBCBadPos(playerColor, gameID, isInvalidPos);
+
+            } else if(inputCharPos.length > 2) {
+                returnToMenuBCBadPos(playerColor, gameID, isInvalidPos);
+            }
+        }
     }
 
     private void highlightLegalMoves(String playerColor, int gameID) throws ResponseException{
         // highlights all legal moves a chess piece can make on a ChessBoard during a game
         // TODO: make it so that it only prints one side of the board depending on the team color of the player
         //  (observers will view it from White's perspective by default)
-        System.out.println("Enter the piece's position: ");
-        String chessPos = scanner.nextLine();
+        System.out.println("Enter the piece's position in the form b2 (a letter from 'a' to 'h' " +
+        "followed by a number from 1 to 8): ");
+        String chessPos = scanner.nextLine().toLowerCase();
         // TODO: check this method again once I've done all the websocket stuff and implemented a way that displays
         //  only one side of the board at a time. Will need to see if this still works for other chess pieces in other
         //  positions on the board (currently, this only checks Pawns and Knights, as no other piece can move from the
         //  default position.
+        while(chessPos.isBlank()) {
+            System.out.println("Error: not a valid option.");
+            System.out.println("Enter the piece's position in the form b2 (a letter from 'a' to 'h' " +
+                    "followed by a number from 1 to 8): ");
+            chessPos = scanner.nextLine().toLowerCase();
+        }
         String isInvalidPos = "Error: Invalid position.";
         char[] inputCharPos = chessPos.toCharArray();
-        for(int i = 0; i < inputCharPos.length; i++){
-            if(!Character.isLetter(inputCharPos[0])) {
-                returnToMenuBCBadPos(playerColor, gameID, isInvalidPos);
-
-            } else if(!Character.isDigit(inputCharPos[1])){
-                returnToMenuBCBadPos(playerColor, gameID, isInvalidPos);
-            } else if(inputCharPos.length > 2) {
-                returnToMenuBCBadPos(playerColor, gameID, isInvalidPos);
-            }
-        }
+        checkIfCharArrayIsValidInput(playerColor, gameID, inputCharPos, isInvalidPos);
 
         int x = 0;
         int y = 0;
@@ -636,6 +808,10 @@ public class ChessClient implements ServerMessageObserver {
             } else {
                 returnToMenuBCBadPos(playerColor, gameID, isInvalidPos);
             }
+        }
+
+        if(x < 1 || x > 8 || y < 1 || y > 8){
+            returnToMenuBCBadPos(playerColor, gameID, isInvalidPos);
         }
 
         ChessPosition inputPos = new ChessPosition(y, x);
