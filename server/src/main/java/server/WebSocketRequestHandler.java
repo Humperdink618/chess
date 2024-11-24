@@ -34,7 +34,6 @@ public class WebSocketRequestHandler {
     // key is gameID, mapped to a set of Sessions
     // every time a player joins or observes, websocket automatically creates a session. Just have to add that session
     // to a collection, and pass that into a map.
-    private boolean hasResigned = false;
 
 
     @OnWebSocketMessage
@@ -67,7 +66,8 @@ public class WebSocketRequestHandler {
                 case CONNECT -> connect(session, username, command) ;
                 // -- add user to the collection of sessions and send a message to everyone else that that player
                 //     has joined the game. Use send() method.
-                case MAKE_MOVE -> makeMove(session, username, (MakeMoveCommand) command);
+                //case MAKE_MOVE -> makeMove(session, username, (MakeMoveCommand) command);
+                case MAKE_MOVE -> makeMove(session, username, message);
                 // case LEAVE -> leaveGame(session, username, (LeaveGameCommand) command);
                 case LEAVE -> leaveGame(session, username, command);
                 // case RESIGN -> resign(session, username, (ResignCommand) command);
@@ -145,18 +145,30 @@ public class WebSocketRequestHandler {
             String message = String.format("%s has resigned.", username);
             NotificationMessage notificationMessage = new NotificationMessage(message);
             userSessions.broadcastToAll(notificationMessage);
-            hasResigned = true;
         }
     }
 
-    public void makeMove(Session session, String username, MakeMoveCommand command) throws Exception{
+    public void makeMove(Session session, String username, String message) throws Exception{
+
+        MakeMoveCommand command = new Gson().fromJson(message, MakeMoveCommand.class);
+
+        // Throws a custom UnauthorizedException. Yours may work differently.
+        String authToken = command.getAuthToken();
+        if(authDAO.getAuth(authToken) == null){
+            throw new UnauthorizedException("Error: unauthorized");
+        }
+        GameData oldGD = gameDAO.getGame(command.getGameID());
+        Integer gameID = oldGD.gameID();
+        if(gameID == null){
+            throw new UnauthorizedException("Error: game doesn't exist");
+        }
         // sets the game to game over
         ConnectionManager userSessions = sessionCollection.get(command.getGameID());
         if(userSessions == null){
             sendMessage(session, new Gson().toJson(new ErrorMessage("Error: you can't make a move if you're " +
                     "not in the game!")));
         }
-        GameData oldGD = gameDAO.getGame(command.getGameID());
+
         if(oldGD.whiteUsername() == null || oldGD.blackUsername() == null) {
             sendMessage(session, new Gson().toJson(new ErrorMessage("Error: you cannot make a move if you're not " +
                     "playing against anyone.")));
@@ -198,88 +210,86 @@ public class WebSocketRequestHandler {
             if(startRowLetter.isBlank() || endRowLetter.isBlank()){
                 sendMessage(session, new Gson().toJson(new ErrorMessage("Error: invalid move.")));
             }
-
-            if(oldGD.whiteUsername().equals(username)){
-                if(teamColor != ChessGame.TeamColor.WHITE){
-                    sendMessage(session, new Gson().toJson(new ErrorMessage("Error: you can't move an opponent's " +
-                            "piece.")));
-                } else {
-                    playerColor = "WHITE";
-                    enemyTeamColor = ChessGame.TeamColor.BLACK;
-                    opponentUserName = oldGD.blackUsername();
-                }
-            } else if(oldGD.blackUsername().equals(username)){
-                if(teamColor != ChessGame.TeamColor.BLACK){
-                    sendMessage(session, new Gson().toJson(new ErrorMessage("Error: you can't move an opponent's " +
-                            "piece.")));
-                } else {
-                    playerColor = "BLACK";
-                    enemyTeamColor = ChessGame.TeamColor.WHITE;
-                    opponentUserName = oldGD.whiteUsername();
-                }
-            }
-
             try {
-                chessGame.makeMove(move);
+                if(oldGD.whiteUsername().equals(username)){
+                    if(teamColor != ChessGame.TeamColor.WHITE) {
+                        throw new InvalidMoveException("you can't move an opponent's piece.");
+                    } else if(chessGame.getTeamTurn() != teamColor){
+                        throw new InvalidMoveException("it's not your turn.");
+                    } else {
+                        playerColor = "WHITE";
+                        enemyTeamColor = ChessGame.TeamColor.BLACK;
+                        opponentUserName = oldGD.blackUsername();
+                    }
+                } else if(oldGD.blackUsername().equals(username)){
+                    if(teamColor != ChessGame.TeamColor.BLACK){
+                        throw new InvalidMoveException("you can't move an opponent's piece.");
+                    } else if(chessGame.getTeamTurn() != teamColor){
+                        throw new InvalidMoveException("it's not your turn.");
+                    } else {
+                        playerColor = "BLACK";
+                        enemyTeamColor = ChessGame.TeamColor.WHITE;
+                        opponentUserName = oldGD.whiteUsername();
+                    }
+                }
+                    chessGame.makeMove(move);
 
-                moveMessage =
-                        String.format(
-                                "%s moved a piece from %s%s to %s%s",
-                                username,
-                                startRowLetter,
-                                startCol,
-                                endRowLetter,
-                                endCol);
-
-                if(move.getPromotionPiece() != null){
                     moveMessage =
                             String.format(
-                                    "%s moved a PAWN from %s%s to %s%s and promoted it to a %s",
+                                    "%s moved a piece from %s%s to %s%s",
                                     username,
                                     startRowLetter,
                                     startCol,
                                     endRowLetter,
-                                    endCol,
-                                    move.getPromotionPiece()
-                            );
-                }
+                                    endCol);
 
+                    if(move.getPromotionPiece() != null){
+                        moveMessage =
+                                String.format(
+                                        "%s moved a PAWN from %s%s to %s%s and promoted it to a %s",
+                                        username,
+                                        startRowLetter,
+                                        startCol,
+                                        endRowLetter,
+                                        endCol,
+                                        move.getPromotionPiece()
+                                );
+                    }
+
+                    if(chessGame.isInCheck(enemyTeamColor)){
+                        kingInCheckMessage = String.format("%s has put %s's king in Check", username, opponentUserName);
+                    }
+                    if(chessGame.isInCheckmate(enemyTeamColor)) {
+                        endGameMessage = String.format("GAME OVER: %s has put %s's king in Checkmate. " +
+                                "%s Team WINS! Thank you for playing!", username, opponentUserName, teamColor);
+                        chessGame.setGameOver(true);
+                    } else if(chessGame.isInStalemate(enemyTeamColor)){
+                        endGameMessage = "GAME OVER: game ends in Stalemate. No one wins. Better luck next time!";
+                        chessGame.setGameOver(true);
+                    }
+
+
+                gameDAO.updateGame(new GameData(
+                        oldGD.gameID(),
+                        oldGD.whiteUsername(),
+                        oldGD.blackUsername(),
+                        oldGD.gameName(),
+                        chessGame)
+                );
+                Game game = new Game(chessGame, playerColor);
+                LoadGameMessage loadGameMessage = new LoadGameMessage(game);
+                userSessions.broadcastToAll(loadGameMessage);
+                NotificationMessage notifyThatPlayerHasMadeMove = new NotificationMessage(moveMessage);
+                userSessions.broadcastToAllButRootClient(username, notifyThatPlayerHasMadeMove);
                 if(chessGame.isInCheck(enemyTeamColor)){
-                    kingInCheckMessage = String.format("%s has put %s's king in Check", username, opponentUserName);
+                    NotificationMessage notifyIsInCheck = new NotificationMessage(kingInCheckMessage);
+                    userSessions.broadcastToAll(notifyIsInCheck);
+                } else if(chessGame.isInCheckmate(enemyTeamColor) || chessGame.isInStalemate(enemyTeamColor)){
+                    NotificationMessage notifyGameOver = new NotificationMessage(endGameMessage);
+                    userSessions.broadcastToAll(notifyGameOver);
                 }
-                if(chessGame.isInCheckmate(enemyTeamColor)) {
-                    endGameMessage = String.format("GAME OVER: %s has put %s's king in Checkmate. " +
-                            "%s Team WINS! Thank you for playing!", username, opponentUserName, teamColor);
-                    chessGame.setGameOver(true);
-                } else if(chessGame.isInStalemate(enemyTeamColor)){
-                    endGameMessage = "GAME OVER: game ends in Stalemate. No one wins. Better luck next time!";
-                    chessGame.setGameOver(true);
-                }
-
-
             } catch (InvalidMoveException e) {
                 sendMessage(session, new Gson().toJson(new ErrorMessage("Error: " + e.getMessage())));
-            }
-
-            gameDAO.updateGame(new GameData(
-                    oldGD.gameID(),
-                    oldGD.whiteUsername(),
-                    oldGD.blackUsername(),
-                    oldGD.gameName(),
-                    chessGame)
-            );
-            Game game = new Game(chessGame, playerColor);
-            LoadGameMessage loadGameMessage = new LoadGameMessage(game);
-            userSessions.broadcastToAll(loadGameMessage);
-            NotificationMessage notifyThatPlayerHasMadeMove = new NotificationMessage(moveMessage);
-            userSessions.broadcastToAllButRootClient(username, notifyThatPlayerHasMadeMove);
-            if(chessGame.isInCheck(enemyTeamColor)){
-                NotificationMessage notifyIsInCheck = new NotificationMessage(kingInCheckMessage);
-                userSessions.broadcastToAll(notifyIsInCheck);
-            }
-            if(chessGame.isInCheckmate(enemyTeamColor) || chessGame.isInStalemate(enemyTeamColor)){
-                NotificationMessage notifyGameOver = new NotificationMessage(endGameMessage);
-                userSessions.broadcastToAll(notifyGameOver);
             }
         }
     }
