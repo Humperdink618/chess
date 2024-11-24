@@ -272,9 +272,9 @@ public class ChessClient implements ServerMessageObserver {
             return false;
         } else if(input.equals("6")) {
             loggedInHelp();
-/*       } else if(input.equals("7")) { // DELETE THIS LINE
+       } else if(input.equals("7")) { // DELETE THIS LINE
             clearDB();
-*/
+
             /*
         } else if(input.equals("8")) { // DELETE THIS LINE
             highlightLegalMoves();
@@ -415,11 +415,13 @@ public class ChessClient implements ServerMessageObserver {
         // TODO: figure out gameIDs with associated games to figure out which game to display.
         //   for now, until the above is completed, just print out the board for an unspecified game. Fix this later.
         if(joinMessage.equals("join successful!")){
-            returnToMenuBCBadPos(playerColor, newID, "Join successful!");
+            System.out.println("Join successful!");
             try {
                 WebsocketCommunicator ws = new WebsocketCommunicator(this);
                 ws.enterGamePlayMode(auth, newID);
                 isPlayingGame = true;
+                displayGamePlayMenu();
+                gameMenu(playerColor, newID);
             } catch (Exception e) {
                 displayError(new ErrorMessage(e.getMessage()));
             }
@@ -496,8 +498,6 @@ public class ChessClient implements ServerMessageObserver {
 //        drawChessboard.run();
         // websocketCommunicator should print it for you
         // TODO: I have no idea if this is going to work
-        displayGamePlayMenu();
-        gameMenu("WHITE", gameID);
         try {
             WebsocketCommunicator ws = new WebsocketCommunicator(this);
             ws.enterGamePlayMode(auth, gameID);
@@ -505,6 +505,8 @@ public class ChessClient implements ServerMessageObserver {
         } catch (Exception e) {
             displayError(new ErrorMessage(e.getMessage()));
         }
+        displayGamePlayMenu();
+        gameMenu("WHITE", gameID);
     }
 
     // note: I am putting this here so that it can be used by both my ChessClient AND my ServerFacadeTests
@@ -555,6 +557,27 @@ public class ChessClient implements ServerMessageObserver {
         System.out.println("  6. Help");
     }
 
+    // note: only for testing purposes. Delete afterward
+
+
+    private void clearDB() throws ResponseException{
+
+
+
+        // ADMIN ONLY!
+        serverFacade.clear();
+
+        System.out.println("CLEARED");
+
+
+
+        isLoggedIn = false;
+
+        notLoggedInHelp();
+
+
+    }
+
     private Boolean gameMenu(String playerColor, int gameID) throws ResponseException{
         String input = scanner.nextLine();
         if(input.equals("1")){
@@ -590,10 +613,19 @@ public class ChessClient implements ServerMessageObserver {
 
     private void redrawChessBoard(String playerColor, int gameID) throws ResponseException {
         // redraws the current chessboard
-        DrawChessboard drawChessboard = new DrawChessboard(this.chessGame, playerColor, 0);
+        ChessGame game = getChessGame();
+        DrawChessboard drawChessboard = new DrawChessboard(game, playerColor, 0);
         drawChessboard.run();
         displayGamePlayMenu();
         gameMenu(playerColor, gameID);
+    }
+
+    public ChessGame getChessGame() {
+        return chessGame;
+    }
+
+    public void setChessGame(ChessGame chessGame) {
+        this.chessGame = chessGame;
     }
 
     private void makeMove(String playerColor, int gameID) throws ResponseException{
@@ -902,26 +934,7 @@ public class ChessClient implements ServerMessageObserver {
         displayGamePlayMenu();
     }
 
-    // note: only for testing purposes. Delete afterward
 
-/*
-    private void clearDB() throws ResponseException{
-
-*/
-
-        // ADMIN ONLY!
-/*        serverFacade.clear();
-
-        System.out.println("CLEARED");
-*/
-
-/*
-        isLoggedIn = false;
-
-        notLoggedInHelp();
-*/
-
-  //  }
     @Override
     public void notify(ServerMessage serverMessage) {
         switch (serverMessage.getServerMessageType()) {
@@ -935,8 +948,11 @@ public class ChessClient implements ServerMessageObserver {
 
     private void loadGame(Game gameClass) {
         ChessGame game = gameClass.game;
-        this.chessGame = game;
+        setChessGame(game);
+
         String playerColor = gameClass.playerColor;
+        System.out.println(game);
+        System.out.println(playerColor);
         DrawChessboard drawChessboard = new DrawChessboard(game, playerColor, 0);
         drawChessboard.run();
     }
@@ -963,6 +979,7 @@ public class ChessClient implements ServerMessageObserver {
         //ChessBoard board = new ChessBoard();
         //board.resetBoard();
         //return board;
-        return this.chessGame;
+        ChessGame game = getChessGame();
+        return game;
     }
 }

@@ -209,7 +209,7 @@ public class ChessGame  {
         v.	Loop over opponent pieces
         1.	For each opponent piece, test if piece can move to the spot where your king is
         2.	If No, continue to the next opponent piece
-        3.	If Yes, exit loop (possible move is not valid); destroy cloned grid. Rether to Step II.b
+        3.	If Yes, exit loop (possible move is not valid); destroy cloned grid. Rather to Step II.b
         */
         Collection<ChessPosition> positions = board1.getChessPositions();
         for(ChessPosition position : positions){
@@ -301,7 +301,7 @@ public class ChessGame  {
      * @param teamColor which team to check for checkmate
      * @return True if the specified team is in checkmate
      */
-    // TODO: possibly set isGameOver to true here.
+
     public boolean isInCheckmate(TeamColor teamColor) {
         // validMoves() is empty, and isInCheck == true
         return noMovesLeft(teamColor) && isInCheck(teamColor);
@@ -314,7 +314,7 @@ public class ChessGame  {
      * @param teamColor which team to check for stalemate
      * @return True if the specified team is in stalemate, otherwise false
      */
-    // TODO: possibly set isGameOver to true here
+
     public boolean isInStalemate(TeamColor teamColor) {
         // same drill as in isInCheckmate()
         return noMovesLeft(teamColor) && !isInCheck(teamColor);
@@ -349,7 +349,7 @@ public class ChessGame  {
         return board;
     }
 
-    // TODO: create a boolean that checks if a player has resigned or not, in which case, end the game, make sure no
+    // create a boolean that checks if a player has resigned or not, in which case, end the game, make sure no
     //  more moves can be made.
 
     public boolean isGameOver() {

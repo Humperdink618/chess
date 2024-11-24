@@ -28,13 +28,11 @@ public class WebSocketRequestHandler {
         this.authDAO = authDAO;
         this.gameDAO = gameDAO;
     }
-
-    private HashMap<Integer, ConnectionManager> sessionCollection = new HashMap<>();
-    // private HashMap<Integer, HashSet<Sessions> sessionCollection = new HashMap<Integer, HashSet<Sessions>();
     // key is gameID, mapped to a set of Sessions
+    private HashMap<Integer, ConnectionManager> sessionCollection = new HashMap<>();
+
     // every time a player joins or observes, websocket automatically creates a session. Just have to add that session
     // to a collection, and pass that into a map.
-
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws Exception, UnauthorizedException {
@@ -55,22 +53,18 @@ public class WebSocketRequestHandler {
             if(gameID == null){
                 throw new UnauthorizedException("Error: game doesn't exist");
             }
-            // String username = getUsername(command.getAuthToken());
-            // TODO: create a method or a class that keeps track of all the sessions (probably a collection would be
+
+            // create a method or a class that keeps track of all the sessions (probably a collection would be
             //  easiest).
 
-            //saveSession(command.getGameID(), session);
             switch (command.getCommandType()) {
-                // TODO: create a method that implements all of these commands for each commandType
-                // case CONNECT -> connect(session, username, (ConnectCommand) command) ;
+                //  create a method that implements all of these commands for each commandType
                 case CONNECT -> connect(session, username, command) ;
                 // -- add user to the collection of sessions and send a message to everyone else that that player
                 //     has joined the game. Use send() method.
-                //case MAKE_MOVE -> makeMove(session, username, (MakeMoveCommand) command);
                 case MAKE_MOVE -> makeMove(session, username, message);
-                // case LEAVE -> leaveGame(session, username, (LeaveGameCommand) command);
+                //case MAKE_MOVE -> makeMove(session, username, (MakeMoveCommand) command);
                 case LEAVE -> leaveGame(session, username, command);
-                // case RESIGN -> resign(session, username, (ResignCommand) command);
                 case RESIGN -> resign(session, username, command);
             }
         } catch (UnauthorizedException e) {
@@ -93,15 +87,38 @@ public class WebSocketRequestHandler {
         GameData gameData = gameDAO.getGame(command.getGameID());
         String message = "";
         String playerColor = "";
-        if(gameData.blackUsername().equals(username)){
-            message = String.format("%s has joined the game, playing as Black", username);
-            playerColor = "BLACK";
-        } else if(gameData.whiteUsername().equals(username)){
-            message = String.format("%s has joined the game, playing as White", username);
-            playerColor = "WHITE";
-        } else {
-            message = String.format("%s has joined the game as an observer", username);
-            playerColor = "WHITE";
+        if(gameData.whiteUsername() != null && gameData.blackUsername() != null){
+            if(gameData.blackUsername().equals(username)) {
+                message = String.format("%s has joined the game, playing as Black", username);
+                playerColor = "BLACK";
+            } else if(gameData.whiteUsername().equals(username)) {
+                message = String.format("%s has joined the game, playing as White", username);
+                playerColor = "WHITE";
+            } else {
+                message = String.format("%s has joined the game as an observer", username);
+                playerColor = "WHITE";
+            }
+        } else if(gameData.blackUsername() == null || gameData.whiteUsername() == null){
+            if(gameData.whiteUsername() != null){
+                if(gameData.whiteUsername().equals(username)) {
+                    message = String.format("%s has joined the game, playing as White", username);
+                    playerColor = "WHITE";
+                } else {
+                    message = String.format("%s has joined the game as an observer", username);
+                    playerColor = "WHITE";
+                }
+            } else if(gameData.blackUsername() != null){
+                if(gameData.blackUsername().equals(username)) {
+                    message = String.format("%s has joined the game, playing as Black", username);
+                    playerColor = "BLACK";
+                } else {
+                    message = String.format("%s has joined the game as an observer", username);
+                    playerColor = "WHITE";
+                }
+            } else if(gameData.blackUsername() == null && gameData.whiteUsername() == null){
+                message = String.format("%s has joined the game as an observer", username);
+                playerColor = "WHITE";
+            }
         }
         Game game = new Game(gameData.game(), playerColor);
         LoadGameMessage loadGameMessage = new LoadGameMessage(game);
