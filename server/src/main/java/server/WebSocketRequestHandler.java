@@ -67,7 +67,7 @@ public class WebSocketRequestHandler {
                 case CONNECT -> connect(session, username, command) ;
                 // -- add user to the collection of sessions and send a message to everyone else that that player
                 //     has joined the game. Use send() method.
-                case MAKE_MOVE -> makeMove(session, username, ((MakeMoveCommand) command));
+                case MAKE_MOVE -> makeMove(session, username, (MakeMoveCommand) command);
                 // case LEAVE -> leaveGame(session, username, (LeaveGameCommand) command);
                 case LEAVE -> leaveGame(session, username, command);
                 // case RESIGN -> resign(session, username, (ResignCommand) command);
