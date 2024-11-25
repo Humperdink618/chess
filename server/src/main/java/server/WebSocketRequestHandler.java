@@ -87,18 +87,7 @@ public class WebSocketRequestHandler {
         GameData gameData = gameDAO.getGame(command.getGameID());
         String message = "";
         String playerColor = "";
-        if(gameData.whiteUsername() != null && gameData.blackUsername() != null){
-            if(gameData.blackUsername().equals(username)) {
-                message = String.format("%s has joined the game, playing as Black", username);
-                playerColor = "BLACK";
-            } else if(gameData.whiteUsername().equals(username)) {
-                message = String.format("%s has joined the game, playing as White", username);
-                playerColor = "WHITE";
-            } else {
-                message = String.format("%s has joined the game as an observer", username);
-                playerColor = "WHITE";
-            }
-        } else if(gameData.blackUsername() == null || gameData.whiteUsername() == null){
+        if(gameData.blackUsername() == null || gameData.whiteUsername() == null){
             if(gameData.whiteUsername() != null){
                 if(gameData.whiteUsername().equals(username)) {
                     message = String.format("%s has joined the game, playing as White", username);
@@ -116,6 +105,18 @@ public class WebSocketRequestHandler {
                     playerColor = "WHITE";
                 }
             } else if(gameData.blackUsername() == null && gameData.whiteUsername() == null){
+                message = String.format("%s has joined the game as an observer", username);
+                playerColor = "WHITE";
+            }
+
+        } else if(gameData.whiteUsername() != null && gameData.blackUsername() != null){
+            if(gameData.blackUsername().equals(username)) {
+                message = String.format("%s has joined the game, playing as Black", username);
+                playerColor = "BLACK";
+            } else if(gameData.whiteUsername().equals(username)) {
+                message = String.format("%s has joined the game, playing as White", username);
+                playerColor = "WHITE";
+            } else {
                 message = String.format("%s has joined the game as an observer", username);
                 playerColor = "WHITE";
             }

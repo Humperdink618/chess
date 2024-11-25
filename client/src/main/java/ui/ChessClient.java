@@ -28,6 +28,8 @@ public class ChessClient implements ServerMessageObserver {
     private int counter = 0;
     private Boolean bootUser = false;
     private ChessGame chessGame;
+    private String playerColor = null;
+    private Integer gameID = null;
 
     public ChessClient(String serverURL){
         serverFacade = new ServerFacade(serverURL);
@@ -40,8 +42,13 @@ public class ChessClient implements ServerMessageObserver {
         notLoggedInHelp();
         while (true) {
             if (isLoggedIn) {
-                loggedInHelp();
-                loggedIn();
+                if(isPlayingGame){
+                    displayGamePlayMenu();
+                    gameMenu(getPlayerColor(), getGameID());
+                } else {
+                    loggedInHelp();
+                    loggedIn();
+                }
 
             } else {
                 boolean quit = notLoggedIn();
@@ -117,6 +124,22 @@ public class ChessClient implements ServerMessageObserver {
         System.out.println("  2. Register");
         System.out.println("  3. Quit");
         System.out.println("  4. Help");
+    }
+
+    public String getPlayerColor() {
+        return playerColor;
+    }
+
+    public void setPlayerColor(String playerColor) {
+        this.playerColor = playerColor;
+    }
+
+    public Integer getGameID() {
+        return gameID;
+    }
+
+    public void setGameID(Integer gameID) {
+        this.gameID = gameID;
     }
 
     private void loginUser() throws ResponseException{
@@ -420,11 +443,14 @@ public class ChessClient implements ServerMessageObserver {
                 WebsocketCommunicator ws = new WebsocketCommunicator(this);
                 ws.enterGamePlayMode(auth, newID);
                 isPlayingGame = true;
-                displayGamePlayMenu();
-                gameMenu(playerColor, newID);
+                setGameID(newID);
+                setPlayerColor(playerColor);
             } catch (Exception e) {
-                displayError(new ErrorMessage(e.getMessage()));
+                //displayError(new ErrorMessage(e.getMessage()));
+                displayError(new Gson().toJson(e.getMessage(), ErrorMessage.class));
             }
+            displayGamePlayMenu();
+            gameMenu(playerColor, newID);
         } else {
             HashMap errorMessageMap = new Gson().fromJson(joinMessage, HashMap.class);
             String errorMessage = errorMessageMap.get("message").toString();
@@ -502,8 +528,12 @@ public class ChessClient implements ServerMessageObserver {
             WebsocketCommunicator ws = new WebsocketCommunicator(this);
             ws.enterGamePlayMode(auth, gameID);
             isPlayingGame = true;
+            setGameID(gameID);
+            setPlayerColor("WHITE");
+
         } catch (Exception e) {
-            displayError(new ErrorMessage(e.getMessage()));
+            //displayError(new ErrorMessage(e.getMessage()));
+            displayError(new Gson().toJson(e.getMessage(), ErrorMessage.class));
         }
         displayGamePlayMenu();
         gameMenu("WHITE", gameID);
@@ -596,7 +626,6 @@ public class ChessClient implements ServerMessageObserver {
             gameMenu(playerColor, gameID); // possibly may not need this line
         } else {
             System.out.println("Not a valid option.\n");
-            displayGamePlayMenu();
         }
         return true;
     }
@@ -767,10 +796,11 @@ public class ChessClient implements ServerMessageObserver {
             }
         }
         ChessMove move = null;
-        if(promotionPiece.getPieceType() != null) {
-            move = new ChessMove(startPos, endPos, promotionPiece.getPieceType());
-        } else {
+        if(promotionPiece == null) {
             move = new ChessMove(startPos, endPos, null);
+
+        } else {
+            move = new ChessMove(startPos, endPos, promotionPiece.getPieceType());
         }
         if(move == null){
             System.out.println("Error: invalid move");
@@ -783,7 +813,8 @@ public class ChessClient implements ServerMessageObserver {
             ws.clientMakeMove(auth, gameID, move);
 
         } catch (Exception e) {
-            displayError(new ErrorMessage(e.getMessage()));
+            //displayError(new ErrorMessage(e.getMessage()));
+            displayError(new Gson().toJson(e.getMessage(), ErrorMessage.class));
         }
 
         displayGamePlayMenu();
@@ -847,14 +878,20 @@ public class ChessClient implements ServerMessageObserver {
         }
 
         ChessPosition inputPos = new ChessPosition(y, x);
-
         ChessBoard board = chessPiecePositions().getBoard();
-        Collection<ChessPosition> chessPositions = board.getChessPositions();
-        for(ChessPosition position : chessPositions){
-            if(position.getRow() == inputPos.getRow() && position.getColumn() == inputPos.getColumn()){
-                // TODO: make this code grab the most up-to-date chessboard/chess game
-                DrawChessboard drawChessboard = new DrawChessboard(chessPiecePositions(), playerColor, 1);
-                drawChessboard.runHighlight(inputPos);
+        ChessPiece piece = board.getPiece(inputPos);
+        if(piece == null){
+            System.out.println("Error: there is no chess piece at that position.");
+
+        } else {
+            Collection<ChessPosition> chessPositions = board.getChessPositions();
+            for (ChessPosition position : chessPositions) {
+                if (position.getRow() == inputPos.getRow() && position.getColumn() == inputPos.getColumn()) {
+                    // TODO: make this code grab the most up-to-date chessboard/chess game
+                    DrawChessboard drawChessboard =
+                            new DrawChessboard(chessPiecePositions(), playerColor, 1);
+                    drawChessboard.runHighlight(inputPos);
+                }
             }
         }
         displayGamePlayMenu();
@@ -889,7 +926,8 @@ public class ChessClient implements ServerMessageObserver {
                     System.out.println("Game over. Thanks for playing!");
                 }
             } catch (Exception e) {
-                displayError(new ErrorMessage(e.getMessage()));
+                //displayError(new ErrorMessage(e.getMessage()));
+                displayError(new Gson().toJson(e.getMessage(), ErrorMessage.class));
             }
             displayGamePlayMenu();
             gameMenu(playerColor, gameID);
@@ -911,7 +949,8 @@ public class ChessClient implements ServerMessageObserver {
             WebsocketCommunicator ws = new WebsocketCommunicator(this);
              ws.leaveGamePlayMode(auth, gameID);
         } catch (Exception e) {
-            displayError(new ErrorMessage(e.getMessage()));
+            //displayError(new ErrorMessage(e.getMessage()));
+            displayError(new Gson().toJson(e.getMessage(), ErrorMessage.class));
         }
         isPlayingGame = false;
         loggedInHelp();
@@ -936,34 +975,44 @@ public class ChessClient implements ServerMessageObserver {
 
 
     @Override
-    public void notify(ServerMessage serverMessage) {
+    //public void notify(ServerMessage serverMessage) {
+    public void notify(String message) {
+        ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
         switch (serverMessage.getServerMessageType()) {
-            case NOTIFICATION -> displayNotification(((NotificationMessage) serverMessage));
+            //case NOTIFICATION -> displayNotification(((NotificationMessage) serverMessage));
+            case NOTIFICATION -> displayNotification(message);
             // create a subclass
-            case ERROR -> displayError(((ErrorMessage) serverMessage));
-            case LOAD_GAME -> loadGame(((LoadGameMessage) serverMessage).getGame());
+            //case ERROR -> displayError(((ErrorMessage) serverMessage));
+            case ERROR -> displayError(message);
+            //case LOAD_GAME -> loadGame(((LoadGameMessage) serverMessage).getGame());
+        //    case LOAD_GAME -> loadGame(((LoadGameMessage) serverMessage));
+            case LOAD_GAME -> loadGame(message);
         }
     }
 
 
-    private void loadGame(Game gameClass) {
+    //private void loadGame(Game gameClass) {
+    private void loadGame(String serverMessage){
+        LoadGameMessage message =  new Gson().fromJson(serverMessage, LoadGameMessage.class);
+        Game gameClass = message.getGame();
         ChessGame game = gameClass.game;
         setChessGame(game);
-
         String playerColor = gameClass.playerColor;
-        System.out.println(game);
-        System.out.println(playerColor);
         DrawChessboard drawChessboard = new DrawChessboard(game, playerColor, 0);
         drawChessboard.run();
     }
 
-    private void displayNotification(NotificationMessage serverMessage) {
+    //private void displayNotification(NotificationMessage serverMessage) {
+    private void displayNotification(String message) {
+        NotificationMessage serverMessage = new Gson().fromJson(message, NotificationMessage.class);
         System.out.print(SET_TEXT_COLOR_GREEN);
         System.out.println(serverMessage.getMessage());
         System.out.print(RESET_TEXT_COLOR);
     }
 
-    public void displayError(ErrorMessage errorMessage){
+    //public void displayError(ErrorMessage errorMessage){
+    public void displayError(String message){
+        ErrorMessage errorMessage = new Gson().fromJson(message, ErrorMessage.class);
         System.out.print(SET_TEXT_COLOR_RED);
         System.out.println(errorMessage.getErrorMessage());
         System.out.print(RESET_TEXT_COLOR);

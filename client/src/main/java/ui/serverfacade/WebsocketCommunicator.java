@@ -32,11 +32,14 @@ public class WebsocketCommunicator extends Endpoint {
             public void onMessage(String message) {
                 try {
 
-                    ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
+                   // ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
 
-                    observer.notify(serverMessage);
+                   // observer.notify(serverMessage);
+                    observer.notify(message);
                 } catch(Exception e) {
-                    observer.notify(new Gson().fromJson(message, ErrorMessage.class));
+                    //observer.notify(new Gson().fromJson(message, ErrorMessage.class));
+                    observer.notify(new Gson().toJson(message, ErrorMessage.class));
+                    //observer.notify("Error: " + e.getMessage());
                 }
             }
         });
