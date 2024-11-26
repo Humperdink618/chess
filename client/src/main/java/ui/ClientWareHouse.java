@@ -26,6 +26,8 @@ public class ClientWareHouse {
         this.client = client;
     }
 
+    // SARCASTIC TEXT STUFF:
+
     protected static void sarcasticLogin(Integer counter) throws ResponseException {
         if(counter == 10){
             System.out.println("You know what? I'm done here!");
@@ -70,6 +72,75 @@ public class ClientWareHouse {
                 "unfortunately, promoting a pawn to a king is against the rules.");
         System.out.println("In other words... \n");
         System.out.println("Error: not a valid promotion.");
+    }
+
+    protected static String getGameNameInputSarcastic(Scanner scanner) {
+        String gameName;
+        System.out.println("Um, you actually need to write something here. It's NOT hard. Try again:");
+        System.out.println("Create a name for your Chess game: ");
+        gameName = scanner.nextLine();
+        return gameName;
+    }
+
+    protected static String getInputLoginCredentialsSarcastic(Scanner scanner) {
+        String inputUserName;
+        System.out.println("Please enter your username or whatever. And PLEASE get it right this time!: ");
+        inputUserName = scanner.nextLine();
+        return inputUserName;
+    }
+
+    protected static String getInputUserNameAgainSarcastic(Scanner scanner) {
+        String inputUserName;
+        System.out.println("Error: not a valid option, stupid.");
+        System.out.println("Please enter the CORRECT username. We don't have all day: ");
+        inputUserName = scanner.nextLine();
+        return inputUserName;
+    }
+
+    protected static String getInputPWSarcastic(Scanner scanner) {
+        String inputPassword;
+        System.out.println("Enter your Password or whatever. And please don't mess this up: ");
+        inputPassword = scanner.nextLine();
+        return inputPassword;
+    }
+
+    protected static String getInputPWAgainSarcastic(Scanner scanner) {
+        String inputPassword;
+        System.out.println("Error: not a valid option, stupid.");
+        System.out.println("Please enter the CORRECT password: ");
+        inputPassword = scanner.nextLine();
+        return inputPassword;
+    }
+
+    protected static void ohSoYouThinkYouAreFunnyEh() {
+        System.out.println("Oh, so you think you're funny, eh? " +
+                "Well, I guess I'll make the decision FOR you...");
+    }
+
+    // NORMAL STATIC METHODS:
+
+    protected static String getInputGameNameAgain(Scanner scanner) {
+        String gameName;
+        System.out.println("Error: not a valid option.");
+        System.out.println("Create a name for your Chess game: ");
+        gameName = scanner.nextLine();
+        return gameName;
+    }
+
+    protected static String getInputUsernameAgain(Scanner scanner) {
+        String inputUserName;
+        System.out.println("Error: not a valid option.");
+        System.out.println("Please enter your username: ");
+        inputUserName = scanner.nextLine();
+        return inputUserName;
+    }
+
+    protected static String getInputPWAgain(Scanner scanner) {
+        String inputPassword;
+        System.out.println("Error: not a valid option.");
+        System.out.println("Enter your Password: ");
+        inputPassword = scanner.nextLine();
+        return inputPassword;
     }
 
     protected static ChessPiece getPromotionPieceClient(Boolean canPromote, ChessPiece chessPiece, Scanner scanner) {
@@ -153,6 +224,39 @@ public class ClientWareHouse {
         System.out.println("  4. Observe Game");
         System.out.println("  5. Logout");
         System.out.println("  6. Help");
+    }
+
+    protected static String getGameIDInputAgain(Scanner scanner) {
+        String gameID;
+        System.out.println("Error: not a valid option.");
+        System.out.println("Pick a game you want to play: ");
+        gameID = scanner.nextLine();
+        return gameID;
+    }
+
+    protected static String getPlayerColorAgain(Scanner scanner) {
+        String playerColor;
+        System.out.println("Error: not a valid option.");
+        System.out.println("Choose what team you wish to play (White or Black): ");
+        playerColor = scanner.nextLine().toUpperCase();
+        return playerColor;
+    }
+
+    protected static String getInputStartPosAgain(Scanner scanner) {
+        String inputStartPos;
+        System.out.println("Error: not a valid option.");
+        System.out.println("Enter the piece's start position in the form b2 (a letter from 'a' to 'h' " +
+                "followed by a number from 1 to 8): ");
+        inputStartPos = scanner.nextLine().toLowerCase();
+        return inputStartPos;
+    }
+
+    protected static String getInputEndPosAgain(Scanner scanner) {
+        String inputEndPos;
+        System.out.println("Where would you like to move this piece? (Enter the piece's end position in the" +
+                " form b2 (a letter from 'a' to 'h' followed by a number from 1 to 8): ");
+        inputEndPos = scanner.nextLine().toLowerCase();
+        return inputEndPos;
     }
 
     // WEBSOCKET STUFF

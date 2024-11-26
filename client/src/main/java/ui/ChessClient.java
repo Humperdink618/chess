@@ -8,10 +8,7 @@ import result.ListResult;
 import ui.serverfacade.ServerFacade;
 import ui.serverfacade.WebsocketCommunicator;
 import websocket.messages.*;
-
 import java.util.*;
-
-import static ui.EscapeSequences.*;
 
 public class ChessClient implements ServerMessageObserver {
     // These are variables which you will need for multiple functions
@@ -122,35 +119,25 @@ public class ChessClient implements ServerMessageObserver {
         String inputUserName = null;
         String inputPassword = null;
         if(isSarcasticText){
-            System.out.println("Please enter your username or whatever. And PLEASE get it right this time!: ");
-            inputUserName = scanner.nextLine();
+            inputUserName = ClientWareHouse.getInputLoginCredentialsSarcastic(scanner);
             while(inputUserName.isBlank()) {
                 // isBlank() returns true if input is empty string or only composed of whitespace characters.
-                System.out.println("Error: not a valid option, stupid.");
-                System.out.println("Please enter the CORRECT username. We don't have all day: ");
-                inputUserName = scanner.nextLine();
+                inputUserName = ClientWareHouse.getInputUserNameAgainSarcastic(scanner);
             }
-            System.out.println("Enter your Password or whatever. And please don't mess this up: ");
-            inputPassword = scanner.nextLine();
+            inputPassword = ClientWareHouse.getInputPWSarcastic(scanner);
             while(inputPassword.isBlank()) {
-                System.out.println("Error: not a valid option, stupid.");
-                System.out.println("Please enter the CORRECT password: ");
-                inputPassword = scanner.nextLine();
+                inputPassword = ClientWareHouse.getInputPWAgainSarcastic(scanner);
             }
         } else {
             System.out.println("Please enter your username: ");
             inputUserName = scanner.nextLine();
             while (inputUserName.isBlank()) {
-                System.out.println("Error: not a valid option.");
-                System.out.println("Please enter your username: ");
-                inputUserName = scanner.nextLine();
+                inputUserName = ClientWareHouse.getInputUsernameAgain(scanner);
             }
             System.out.println("Enter your Password: ");
             inputPassword = scanner.nextLine();
             while (inputPassword.isBlank()) {
-                System.out.println("Error: not a valid option.");
-                System.out.println("Enter your Password: ");
-                inputPassword = scanner.nextLine();
+                inputPassword = ClientWareHouse.getInputPWAgain(scanner);
             }
         }
         String authToken = serverFacade.login(inputUserName,inputPassword);
@@ -180,8 +167,7 @@ public class ChessClient implements ServerMessageObserver {
                     }
                     notLoggedIn();
                 } else {
-                    System.out.println("Oh, so you think you're funny, eh? " +
-                            "Well, I guess I'll make the decision FOR you...");
+                    ClientWareHouse.ohSoYouThinkYouAreFunnyEh();
                     counter += 1;
                     if (counter >= 3) {
                         isSarcasticText = true;
@@ -283,18 +269,13 @@ public class ChessClient implements ServerMessageObserver {
         String gameName = scanner.nextLine();
         while(gameName.isBlank()){
             if(isSarcasticText){
-                System.out.println("Um, you actually need to write something here. It's NOT hard. Try again:");
-                System.out.println("Create a name for your Chess game: ");
-                gameName = scanner.nextLine();
+                gameName = ClientWareHouse.getGameNameInputSarcastic(scanner);
             } else {
-                System.out.println("Error: not a valid option.");
-                System.out.println("Create a name for your Chess game: ");
-                gameName = scanner.nextLine();
+                gameName = ClientWareHouse.getInputGameNameAgain(scanner);
             }
         }
         // plug in the authToken given from the register/login
         String gameID = serverFacade.create(gameName, auth);
-
         if(!isNumeric(gameID)){
             HashMap errorMessageMap = new Gson().fromJson(gameID, HashMap.class);
             String errorMessage = errorMessageMap.get("message").toString();
@@ -318,16 +299,13 @@ public class ChessClient implements ServerMessageObserver {
         // plug in the authToken given from the register/login
         String listString = serverFacade.list(auth);
         //  next get response back and store in a variable
-
         if(listString.contains("message")){
             HashMap errorMessageMap = new Gson().fromJson(listString, HashMap.class);
             String errorMessage = errorMessageMap.get("message").toString();
             System.out.println(errorMessage);
             loggedInMenu();
         }
-
         ListResult listResult = new Gson().fromJson(listString, ListResult.class);
-
         Collection<GameData> gameList = listResult.games();
         //  check the variable to see if the list game was successful
         if(gameList == null || gameList.isEmpty()){
@@ -363,9 +341,7 @@ public class ChessClient implements ServerMessageObserver {
         System.out.println("Pick a game you want to play: ");
         String gameID = scanner.nextLine();
         while(gameID.isBlank() || !isNumeric(gameID)){
-            System.out.println("Error: not a valid option.");
-            System.out.println("Pick a game you want to play: ");
-            gameID = scanner.nextLine();
+            gameID = ClientWareHouse.getGameIDInputAgain(scanner);
         }
         gameID = checkIfValidGameIDPlay(gameID);
         Integer newID = 0;
@@ -380,10 +356,10 @@ public class ChessClient implements ServerMessageObserver {
         System.out.println("Choose what team you wish to play (White or Black): ");
         String playerColor = scanner.nextLine().toUpperCase();
         while(playerColor.isBlank()){
-            playerColor = getPlayerColorAgain();
+            playerColor = ClientWareHouse.getPlayerColorAgain(scanner);
         }
         while(!playerColor.equals("WHITE") && !playerColor.equals("BLACK")){
-           playerColor = getPlayerColorAgain();
+           playerColor = ClientWareHouse.getPlayerColorAgain(scanner);
         }
         // check to see if that team color is taken or not.
         // plug in the authToken given from the register/login
@@ -397,7 +373,6 @@ public class ChessClient implements ServerMessageObserver {
                 setGameID(newID);
                 setPlayerColorClient(playerColor);
             } catch (Exception e) {
-                //displayError(new ErrorMessage(e.getMessage()));
                 ClientWareHouse.displayError(new Gson().toJson(e.getMessage(), ErrorMessage.class));
             }
             returnToGameMenu(playerColor, newID);
@@ -415,14 +390,6 @@ public class ChessClient implements ServerMessageObserver {
             }
             loggedInMenu();
         }
-    }
-
-    private String getPlayerColorAgain() {
-        String playerColor;
-        System.out.println("Error: not a valid option.");
-        System.out.println("Choose what team you wish to play (White or Black): ");
-        playerColor = scanner.nextLine().toUpperCase();
-        return playerColor;
     }
 
     private Integer getGameIDFromGameDataList(int id, String gameID, Integer newID) {
@@ -576,10 +543,7 @@ public class ChessClient implements ServerMessageObserver {
                 "followed by a number from 1 to 8): ");
         String inputStartPos = scanner.nextLine().toLowerCase();
         while(inputStartPos.isBlank()) {
-            System.out.println("Error: not a valid option.");
-            System.out.println("Enter the piece's start position in the form b2 (a letter from 'a' to 'h' " +
-                    "followed by a number from 1 to 8): ");
-            inputStartPos = scanner.nextLine().toLowerCase();
+            inputStartPos = ClientWareHouse.getInputStartPosAgain(scanner);
         }
         String isInvalidPos = "Error: Invalid position.";
         char[] inputCharStartPos = inputStartPos.toCharArray();
@@ -602,9 +566,7 @@ public class ChessClient implements ServerMessageObserver {
         String inputEndPos = scanner.nextLine().toLowerCase();
         while(inputEndPos.isBlank()) {
             System.out.println("Error: not a valid option.");
-            System.out.println("Where would you like to move this piece? (Enter the piece's end position in the" +
-                    " form b2 (a letter from 'a' to 'h' followed by a number from 1 to 8): ");
-            inputEndPos = scanner.nextLine().toLowerCase();
+            inputEndPos = ClientWareHouse.getInputEndPosAgain(scanner);
         }
         char[] inputCharEndPos = inputEndPos.toCharArray();
         checkIfCharArrayIsValidInput(playerColor, gameID, inputCharEndPos, isInvalidPos);
