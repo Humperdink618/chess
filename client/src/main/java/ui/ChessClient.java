@@ -301,7 +301,6 @@ public class ChessClient implements ServerMessageObserver {
   /*     } else if(input.equals("7")) { // DELETE THIS LINE
             clearDB();
 */
-
         } else {
             if(isSarcasticText){
                 System.out.println("Not a valid option, idiot!\n");
