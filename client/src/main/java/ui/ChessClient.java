@@ -41,14 +41,13 @@ public class ChessClient implements ServerMessageObserver {
     // write code for menu items here
     public int run() throws ResponseException{
         System.out.println("Welcome to 240 chess!");
-        notLoggedInHelp();
+        ClientWareHouse.notLoggedInHelp();
         while (true) {
             if (isLoggedIn) {
                 if(isPlayingGame){
                     returnToGameMenu(getPlayerColorClient(), getGameID());
                 } else {
-                    loggedInHelp();
-                    loggedIn();
+                    loggedInMenu();
                 }
 
             } else {
@@ -60,7 +59,12 @@ public class ChessClient implements ServerMessageObserver {
         }
     }
 
-    private Boolean notLoggedIn() throws ResponseException{
+    private void loggedInMenu() throws ResponseException {
+        ClientWareHouse.loggedInHelp();
+        loggedIn();
+    }
+
+    protected Boolean notLoggedIn() throws ResponseException{
          if(bootUser) {
              return true;
          }
@@ -69,8 +73,7 @@ public class ChessClient implements ServerMessageObserver {
             loginUser();
         } else if(input.equals("2")) {
             if(isSarcasticText){
-                System.out.println("Oh thank goodness! Someone new.");
-                System.out.println("Let's hope you're not as cheeky as the last person who tried to log in. Have fun!");
+               ClientWareHouse.sarcasticRegister();
                 isSarcasticText = false;
                 counter = 0;
                 registerUser();
@@ -83,10 +86,10 @@ public class ChessClient implements ServerMessageObserver {
             return true;
         } else if(input.equals("4")) {
             if(isSarcasticText){
-                notLoggedInHelpSarcastic();
-                notLoggedInHelp();
+                ClientWareHouse.notLoggedInHelpSarcastic();
+                ClientWareHouse.notLoggedInHelp();
             } else {
-                notLoggedInHelp();
+                ClientWareHouse.notLoggedInHelp();
             }
         } else {
             if(isSarcasticText){
@@ -94,37 +97,9 @@ public class ChessClient implements ServerMessageObserver {
             } else {
                 System.out.println("Not a valid option.\n");
             }
-            notLoggedInHelp();
+            ClientWareHouse.notLoggedInHelp();
         }
         return false;
-    }
-
-    private void notLoggedInHelpSarcastic(){
-        System.out.println("Oh, so you need help, do you?");
-        System.out.println("Well, and here I was assuming that this lovely little menu was straightforward enough");
-        System.out.println(" for any normal human being to understand. Thank you for proving me wrong.");
-        System.out.println("Anyway, since you somehow can't understand these simple instructions, I guess I'll");
-        System.out.println("  explain this again in a way that your simple minds can understand: \n");
-        System.out.println("  Enter 1 to login to play our magical chess game.");
-        System.out.println("  Enter 2 to register a new player if you're new around here and haven't played yet ");
-        System.out.println("    (in which case, why are you even reading this? My sarcasm doesn't unlock unless some" +
-                " cheeky monkey decided to screw around with the login prompt. ");
-        System.out.println("    If you are that cheeky monkey, why the heck did you try to log in if you don't have" +
-                "an existing account yet?!)");
-        System.out.println("  Enter 3 to quit out of this program (and to get me to shut up if you've unlocked my " +
-                "built-in sarcasm).");
-        System.out.println("  Enter 4 if somehow you STILL can't understand what we're asking for you," +
-                " in which case, I'll just display this message all over again. I've got all day people.\n ");
-        System.out.println(" Anyway, here's your stupid menu again. At least TRY to understand it this time...\n");
-
-    }
-
-    private void notLoggedInHelp(){
-        System.out.println("Choose an option: ");
-        System.out.println("  1. Login");
-        System.out.println("  2. Register");
-        System.out.println("  3. Quit");
-        System.out.println("  4. Help");
     }
 
     public String getPlayerColorClient() {
@@ -143,7 +118,7 @@ public class ChessClient implements ServerMessageObserver {
         this.gameID = gameID;
     }
 
-    private void loginUser() throws ResponseException{
+    protected void loginUser() throws ResponseException{
         String inputUserName = null;
         String inputPassword = null;
         if(isSarcasticText){
@@ -166,7 +141,6 @@ public class ChessClient implements ServerMessageObserver {
             System.out.println("Please enter your username: ");
             inputUserName = scanner.nextLine();
             while (inputUserName.isBlank()) {
-                // isBlank() returns true if input is empty string or only composed of whitespace characters.
                 System.out.println("Error: not a valid option.");
                 System.out.println("Please enter your username: ");
                 inputUserName = scanner.nextLine();
@@ -194,26 +168,17 @@ public class ChessClient implements ServerMessageObserver {
             if(inputAnswer.equals("1")){
                 loginUser();
             } else if(inputAnswer.equals("2")){
-                notLoggedInHelp();
-                notLoggedIn();
+                notLoggedInMenu();
             } else {
                 if(isSarcasticText){
-                    if(counter == 10){
-                        System.out.println("You know what? I'm done here!");
-                        System.out.println("If you're not going to take this seriously, " +
-                                "then you don't deserve to play!");
-                        System.out.println("I am making an executive decision here, and closing this session myself.");
-                        System.out.println("Come back when you're ready to behave and actually take this seriously!");
-                        bootUser = true;
-                        notLoggedIn();
-                    } else {
-                        System.out.println("Ok, this is getting ridiculous. Just Enter 1 or 2 for crying out loud!");
-                        System.out.println("It's not rocket science! It's just tapping two keys on a keyboard.");
-                        System.out.println("It's so simple! Heck, a BABY could do it! Please stop wasting my time!");
+                    ClientWareHouse.sarcasticLogin(counter);
+                    if(counter < 10){
                         counter += 1;
-                        notLoggedInHelp();
-                        notLoggedIn();
+                        ClientWareHouse.notLoggedInHelp();
+                    } else{
+                        bootUser = true;
                     }
+                    notLoggedIn();
                 } else {
                     System.out.println("Oh, so you think you're funny, eh? " +
                             "Well, I guess I'll make the decision FOR you...");
@@ -221,11 +186,9 @@ public class ChessClient implements ServerMessageObserver {
                     if (counter >= 3) {
                         isSarcasticText = true;
                     }
-                    notLoggedInHelp();
-                    notLoggedIn();
+                    notLoggedInMenu();
                 }
             }
-
         } else {
             if(!isSarcasticText){
                 counter = 0;
@@ -236,7 +199,12 @@ public class ChessClient implements ServerMessageObserver {
         }
     }
 
-    private void registerUser() throws ResponseException{
+    private void notLoggedInMenu() throws ResponseException {
+        ClientWareHouse.notLoggedInHelp();
+        notLoggedIn();
+    }
+
+    protected void registerUser() throws ResponseException{
         System.out.println("Please create a valid username: ");
         String inputUserName = scanner.nextLine();
         while(inputUserName.isBlank()) {
@@ -269,8 +237,7 @@ public class ChessClient implements ServerMessageObserver {
             } else {
                 System.out.println(errorMessage);
             }
-            notLoggedInHelp();
-            notLoggedIn();
+            notLoggedInMenu();
 
         } else {
             auth = authToken;
@@ -297,7 +264,7 @@ public class ChessClient implements ServerMessageObserver {
             isObserver = false;
             return false;
         } else if(input.equals("6")) {
-            loggedInHelp();
+            ClientWareHouse.loggedInHelp();
   /*     } else if(input.equals("7")) { // DELETE THIS LINE
             clearDB();
 */
@@ -338,13 +305,11 @@ public class ChessClient implements ServerMessageObserver {
             } else {
                 System.out.println(errorMessage);
             }
-            loggedInHelp();
-            loggedIn();
+            loggedInMenu();
         } else {
             //gameIDs.add(Integer.parseInt(gameID));
             System.out.println("Game successfully created!");
-            loggedInHelp();
-            loggedIn();
+            loggedInMenu();
         }
     }
 
@@ -358,8 +323,7 @@ public class ChessClient implements ServerMessageObserver {
             HashMap errorMessageMap = new Gson().fromJson(listString, HashMap.class);
             String errorMessage = errorMessageMap.get("message").toString();
             System.out.println(errorMessage);
-            loggedInHelp();
-            loggedIn();
+            loggedInMenu();
         }
 
         ListResult listResult = new Gson().fromJson(listString, ListResult.class);
@@ -368,8 +332,7 @@ public class ChessClient implements ServerMessageObserver {
         //  check the variable to see if the list game was successful
         if(gameList == null || gameList.isEmpty()){
             System.out.println("No available games to display.");
-            loggedInHelp();
-            loggedIn();
+            loggedInMenu();
         } else {
             if(isSarcasticText){
                 System.out.println("Here are all the available games, or whatever: ");
@@ -396,7 +359,6 @@ public class ChessClient implements ServerMessageObserver {
     }
 
     private void playGame() throws ResponseException {
-
         listGames();
         System.out.println("Pick a game you want to play: ");
         String gameID = scanner.nextLine();
@@ -418,19 +380,14 @@ public class ChessClient implements ServerMessageObserver {
         System.out.println("Choose what team you wish to play (White or Black): ");
         String playerColor = scanner.nextLine().toUpperCase();
         while(playerColor.isBlank()){
-            System.out.println("Error: not a valid option.");
-            System.out.println("Choose what team you wish to play (White or Black): ");
-            playerColor = scanner.nextLine().toUpperCase();
+            playerColor = getPlayerColorAgain();
         }
         while(!playerColor.equals("WHITE") && !playerColor.equals("BLACK")){
-            System.out.println("Error: not a valid option.");
-            System.out.println("Choose what team you wish to play (White or Black): ");
-            playerColor = scanner.nextLine().toUpperCase();
+           playerColor = getPlayerColorAgain();
         }
         // check to see if that team color is taken or not.
         // plug in the authToken given from the register/login
         String joinMessage = serverFacade.join(auth, newID, playerColor);
-
         if(joinMessage.equals("join successful!")){
             System.out.println("Join successful!");
             try {
@@ -441,7 +398,7 @@ public class ChessClient implements ServerMessageObserver {
                 setPlayerColorClient(playerColor);
             } catch (Exception e) {
                 //displayError(new ErrorMessage(e.getMessage()));
-                displayError(new Gson().toJson(e.getMessage(), ErrorMessage.class));
+                ClientWareHouse.displayError(new Gson().toJson(e.getMessage(), ErrorMessage.class));
             }
             returnToGameMenu(playerColor, newID);
         } else {
@@ -456,9 +413,16 @@ public class ChessClient implements ServerMessageObserver {
             } else {
                 System.out.println(errorMessage);
             }
-            loggedInHelp();
-            loggedIn();
+            loggedInMenu();
         }
+    }
+
+    private String getPlayerColorAgain() {
+        String playerColor;
+        System.out.println("Error: not a valid option.");
+        System.out.println("Choose what team you wish to play (White or Black): ");
+        playerColor = scanner.nextLine().toUpperCase();
+        return playerColor;
     }
 
     private Integer getGameIDFromGameDataList(int id, String gameID, Integer newID) {
@@ -513,7 +477,7 @@ public class ChessClient implements ServerMessageObserver {
             System.out.println("You are now observing the game.");
         } catch (Exception e) {
             //displayError(new ErrorMessage(e.getMessage()));
-            displayError(new Gson().toJson(e.getMessage(), ErrorMessage.class));
+            ClientWareHouse.displayError(new Gson().toJson(e.getMessage(), ErrorMessage.class));
         }
         returnToGameMenu("WHITE", gameID);
     }
@@ -529,57 +493,39 @@ public class ChessClient implements ServerMessageObserver {
     }
 
     private void logoutUser() throws ResponseException {
-
         String logoutMessage = serverFacade.logout(auth);
-
         if(logoutMessage.equals("logout successful!")){
             if(isSarcasticText){
                 System.out.println("Logout successful! Good riddance...");
                 auth = null;
                 isLoggedIn = false;
-
-                notLoggedInHelp();
+                ClientWareHouse.notLoggedInHelp();
             }
             System.out.println("logout successful!");
             auth = null;
             isLoggedIn = false;
-            notLoggedInHelp();
+            ClientWareHouse.notLoggedInHelp();
         } else {
             HashMap errorMessageMap = new Gson().fromJson(logoutMessage, HashMap.class);
             String errorMessage = errorMessageMap.get("message").toString();
             if(errorMessage.equals("Error: unauthorized")) {
                 System.out.println(errorMessage);
             }
-            loggedInHelp();
-            loggedIn();
+            loggedInMenu();
         }
     }
-
-    private void loggedInHelp(){
-        System.out.println("Welcome to Chess!");
-        System.out.println("Choose an option: ");
-        System.out.println("  1. Create Game");
-        System.out.println("  2. List Games");
-        System.out.println("  3. Play Game");
-        System.out.println("  4. Observe Game");
-        System.out.println("  5. Logout");
-        System.out.println("  6. Help");
-    }
-
     // note: only for testing purposes. Delete afterward
 /*
     private void clearDB() throws ResponseException{
- */
-        // ADMIN ONLY!
-/*        serverFacade.clear();
-        System.out.println("CLEARED");
-*/
-/*
-        isLoggedIn = false;
-        notLoggedInHelp();
-*/
- //   }
 
+        // ADMIN ONLY!
+        serverFacade.clear();
+        System.out.println("CLEARED");
+
+        isLoggedIn = false;
+        ClientWareHouse.notLoggedInHelp();
+   }
+*/
     private Boolean gameMenu(String playerColor, int gameID) throws ResponseException{
         String input = scanner.nextLine();
         if(input.equals("1")){
@@ -594,22 +540,12 @@ public class ChessClient implements ServerMessageObserver {
             leave(gameID);
             return false;
         } else if(input.equals("6")) {
-            gamePlayHelp();
+            ClientWareHouse.gamePlayHelp();
             gameMenu(playerColor, gameID); // possibly may not need this line
         } else {
             System.out.println("Not a valid option.\n");
         }
         return true;
-    }
-
-    private void displayGamePlayMenu(){
-        System.out.println("Choose an option: ");
-        System.out.println("  1. Redraw Chess Board");
-        System.out.println("  2. Make Move");
-        System.out.println("  3. Highlight Legal Moves");
-        System.out.println("  4. Resign");
-        System.out.println("  5. Leave");
-        System.out.println("  6. Help");
     }
 
     private void redrawChessBoard(String playerColor, int gameID) throws ResponseException {
@@ -638,7 +574,6 @@ public class ChessClient implements ServerMessageObserver {
         System.out.println("Enter the piece's start position in the form b2 (a letter from 'a' to 'h' " +
                 "followed by a number from 1 to 8): ");
         String inputStartPos = scanner.nextLine().toLowerCase();
-
         while(inputStartPos.isBlank()) {
             System.out.println("Error: not a valid option.");
             System.out.println("Enter the piece's start position in the form b2 (a letter from 'a' to 'h' " +
@@ -648,7 +583,6 @@ public class ChessClient implements ServerMessageObserver {
         String isInvalidPos = "Error: Invalid position.";
         char[] inputCharStartPos = inputStartPos.toCharArray();
         checkIfCharArrayIsValidInput(playerColor, gameID, inputCharStartPos, isInvalidPos);
-
         int i = 0;
         int j = 0;
         for(char c : inputCharStartPos){
@@ -662,11 +596,9 @@ public class ChessClient implements ServerMessageObserver {
         }
         checkIfRowAndColAreRightSize(i < 1 || i > 8 || j < 1 || j > 8, playerColor, gameID, isInvalidPos);
         ChessPosition startPos = new ChessPosition(j, i);
-
         System.out.println("Where would you like to move this piece? (Enter the piece's end position in the form b2 " +
                 "(a letter from 'a' to 'h' followed by a number from 1 to 8): ");
         String inputEndPos = scanner.nextLine().toLowerCase();
-
         while(inputEndPos.isBlank()) {
             System.out.println("Error: not a valid option.");
             System.out.println("Where would you like to move this piece? (Enter the piece's end position in the" +
@@ -675,7 +607,6 @@ public class ChessClient implements ServerMessageObserver {
         }
         char[] inputCharEndPos = inputEndPos.toCharArray();
         checkIfCharArrayIsValidInput(playerColor, gameID, inputCharEndPos, isInvalidPos);
-
         int z = 0;
         int k = 0;
         for(char c : inputCharEndPos){
@@ -688,7 +619,6 @@ public class ChessClient implements ServerMessageObserver {
             }
         }
         checkIfRowAndColAreRightSize(z < 1 || z > 8 || k < 1 || k > 8, playerColor, gameID, isInvalidPos);
-
         ChessPosition endPos = new ChessPosition(k, z);
         ChessBoard board = chessPiecePositions().getBoard();
         ChessPiece chessPiece = board.getPiece(startPos);
@@ -704,8 +634,8 @@ public class ChessClient implements ServerMessageObserver {
                 canPromote = false;
             }
         }
-        ChessPiece promotionPiece = getPromotionPieceClient(canPromote, chessPiece);
-        ChessMove move = null;
+        ChessPiece promotionPiece = ClientWareHouse.getPromotionPieceClient(canPromote, chessPiece, scanner);
+        ChessMove move;
         if(promotionPiece == null) {
             move = new ChessMove(startPos, endPos, null);
         } else {
@@ -715,62 +645,13 @@ public class ChessClient implements ServerMessageObserver {
             System.out.println("Error: invalid move");
             returnToGameMenu(playerColor, gameID);
         }
-
         try {
             WebsocketCommunicator ws = new WebsocketCommunicator(this);
             ws.clientMakeMove(auth, gameID, move);
         } catch (Exception e) {
-            //displayError(new ErrorMessage(e.getMessage()));
-            displayError(new Gson().toJson(e.getMessage(), ErrorMessage.class));
+            ClientWareHouse.displayError(new Gson().toJson(e.getMessage(), ErrorMessage.class));
         }
         returnToGameMenu(playerColor, gameID);
-    }
-
-    private ChessPiece getPromotionPieceClient(Boolean canPromote, ChessPiece chessPiece) {
-        ChessPiece promotionPiece = null;
-        if(canPromote) {
-            System.out.println("Enter the piece type you want to promote your pawn to (can be any piece except for " +
-                    "KING and PAWN): ");
-            String inputPromotionPiece = scanner.nextLine().toUpperCase();
-            while(inputPromotionPiece.isBlank()) {
-                System.out.println("Error: if you are moving a pawn to the opposite side of the board, it has to be " +
-                        "promoted to something.");
-                System.out.println("Enter the piece type you want to promote your pawn to (can be any piece except" +
-                        " for KING and PAWN): ");
-                inputPromotionPiece = scanner.nextLine().toUpperCase();
-            }
-            while (inputPromotionPiece.equals("KING")){
-                System.out.println("Ok, who's the wise guy who tried to promote his pawn to a king, eh?");
-                System.out.println("While I appreciate the attempt to sow a little bit of anarchy into the mix here, " +
-                        "unfortunately, promoting a pawn to a king is against the rules.");
-                System.out.println("In other words... \n");
-                System.out.println("Error: not a valid promotion.");
-                System.out.println("Enter the piece type you want to promote your pawn to (can be any piece except" +
-                        " for KING and PAWN): ");
-                inputPromotionPiece = scanner.nextLine().toUpperCase();
-            }
-            while(!inputPromotionPiece.equals("QUEEN") &&
-                    !inputPromotionPiece.equals("ROOK") &&
-                    !inputPromotionPiece.equals("KNIGHT") &&
-                    !inputPromotionPiece.equals("BISHOP") &&
-                    !inputPromotionPiece.equals("KING")){
-
-                System.out.println("Error: not a valid promotion.");
-                System.out.println("Enter the piece type you want to promote your pawn to (can be any piece except" +
-                        " for KING and PAWN): ");
-                inputPromotionPiece = scanner.nextLine().toUpperCase();
-            }
-            if(inputPromotionPiece.equals("QUEEN")){
-                promotionPiece = new ChessPiece(chessPiece.getTeamColor(), ChessPiece.PieceType.QUEEN);
-            } else if(inputPromotionPiece.equals("ROOK")){
-                promotionPiece = new ChessPiece(chessPiece.getTeamColor(), ChessPiece.PieceType.ROOK);
-            } else if(inputPromotionPiece.equals("KNIGHT")){
-                promotionPiece = new ChessPiece(chessPiece.getTeamColor(), ChessPiece.PieceType.KNIGHT);
-            } else if(inputPromotionPiece.equals("BISHOP")){
-                promotionPiece = new ChessPiece(chessPiece.getTeamColor(), ChessPiece.PieceType.BISHOP);
-            }
-        }
-        return promotionPiece;
     }
 
     private void checkIfRowAndColAreRightSize(boolean x, String playerColor, int gameID, String isInvalidPos) throws ResponseException {
@@ -780,34 +661,15 @@ public class ChessClient implements ServerMessageObserver {
     }
 
     private void returnToGameMenu(String playerColor, int gameID) throws ResponseException {
-        displayGamePlayMenu();
+        ClientWareHouse.displayGamePlayMenu();
         gameMenu(playerColor, gameID);
-    }
-
-    private void checkIfCharArrayIsValidInput(
-            String playerColor,
-            int gameID,
-            char[] inputCharPos,
-            String isInvalidPos) throws ResponseException {
-
-        for(int i = 0; i < inputCharPos.length; i++){
-            if(!Character.isLetter(inputCharPos[0])) {
-                returnToMenuBCBadPos(playerColor, gameID, isInvalidPos);
-            } else if(!Character.isDigit(inputCharPos[1])) {
-                returnToMenuBCBadPos(playerColor, gameID, isInvalidPos);
-            } else {
-                checkIfRowAndColAreRightSize(inputCharPos.length > 2, playerColor, gameID, isInvalidPos);
-            }
-        }
     }
 
     private void highlightLegalMoves(String playerColor, int gameID) throws ResponseException{
         // highlights all legal moves a chess piece can make on a ChessBoard during a game
-
         System.out.println("Enter the piece's position in the form b2 (a letter from 'a' to 'h' " +
         "followed by a number from 1 to 8): ");
         String chessPos = scanner.nextLine().toLowerCase();
-
         while(chessPos.isBlank()) {
             System.out.println("Error: not a valid option.");
             System.out.println("Enter the piece's position in the form b2 (a letter from 'a' to 'h' " +
@@ -817,7 +679,6 @@ public class ChessClient implements ServerMessageObserver {
         String isInvalidPos = "Error: Invalid position.";
         char[] inputCharPos = chessPos.toCharArray();
         checkIfCharArrayIsValidInput(playerColor, gameID, inputCharPos, isInvalidPos);
-
         int x = 0;
         int y = 0;
         for(char c : inputCharPos){
@@ -829,15 +690,12 @@ public class ChessClient implements ServerMessageObserver {
                 returnToMenuBCBadPos(playerColor, gameID, isInvalidPos);
             }
         }
-
         checkIfRowAndColAreRightSize(x < 1 || x > 8 || y < 1 || y > 8, playerColor, gameID, isInvalidPos);
-
         ChessPosition inputPos = new ChessPosition(y, x);
         ChessBoard board = chessPiecePositions().getBoard();
         ChessPiece piece = board.getPiece(inputPos);
         if(piece == null){
             System.out.println("Error: there is no chess piece at that position.");
-
         } else {
             Collection<ChessPosition> chessPositions = board.getChessPositions();
             for (ChessPosition position : chessPositions) {
@@ -852,16 +710,30 @@ public class ChessClient implements ServerMessageObserver {
         returnToGameMenu(playerColor, gameID);
     }
 
+    private void checkIfCharArrayIsValidInput(
+            String playerColor,
+            int gameID,
+            char[] inputCharPos,
+            String isInvalidPos) throws ResponseException {
+        for(int i = 0; i < inputCharPos.length; i++){
+            if(!Character.isLetter(inputCharPos[0])) {
+                returnToMenuBCBadPos(playerColor, gameID, isInvalidPos);
+            } else if(!Character.isDigit(inputCharPos[1])) {
+                returnToMenuBCBadPos(playerColor, gameID, isInvalidPos);
+            } else {
+                checkIfRowAndColAreRightSize(inputCharPos.length > 2, playerColor, gameID, isInvalidPos);
+            }
+        }
+    }
+
     private void returnToMenuBCBadPos(String playerColor, int gameID, String isInvalidPos) throws ResponseException {
         System.out.println(isInvalidPos);
-        // for testing purposes ONLY. Replace these values with the values from the gamePlayMenu later
         returnToGameMenu(playerColor, gameID);
     }
 
     private void resign(String playerColor, int gameID) throws ResponseException{
         // prompts the user to confirm they want to resign.
         // If they do, the user forfeits the game and the game is over.
-
         System.out.println("Are you sure you want to resign? (Y/N): ");
         // Does not cause the user to leave the game.
         String input = scanner.nextLine().toUpperCase();
@@ -881,11 +753,10 @@ public class ChessClient implements ServerMessageObserver {
                     }
                 } catch (Exception e) {
                     //displayError(new ErrorMessage(e.getMessage()));
-                    displayError(new Gson().toJson(e.getMessage(), ErrorMessage.class));
+                    ClientWareHouse.displayError(new Gson().toJson(e.getMessage(), ErrorMessage.class));
                 }
                 returnToGameMenu(playerColor, gameID);
             }
-
         } else if(input.equals("N") || input.equals("NO")){
             returnToGameMenu(playerColor, gameID);
         } else {
@@ -901,38 +772,23 @@ public class ChessClient implements ServerMessageObserver {
             WebsocketCommunicator ws = new WebsocketCommunicator(this);
              ws.leaveGamePlayMode(auth, gameID);
         } catch (Exception e) {
-            //displayError(new ErrorMessage(e.getMessage()));
-            displayError(new Gson().toJson(e.getMessage(), ErrorMessage.class));
+            ClientWareHouse.displayError(new Gson().toJson(e.getMessage(), ErrorMessage.class));
         }
         isPlayingGame = false;
         isObserver = false;
-        loggedInHelp();
-        loggedIn();
+        loggedInMenu();
     }
-
-    private void gamePlayHelp() throws ResponseException{
-        System.out.println("Enter 1 to redraw the game board.");
-        System.out.println("Enter 2 to make a move.");
-        System.out.println("Enter 3 to highlight all legal moves for a specific chess piece.");
-        System.out.println("Enter 4 to forfeit, ending the game.");
-        System.out.println("Enter 5 to leave the game.");
-        System.out.println("Enter 6 to see this message again.\n");
-        displayGamePlayMenu();
-    }
-
     @Override
-    //public void notify(ServerMessage serverMessage) {
     public void notify(String message) {
         ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
         switch (serverMessage.getServerMessageType()) {
-            case NOTIFICATION -> displayNotification(message);
+            case NOTIFICATION -> ClientWareHouse.displayNotification(message);
             // create a subclass
-            case ERROR -> displayError(message);
+            case ERROR -> ClientWareHouse.displayError(message);
             case LOAD_GAME -> loadGame(message);
         }
     }
 
-    //private void loadGame(Game gameClass) {
     private void loadGame(String serverMessage){
         LoadGameMessage message =  new Gson().fromJson(serverMessage, LoadGameMessage.class);
         Game gameClass = message.getGame();
@@ -947,28 +803,8 @@ public class ChessClient implements ServerMessageObserver {
             drawChessboard.run();
         }
     }
-
-    //private void displayNotification(NotificationMessage serverMessage) {
-    private void displayNotification(String message) {
-        NotificationMessage serverMessage = new Gson().fromJson(message, NotificationMessage.class);
-        System.out.print(SET_TEXT_COLOR_GREEN);
-        System.out.println(serverMessage.getMessage());
-        System.out.print(RESET_TEXT_COLOR);
-    }
-
-    //public void displayError(ErrorMessage errorMessage){
-    public void displayError(String message){
-        ErrorMessage errorMessage = new Gson().fromJson(message, ErrorMessage.class);
-        System.out.print(SET_TEXT_COLOR_RED);
-        System.out.println(errorMessage.getErrorMessage());
-        System.out.print(RESET_TEXT_COLOR);
-    }
-
     // create matrix for chess piece locations
     public ChessGame chessPiecePositions() {
-        // note: this may be a temporary solution, as it may or may not be compatible with Phase 6
-        // for now though, it works fine
-
         ChessGame game = getChessGame();
         return game;
     }
