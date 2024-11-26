@@ -705,6 +705,29 @@ public class ChessClient implements ServerMessageObserver {
                 canPromote = false;
             }
         }
+        ChessPiece promotionPiece = getPromotionPieceClient(canPromote, chessPiece);
+        ChessMove move = null;
+        if(promotionPiece == null) {
+            move = new ChessMove(startPos, endPos, null);
+        } else {
+            move = new ChessMove(startPos, endPos, promotionPiece.getPieceType());
+        }
+        if(move == null){
+            System.out.println("Error: invalid move");
+            returnToGameMenu(playerColor, gameID);
+        }
+
+        try {
+            WebsocketCommunicator ws = new WebsocketCommunicator(this);
+            ws.clientMakeMove(auth, gameID, move);
+        } catch (Exception e) {
+            //displayError(new ErrorMessage(e.getMessage()));
+            displayError(new Gson().toJson(e.getMessage(), ErrorMessage.class));
+        }
+        returnToGameMenu(playerColor, gameID);
+    }
+
+    private ChessPiece getPromotionPieceClient(Boolean canPromote, ChessPiece chessPiece) {
         ChessPiece promotionPiece = null;
         if(canPromote) {
             System.out.println("Enter the piece type you want to promote your pawn to (can be any piece except for " +
@@ -748,25 +771,7 @@ public class ChessClient implements ServerMessageObserver {
                 promotionPiece = new ChessPiece(chessPiece.getTeamColor(), ChessPiece.PieceType.BISHOP);
             }
         }
-        ChessMove move = null;
-        if(promotionPiece == null) {
-            move = new ChessMove(startPos, endPos, null);
-        } else {
-            move = new ChessMove(startPos, endPos, promotionPiece.getPieceType());
-        }
-        if(move == null){
-            System.out.println("Error: invalid move");
-            returnToGameMenu(playerColor, gameID);
-        }
-
-        try {
-            WebsocketCommunicator ws = new WebsocketCommunicator(this);
-            ws.clientMakeMove(auth, gameID, move);
-        } catch (Exception e) {
-            //displayError(new ErrorMessage(e.getMessage()));
-            displayError(new Gson().toJson(e.getMessage(), ErrorMessage.class));
-        }
-        returnToGameMenu(playerColor, gameID);
+        return promotionPiece;
     }
 
     private void checkIfRowAndColAreRightSize(boolean x, String playerColor, int gameID, String isInvalidPos) throws ResponseException {

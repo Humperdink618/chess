@@ -189,92 +189,100 @@ public class WebSocketRequestHandler {
             sendMessage(session, new Gson().toJson(new ErrorMessage("Error: The game is already over. No more moves" +
                     " can be made.")));
         } else {
-            ChessGame chessGame = oldGD.game();
-            ChessMove move = command.getMove();
-            ChessBoard board = chessGame.getBoard();
-            ChessPiece chessPiece = board.getPiece(move.getStartPosition());
-            String playerColor = "";
-            String moveMessageMajor = ""; // check, checkmate, and stalemate
-            String moveMessage = "";
-            ChessGame.TeamColor teamColor = chessPiece.getTeamColor();
-            ChessGame.TeamColor enemyTeamColor = null;
-            String enemyUserName = "";
-            ChessPosition startPos = move.getStartPosition();
-            ChessPosition endPos = move.getEndPosition();
-            int startRow = startPos.getColumn();
-            int startCol = startPos.getRow();
-            int endRow = endPos.getColumn();
-            int endCol = endPos.getRow();
-            String sRowLett = ""; // start row letter
-            String eRowLett = ""; // end row letter
-            String wUN = oldGD.whiteUsername();
-            String bUN = oldGD.blackUsername();
-            int myGameID = oldGD.gameID();
-            if(teamColor == ChessGame.TeamColor.WHITE) {
-                for (int i = 1; i < 9; i++) {
-                    sRowLett = convertToInt(i, startRow, sRowLett);
-                    eRowLett = convertToInt(i, endRow, eRowLett);
+            makeMoveGame(session, uN, oldGD, command, userSessions);
+        }
+    }
+
+    private void makeMoveGame(Session session,
+                              String uN,
+                              GameData oldGD,
+                              MakeMoveCommand command,
+                              ConnectionManager userSessions) throws Exception {
+        ChessGame chessGame = oldGD.game();
+        ChessMove move = command.getMove();
+        ChessBoard board = chessGame.getBoard();
+        ChessPiece chessPiece = board.getPiece(move.getStartPosition());
+        String playerColor = "";
+        String moveMessageMajor = ""; // check, checkmate, and stalemate
+        String moveMessage;
+        ChessGame.TeamColor teamColor = chessPiece.getTeamColor();
+        ChessGame.TeamColor enemyTeamColor = null;
+        String enemyUserName = "";
+        ChessPosition startPos = move.getStartPosition();
+        ChessPosition endPos = move.getEndPosition();
+        int startRow = startPos.getColumn();
+        int startCol = startPos.getRow();
+        int endRow = endPos.getColumn();
+        int endCol = endPos.getRow();
+        String sRowLett = ""; // start row letter
+        String eRowLett = ""; // end row letter
+        String wUN = oldGD.whiteUsername();
+        String bUN = oldGD.blackUsername();
+        int myGameID = oldGD.gameID();
+        if(teamColor == ChessGame.TeamColor.WHITE) {
+            for (int i = 1; i < 9; i++) {
+                sRowLett = convertToInt(i, startRow, sRowLett);
+                eRowLett = convertToInt(i, endRow, eRowLett);
+            }
+        } else {
+            for (int i = 8; i > -1; i--) {
+                sRowLett = convertToInt(i, startRow, sRowLett);
+                eRowLett = convertToInt(i, endRow, eRowLett);
+            }
+        }
+        if(sRowLett.isBlank() || eRowLett.isBlank()){
+            sendMessage(session, new Gson().toJson(new ErrorMessage("Error: invalid move.")));
+        }
+        try {
+            if(wUN.equals(uN)){
+                if(teamColor != ChessGame.TeamColor.WHITE) {
+                    throw new InvalidMoveException("you can't move an opponent's piece.");
+                } else if(chessGame.getTeamTurn() != teamColor){
+                    throw new InvalidMoveException("it's not your turn.");
+                } else {
+                    playerColor = "WHITE";
+                    enemyTeamColor = ChessGame.TeamColor.BLACK;
+                    enemyUserName = bUN;
                 }
-            } else {
-                for (int i = 8; i > -1; i--) {
-                    sRowLett = convertToInt(i, startRow, sRowLett);
-                    eRowLett = convertToInt(i, endRow, eRowLett);
+            } else if(bUN.equals(uN)){
+                if(teamColor != ChessGame.TeamColor.BLACK){
+                    throw new InvalidMoveException("you can't move an opponent's piece.");
+                } else if(chessGame.getTeamTurn() != teamColor){
+                    throw new InvalidMoveException("it's not your turn.");
+                } else {
+                    playerColor = "BLACK";
+                    enemyTeamColor = ChessGame.TeamColor.WHITE;
+                    enemyUserName = wUN;
                 }
             }
-            if(sRowLett.isBlank() || eRowLett.isBlank()){
-                sendMessage(session, new Gson().toJson(new ErrorMessage("Error: invalid move.")));
-            }
-            try {
-                if(wUN.equals(uN)){
-                    if(teamColor != ChessGame.TeamColor.WHITE) {
-                        throw new InvalidMoveException("you can't move an opponent's piece.");
-                    } else if(chessGame.getTeamTurn() != teamColor){
-                        throw new InvalidMoveException("it's not your turn.");
-                    } else {
-                        playerColor = "WHITE";
-                        enemyTeamColor = ChessGame.TeamColor.BLACK;
-                        enemyUserName = bUN;
-                    }
-                } else if(bUN.equals(uN)){
-                    if(teamColor != ChessGame.TeamColor.BLACK){
-                        throw new InvalidMoveException("you can't move an opponent's piece.");
-                    } else if(chessGame.getTeamTurn() != teamColor){
-                        throw new InvalidMoveException("it's not your turn.");
-                    } else {
-                        playerColor = "BLACK";
-                        enemyTeamColor = ChessGame.TeamColor.WHITE;
-                        enemyUserName = wUN;
-                    }
+                chessGame.makeMove(move);
+                moveMessage = String.format("%s moved a piece from %s%s to %s%s",
+                        uN, sRowLett, startCol, eRowLett, endCol);
+                if(move.getPromotionPiece() != null){
+                    moveMessage = String.format("%s moved a PAWN from %s%s to %s%s and promoted it to a %s",
+                            uN, sRowLett, startCol, eRowLett, endCol, move.getPromotionPiece());
                 }
-                    chessGame.makeMove(move);
-                    moveMessage = String.format("%s moved a piece from %s%s to %s%s",
-                            uN, sRowLett, startCol, eRowLett, endCol);
-                    if(move.getPromotionPiece() != null){
-                        moveMessage = String.format("%s moved a PAWN from %s%s to %s%s and promoted it to a %s",
-                                        uN, sRowLett, startCol, eRowLett, endCol, move.getPromotionPiece());
-                    }
-                    if(chessGame.isInCheck(enemyTeamColor) && !chessGame.isInCheckmate(enemyTeamColor)){
-                        moveMessageMajor = String.format("%s has put %s's king in Check", uN, enemyUserName);
-                    }
-                    if(chessGame.isInCheckmate(enemyTeamColor)) {
-                        moveMessageMajor = String.format("GAME OVER: %s has put %s's king in Checkmate. " +
-                                "%s Team WINS! Thank you for playing!", uN, enemyUserName, teamColor);
-                        chessGame.setGameOver(true);
-                    } else if(chessGame.isInStalemate(enemyTeamColor)){
-                        moveMessageMajor = "GAME OVER: game ends in Stalemate. No one wins. Better luck next time!";
-                        chessGame.setGameOver(true);
-                    }
-                gameDAO.updateGame(new GameData(myGameID, wUN, bUN, oldGD.gameName(), chessGame));
-                sendLoadGameMessageToAll(chessGame, playerColor, userSessions);
-                sendNotificationPlayerMadeMove(uN, moveMessage, userSessions);
                 if(chessGame.isInCheck(enemyTeamColor) && !chessGame.isInCheckmate(enemyTeamColor)){
-                    sendNotificationToAll(moveMessageMajor, userSessions);
-                } else if(chessGame.isInCheckmate(enemyTeamColor) || chessGame.isInStalemate(enemyTeamColor)){
-                    sendNotificationToAll(moveMessageMajor, userSessions);
+                    moveMessageMajor = String.format("%s has put %s's king in Check", uN, enemyUserName);
                 }
-            } catch (InvalidMoveException e) {
-                sendMessage(session, new Gson().toJson(new ErrorMessage("Error: " + e.getMessage())));
+                if(chessGame.isInCheckmate(enemyTeamColor)) {
+                    moveMessageMajor = String.format("GAME OVER: %s has put %s's king in Checkmate. " +
+                            "%s Team WINS! Thank you for playing!", uN, enemyUserName, teamColor);
+                    chessGame.setGameOver(true);
+                } else if(chessGame.isInStalemate(enemyTeamColor)){
+                    moveMessageMajor = "GAME OVER: game ends in Stalemate. No one wins. Better luck next time!";
+                    chessGame.setGameOver(true);
+                }
+            gameDAO.updateGame(new GameData(myGameID, wUN, bUN, oldGD.gameName(), chessGame));
+            sendLoadGameMessageToAll(chessGame, playerColor, userSessions);
+            sendNotificationPlayerMadeMove(uN, moveMessage, userSessions);
+            if(chessGame.isInCheck(enemyTeamColor) && !chessGame.isInCheckmate(enemyTeamColor)){
+                sendNotificationToAll(moveMessageMajor, userSessions);
+            } else if(chessGame.isInCheckmate(enemyTeamColor) || chessGame.isInStalemate(enemyTeamColor)){
+                sendNotificationToAll(moveMessageMajor, userSessions);
             }
+        } catch (InvalidMoveException e) {
+            sendMessage(session, new Gson().toJson(new ErrorMessage("Error: " + e.getMessage())));
         }
     }
 
