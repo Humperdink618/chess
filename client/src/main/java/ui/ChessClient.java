@@ -517,15 +517,16 @@ public class ChessClient implements ServerMessageObserver {
     // note: only for testing purposes. Delete afterward
 /*
     private void clearDB() throws ResponseException{
-
+*/
         // ADMIN ONLY!
-        serverFacade.clear();
+ /*       serverFacade.clear();
         System.out.println("CLEARED");
-
+*/ /*
         isLoggedIn = false;
         ClientWareHouse.notLoggedInHelp();
-   }
-*/
+        */
+   //}
+
     private Boolean gameMenu(String playerColor, int gameID) throws ResponseException{
         String input = scanner.nextLine();
         if(input.equals("1")){
