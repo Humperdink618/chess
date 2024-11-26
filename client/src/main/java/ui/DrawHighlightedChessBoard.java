@@ -135,41 +135,63 @@ public class DrawHighlightedChessBoard {
         int k = pos.getColumn() - 1;
         int z = pos.getRow() - 1;
         if(i % 2 == 0){
-            if(startPos == null){
-                DrawChessboard.drawWhiteSquare(out, j, i);
-            } else if(endPos == null){
-                if(j == z && i == k){
-                    drawYellowSquare(out, j, i);
-                } else {
-                    DrawChessboard.drawWhiteSquare(out, j, i);
-                }
-            } else if(startPos == pos){
-                if(j == z && i == k){
-                    drawYellowSquare(out, j, i);
-                } else {
-                    drawLightGreenSquare(out, j, i);
-                }
+            drawWhiteSquareMethod(out, j, i, startPos, endPos, pos, z, k);
+        } else {
+            drawBlackSquareMethod(out, j, i, startPos, endPos, pos, z, k);
+        }
+    }
+
+    private static void drawWhiteSquareMethod(PrintStream out,
+                                              int j,
+                                              int i,
+                                              ChessPosition startPos,
+                                              ChessPosition endPos,
+                                              ChessPosition pos,
+                                              int z,
+                                              int k) {
+        if(startPos == null){
+            DrawChessboard.drawWhiteSquare(out, j, i);
+        } else if(endPos == null){
+            if(j == z && i == k){
+                drawYellowSquare(out, j, i);
             } else {
                 DrawChessboard.drawWhiteSquare(out, j, i);
+            }
+        } else if(startPos == pos){
+            if(j == z && i == k){
+                drawYellowSquare(out, j, i);
+            } else {
+                drawLightGreenSquare(out, j, i);
             }
         } else {
-            if(startPos == null) {
-                DrawChessboard.drawBlackSquare(out, j, i);
-            } else if(endPos == null){
-                if(j == z && i == k){
-                    drawOrangeSquare(out, j, i);
-                } else {
-                    DrawChessboard.drawBlackSquare(out, j, i);
-                }
-            } else if (startPos == pos) {
-                if(j == z && i == k){
-                    drawOrangeSquare(out, j, i);
-                } else {
-                    drawDarkGreenSquare(out, j, i);
-                }
+            DrawChessboard.drawWhiteSquare(out, j, i);
+        }
+    }
+
+    private static void drawBlackSquareMethod(PrintStream out,
+                                              int j,
+                                              int i,
+                                              ChessPosition startPos,
+                                              ChessPosition endPos,
+                                              ChessPosition pos,
+                                              int z,
+                                              int k) {
+        if(startPos == null) {
+            DrawChessboard.drawBlackSquare(out, j, i);
+        } else if(endPos == null){
+            if(j == z && i == k){
+                drawOrangeSquare(out, j, i);
             } else {
                 DrawChessboard.drawBlackSquare(out, j, i);
             }
+        } else if (startPos == pos) {
+            if(j == z && i == k){
+                drawOrangeSquare(out, j, i);
+            } else {
+                drawDarkGreenSquare(out, j, i);
+            }
+        } else {
+            DrawChessboard.drawBlackSquare(out, j, i);
         }
     }
 
@@ -185,42 +207,9 @@ public class DrawHighlightedChessBoard {
         int k = pos.getColumn() - 1;
         int z = pos.getRow() - 1;
         if(i % 2 == 0){
-            if(startPos == null) {
-                DrawChessboard.drawBlackSquare(out, j, i);
-            } else if(endPos == null){
-                if(j == z && i == k){
-                    drawOrangeSquare(out, j, i);
-                } else {
-                    DrawChessboard.drawBlackSquare(out, j, i);
-                }
-            } else if(startPos == pos){
-                if(j == z && i == k) {
-                    drawOrangeSquare(out, j, i);
-                } else {
-                    //drawDarkGreenSquare(out, x, y);
-                    drawDarkGreenSquare(out, j, i);
-                }
-            } else {
-                DrawChessboard.drawBlackSquare(out, j, i);
-            }
+            drawBlackSquareMethod(out, j, i, startPos, endPos, pos, z, k);
         } else {
-            if(startPos == null) {
-                DrawChessboard.drawWhiteSquare(out, j, i);
-            } else if(endPos == null){
-                if(j == z && i == k){
-                    drawYellowSquare(out, j, i);
-                } else {
-                    DrawChessboard.drawWhiteSquare(out, j, i);
-                }
-            } else if (startPos == pos) {
-                if(j == z && i == k) {
-                    drawYellowSquare(out, j, i);
-                } else {
-                    drawLightGreenSquare(out, j, i);
-                }
-            } else {
-               DrawChessboard.drawWhiteSquare(out, j, i);
-            }
+            drawWhiteSquareMethod(out, j, i, startPos, endPos, pos, z, k);
         }
     }
 
