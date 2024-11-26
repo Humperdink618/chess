@@ -101,11 +101,10 @@ public class DrawHighlightedChessBoard {
             ChessPosition pos) {
 
         Collection<ChessMove> highlightMoves = validMoves(pos);
-
+        int x = j + 1;
         if (DrawChessboard.isWhite(color)) {
             //even index
             for (int i = 0; i < 8; i++) {
-                int x = j + 1;
                 int y = i + 1;
                 ChessPosition startPos = getStartPos(x, y, highlightMoves, pos);
                 ChessPosition endPos = getEndPos(x, y, highlightMoves);
@@ -113,10 +112,9 @@ public class DrawHighlightedChessBoard {
             }
         } else {
             for (int i = 7; i > -1; i--) {
-                int a = j + 1;
-                int b = i + 1;
-                ChessPosition startPos1 = getStartPos(a, b, highlightMoves, pos);
-                ChessPosition endPos1 = getEndPos(a, b, highlightMoves);
+                int y = i + 1;
+                ChessPosition startPos1 = getStartPos(x, y, highlightMoves, pos);
+                ChessPosition endPos1 = getEndPos(x, y, highlightMoves);
                 drawWhiteSquareFirstHilight(out, j, i, startPos1, endPos1, pos);
             }
         }
@@ -216,18 +214,17 @@ public class DrawHighlightedChessBoard {
             ChessPosition pos) {
 
         Collection<ChessMove> highlightMoves = validMoves(pos);
+        int x = j + 1;
         if (DrawChessboard.isWhite(color)) {
             // odd index
             for (int i = 0; i < 8; i++) {
-                int a = j + 1;
-                int b = i + 1;
-                ChessPosition startPos1 = getStartPos(a, b, highlightMoves, pos);
-                ChessPosition endPos1 = getEndPos(a, b, highlightMoves);
-                drawWhiteSquareFirstHilight(out, j, i, startPos1, endPos1, pos);
+                int y = i + 1;
+                ChessPosition startPos = getStartPos(x, y, highlightMoves, pos);
+                ChessPosition endPos = getEndPos(x, y, highlightMoves);
+                drawWhiteSquareFirstHilight(out, j, i, startPos, endPos, pos);
             }
         } else {
             for (int i = 7; i > -1; i--) {
-                int x = j + 1;
                 int y = i + 1;
                 ChessPosition startPos = getStartPos(x, y, highlightMoves, pos);
                 ChessPosition endPos = getEndPos(x, y, highlightMoves);
