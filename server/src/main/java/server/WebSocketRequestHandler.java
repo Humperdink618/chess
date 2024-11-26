@@ -11,10 +11,7 @@ import org.eclipse.jetty.websocket.api.annotations.*;
 import org.eclipse.jetty.websocket.api.*;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
-import websocket.messages.ErrorMessage;
-import websocket.messages.Game;
-import websocket.messages.LoadGameMessage;
-import websocket.messages.NotificationMessage;
+import websocket.messages.*;
 
 import java.util.HashMap;
 
@@ -160,7 +157,7 @@ public class WebSocketRequestHandler {
                     oldGD.gameName(),
                     chessGame)
             );
-            String message = String.format("%s has resigned.", username);
+            String message = String.format("%s has resigned. GAME OVER. Thanks for playing!", username);
             NotificationMessage notificationMessage = new NotificationMessage(message);
             userSessions.broadcastToAll(notificationMessage);
         }
@@ -211,23 +208,40 @@ public class WebSocketRequestHandler {
             String opponentUserName = "";
             ChessPosition startPos = move.getStartPosition();
             ChessPosition endPos = move.getEndPosition();
-            int startRow = startPos.getRow();
-            int startCol = startPos.getColumn();
-            int endRow = endPos.getRow();
-            int endCol = endPos.getColumn();
+            int startRow = startPos.getColumn();
+            int startCol = startPos.getRow();
+            //int endRow = endPos.getRow();
+            //int endCol = endPos.getColumn();
+            int endRow = endPos.getColumn();
+            int endCol = endPos.getRow();
+            System.out.println(endCol);
+            System.out.println(endRow);
             String startRowLetter = "";
             String endRowLetter = "";
-            for(int i = 1; i < 9; i++){
-                if(i == startRow){
-                    startRowLetter = getCharForNumber(i);
+            if(teamColor == ChessGame.TeamColor.WHITE) {
+                for (int i = 1; i < 9; i++) {
+                    if (i == startRow) {
+                        startRowLetter = getCharForNumber(i);
+                    }
+                    if (i == endRow) {
+                        endRowLetter = getCharForNumber(i);
+                    }
                 }
-                if(i == endRow){
-                    endRowLetter = getCharForNumber(i);
+            } else {
+                for (int i = 8; i > -1; i--) {
+                    if (i == startRow) {
+                        startRowLetter = getCharForNumber(i);
+                    }
+                    if (i == endRow) {
+                        endRowLetter = getCharForNumber(i);
+                    }
                 }
             }
             if(startRowLetter.isBlank() || endRowLetter.isBlank()){
                 sendMessage(session, new Gson().toJson(new ErrorMessage("Error: invalid move.")));
             }
+            System.out.println(startRowLetter);
+            System.out.println(endRowLetter);
             try {
                 if(oldGD.whiteUsername().equals(username)){
                     if(teamColor != ChessGame.TeamColor.WHITE) {
@@ -274,7 +288,7 @@ public class WebSocketRequestHandler {
                                 );
                     }
 
-                    if(chessGame.isInCheck(enemyTeamColor)){
+                    if(chessGame.isInCheck(enemyTeamColor) && !chessGame.isInCheckmate(enemyTeamColor)){
                         kingInCheckMessage = String.format("%s has put %s's king in Check", username, opponentUserName);
                     }
                     if(chessGame.isInCheckmate(enemyTeamColor)) {
@@ -299,7 +313,7 @@ public class WebSocketRequestHandler {
                 userSessions.broadcastToAll(loadGameMessage);
                 NotificationMessage notifyThatPlayerHasMadeMove = new NotificationMessage(moveMessage);
                 userSessions.broadcastToAllButRootClient(username, notifyThatPlayerHasMadeMove);
-                if(chessGame.isInCheck(enemyTeamColor)){
+                if(chessGame.isInCheck(enemyTeamColor) && !chessGame.isInCheckmate(enemyTeamColor)){
                     NotificationMessage notifyIsInCheck = new NotificationMessage(kingInCheckMessage);
                     userSessions.broadcastToAll(notifyIsInCheck);
                 } else if(chessGame.isInCheckmate(enemyTeamColor) || chessGame.isInStalemate(enemyTeamColor)){

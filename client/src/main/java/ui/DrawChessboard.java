@@ -183,6 +183,7 @@ public class DrawChessboard {
             Collection<ChessMove> highlightMoves = validMoves(pos);
 
             if (isWhite(color)) {
+                //even index
                 for (int i = 0; i < 8; i++) {
                     int x = j + 1;
                     int y = i + 1;
@@ -285,7 +286,8 @@ public class DrawChessboard {
                 if(j == z && i == k) {
                     drawOrangeSquare(out, j, i);
                 } else {
-                    drawDarkGreenSquare(out, x, y);
+                    //drawDarkGreenSquare(out, x, y);
+                    drawDarkGreenSquare(out, j, i);
                 }
             } else {
                 drawBlackSquare(out, j, i);
@@ -327,6 +329,7 @@ public class DrawChessboard {
         } else if(checkIfHighlight == 1){
             Collection<ChessMove> highlightMoves = validMoves(pos);
             if (isWhite(color)) {
+                // odd index
                 for (int i = 0; i < 8; i++) {
                     int x = j + 1;
                     int y = i + 1;
