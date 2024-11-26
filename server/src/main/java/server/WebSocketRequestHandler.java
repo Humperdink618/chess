@@ -265,11 +265,8 @@ public class WebSocketRequestHandler {
                         chessGame.setGameOver(true);
                     }
                 gameDAO.updateGame(new GameData(myGameID, wUN, bUN, oldGD.gameName(), chessGame));
-                Game game = new Game(chessGame, playerColor);
-                LoadGameMessage loadGameMessage = new LoadGameMessage(game);
-                userSessions.broadcastToAll(loadGameMessage);
-                NotificationMessage notifyThatPlayerHasMadeMove = new NotificationMessage(moveMessage);
-                userSessions.broadcastToAllButRootClient(uN, notifyThatPlayerHasMadeMove);
+                sendLoadGameMessageToAll(chessGame, playerColor, userSessions);
+                sendNotificationPlayerMadeMove(uN, moveMessage, userSessions);
                 if(chessGame.isInCheck(enemyTeamColor) && !chessGame.isInCheckmate(enemyTeamColor)){
                     sendNotificationToAll(moveMessageMajor, userSessions);
                 } else if(chessGame.isInCheckmate(enemyTeamColor) || chessGame.isInStalemate(enemyTeamColor)){
@@ -279,6 +276,17 @@ public class WebSocketRequestHandler {
                 sendMessage(session, new Gson().toJson(new ErrorMessage("Error: " + e.getMessage())));
             }
         }
+    }
+
+    private static void sendNotificationPlayerMadeMove(String uN, String moveMessage, ConnectionManager userSessions) throws Exception {
+        NotificationMessage notifyThatPlayerHasMadeMove = new NotificationMessage(moveMessage);
+        userSessions.broadcastToAllButRootClient(uN, notifyThatPlayerHasMadeMove);
+    }
+
+    private static void sendLoadGameMessageToAll(ChessGame chessGame, String playerColor, ConnectionManager userSessions) throws Exception {
+        Game game = new Game(chessGame, playerColor);
+        LoadGameMessage loadGameMessage = new LoadGameMessage(game);
+        userSessions.broadcastToAll(loadGameMessage);
     }
 
     private static void sendNotificationToAll(String message, ConnectionManager userSessions) throws Exception {
