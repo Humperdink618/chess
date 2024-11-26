@@ -164,9 +164,7 @@ public class WebSocketRequestHandler {
     }
     // TODO: find some way to make this shorter.
     public void makeMove(Session session, String uN, String message) throws Exception{
-
         MakeMoveCommand command = new Gson().fromJson(message, MakeMoveCommand.class);
-        // Throws a custom UnauthorizedException. Yours may work differently.
         String authToken = command.getAuthToken();
         if(authDAO.getAuth(authToken) == null){
             throw new UnauthorizedException("Error: unauthorized");
@@ -176,7 +174,6 @@ public class WebSocketRequestHandler {
         if(gameID == null){
             throw new UnauthorizedException("Error: game doesn't exist");
         }
-        // sets the game to game over
         ConnectionManager userSessions = sessionCollection.get(command.getGameID());
         if(userSessions == null){
             sendMessage(session, new Gson().toJson(new ErrorMessage("Error: you can't make a move if you're " +
@@ -197,8 +194,7 @@ public class WebSocketRequestHandler {
             ChessBoard board = chessGame.getBoard();
             ChessPiece chessPiece = board.getPiece(move.getStartPosition());
             String playerColor = "";
-            String endGameMessage = "";
-            String kingInCheckMessage = "";
+            String moveMessageMajor = ""; // check, checkmate, and stalemate
             String moveMessage = "";
             ChessGame.TeamColor teamColor = chessPiece.getTeamColor();
             ChessGame.TeamColor enemyTeamColor = null;
@@ -214,7 +210,6 @@ public class WebSocketRequestHandler {
             String wUN = oldGD.whiteUsername();
             String bUN = oldGD.blackUsername();
             int myGameID = oldGD.gameID();
-
             if(teamColor == ChessGame.TeamColor.WHITE) {
                 for (int i = 1; i < 9; i++) {
                     sRowLett = convertToInt(i, startRow, sRowLett);
@@ -254,23 +249,19 @@ public class WebSocketRequestHandler {
                     chessGame.makeMove(move);
                     moveMessage = String.format("%s moved a piece from %s%s to %s%s",
                             uN, sRowLett, startCol, eRowLett, endCol);
-
                     if(move.getPromotionPiece() != null){
-                        moveMessage =
-                                String.format(
-                                        "%s moved a PAWN from %s%s to %s%s and promoted it to a %s",
+                        moveMessage = String.format("%s moved a PAWN from %s%s to %s%s and promoted it to a %s",
                                         uN, sRowLett, startCol, eRowLett, endCol, move.getPromotionPiece());
                     }
-
                     if(chessGame.isInCheck(enemyTeamColor) && !chessGame.isInCheckmate(enemyTeamColor)){
-                        kingInCheckMessage = String.format("%s has put %s's king in Check", uN, enemyUserName);
+                        moveMessageMajor = String.format("%s has put %s's king in Check", uN, enemyUserName);
                     }
                     if(chessGame.isInCheckmate(enemyTeamColor)) {
-                        endGameMessage = String.format("GAME OVER: %s has put %s's king in Checkmate. " +
+                        moveMessageMajor = String.format("GAME OVER: %s has put %s's king in Checkmate. " +
                                 "%s Team WINS! Thank you for playing!", uN, enemyUserName, teamColor);
                         chessGame.setGameOver(true);
                     } else if(chessGame.isInStalemate(enemyTeamColor)){
-                        endGameMessage = "GAME OVER: game ends in Stalemate. No one wins. Better luck next time!";
+                        moveMessageMajor = "GAME OVER: game ends in Stalemate. No one wins. Better luck next time!";
                         chessGame.setGameOver(true);
                     }
                 gameDAO.updateGame(new GameData(myGameID, wUN, bUN, oldGD.gameName(), chessGame));
@@ -280,16 +271,20 @@ public class WebSocketRequestHandler {
                 NotificationMessage notifyThatPlayerHasMadeMove = new NotificationMessage(moveMessage);
                 userSessions.broadcastToAllButRootClient(uN, notifyThatPlayerHasMadeMove);
                 if(chessGame.isInCheck(enemyTeamColor) && !chessGame.isInCheckmate(enemyTeamColor)){
-                    NotificationMessage notifyIsInCheck = new NotificationMessage(kingInCheckMessage);
-                    userSessions.broadcastToAll(notifyIsInCheck);
+                    sendNotificationToAll(moveMessageMajor, userSessions);
                 } else if(chessGame.isInCheckmate(enemyTeamColor) || chessGame.isInStalemate(enemyTeamColor)){
-                    NotificationMessage notifyGameOver = new NotificationMessage(endGameMessage);
-                    userSessions.broadcastToAll(notifyGameOver);
+                    sendNotificationToAll(moveMessageMajor, userSessions);
                 }
             } catch (InvalidMoveException e) {
                 sendMessage(session, new Gson().toJson(new ErrorMessage("Error: " + e.getMessage())));
             }
         }
+    }
+
+    private static void sendNotificationToAll(String message, ConnectionManager userSessions) throws Exception {
+        NotificationMessage notifyMajorGamePlayStatus = new NotificationMessage(message);
+        userSessions.broadcastToAll(notifyMajorGamePlayStatus);
+        // notifies everyone of major gameplay status update (check, checkmate, stalemate)
     }
 
     private String convertToInt(int i, int startRow, String startRowLetter) {
