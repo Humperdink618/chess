@@ -806,11 +806,11 @@ public class ChessClient implements ServerMessageObserver {
         for(int i = 0; i < inputCharPos.length; i++){
             if(!Character.isLetter(inputCharPos[0])) {
                 returnToMenuBCBadPos(playerColor, gameID, isInvalidPos);
-
             } else if(!Character.isDigit(inputCharPos[1])) {
                 returnToMenuBCBadPos(playerColor, gameID, isInvalidPos);
-
-            } else checkIfRowAndColAreRightSize(inputCharPos.length > 2, playerColor, gameID, isInvalidPos);
+            } else {
+                checkIfRowAndColAreRightSize(inputCharPos.length > 2, playerColor, gameID, isInvalidPos);
+            }
         }
     }
 
