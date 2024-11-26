@@ -301,10 +301,6 @@ public class ChessClient implements ServerMessageObserver {
   /*     } else if(input.equals("7")) { // DELETE THIS LINE
             clearDB();
 */
-            /*
-        } else if(input.equals("8")) { // DELETE THIS LINE
-            highlightLegalMoves();
-*/
 
         } else {
             if(isSarcasticText){
@@ -420,7 +416,6 @@ public class ChessClient implements ServerMessageObserver {
                 }
             }
         }
-
         System.out.println("Choose what team you wish to play (White or Black): ");
         String playerColor = scanner.nextLine().toUpperCase();
         while(playerColor.isBlank()){
@@ -434,7 +429,6 @@ public class ChessClient implements ServerMessageObserver {
             playerColor = scanner.nextLine().toUpperCase();
         }
         // check to see if that team color is taken or not.
-
         // plug in the authToken given from the register/login
         String joinMessage = serverFacade.join(auth, newID, playerColor);
 
@@ -500,13 +494,9 @@ public class ChessClient implements ServerMessageObserver {
     private void observeGame() throws ResponseException{
         // print out the list of games with associated numbers starting at 1 (independent of gameID)
         listGames();
-        //  make it so that it only prints one side of the board depending on the team color of the player
-        //  (observers will view it from White's perspective by default)
         System.out.println("Choose a game to observe: ");
-        // note: gameplay will not be implemented until Phase 6. For now, just display the ChessBoard
         String gameName = scanner.nextLine();
         // note: no calling the ServerFacade here. The Client keeps track of which number is associated with which game
-        // may want to create a hashset that keeps track of server gameIDs and the ui gameIDs
         while(gameName.isBlank() || !isNumeric(gameName)){
             System.out.println("Error: not a valid option.");
             System.out.println("Choose a game to observe: ");
@@ -515,8 +505,6 @@ public class ChessClient implements ServerMessageObserver {
         }
         String gameIDString = checkIfValidGameIDObserve(gameName);
         int gameID = Integer.parseInt(gameIDString);
-
-        // websocketCommunicator should print it for you
         try {
             WebsocketCommunicator ws = new WebsocketCommunicator(this);
             ws.enterGamePlayMode(auth, gameID);
@@ -525,7 +513,6 @@ public class ChessClient implements ServerMessageObserver {
             setGameID(gameID);
             setPlayerColorClient("WHITE");
             System.out.println("You are now observing the game.");
-
         } catch (Exception e) {
             //displayError(new ErrorMessage(e.getMessage()));
             displayError(new Gson().toJson(e.getMessage(), ErrorMessage.class));
@@ -583,25 +570,17 @@ public class ChessClient implements ServerMessageObserver {
     }
 
     // note: only for testing purposes. Delete afterward
-
 /*
     private void clearDB() throws ResponseException{
-
  */
-
-
         // ADMIN ONLY!
 /*        serverFacade.clear();
-
         System.out.println("CLEARED");
 */
-
 /*
         isLoggedIn = false;
-
         notLoggedInHelp();
 */
-
  //   }
 
     private Boolean gameMenu(String playerColor, int gameID) throws ResponseException{
@@ -639,7 +618,7 @@ public class ChessClient implements ServerMessageObserver {
     private void redrawChessBoard(String playerColor, int gameID) throws ResponseException {
         // redraws the current chessboard
         ChessGame game = getChessGame();
-        DrawChessboard drawChessboard = new DrawChessboard(game, playerColor, 0);
+        DrawChessboard drawChessboard = new DrawChessboard(game, playerColor);
         drawChessboard.run();
         displayGamePlayMenu();
         gameMenu(playerColor, gameID);
@@ -727,8 +706,6 @@ public class ChessClient implements ServerMessageObserver {
         }
 
         ChessPosition endPos = new ChessPosition(k, z);
-
-
 
         ChessBoard board = chessPiecePositions().getBoard();
         Collection<ChessPosition> chessPositions = board.getChessPositions();
@@ -886,8 +863,8 @@ public class ChessClient implements ServerMessageObserver {
             for (ChessPosition position : chessPositions) {
                 if (position.getRow() == inputPos.getRow() && position.getColumn() == inputPos.getColumn()) {
                     //  make this code grab the most up-to-date chessboard/chess game
-                    DrawChessboard drawChessboard =
-                            new DrawChessboard(chessPiecePositions(), playerColor, 1);
+                    DrawHighlightedChessBoard drawChessboard =
+                            new DrawHighlightedChessBoard(chessPiecePositions(), playerColor);
                     drawChessboard.runHighlight(inputPos);
                 }
             }
@@ -900,10 +877,7 @@ public class ChessClient implements ServerMessageObserver {
         System.out.println(isInvalidPos);
         // for testing purposes ONLY. Replace these values with the values from the gamePlayMenu later
         displayGamePlayMenu();
-
         gameMenu(playerColor, gameID);
-        //loggedInHelp();
-        //loggedIn();
     }
 
     private void resign(String playerColor, int gameID) throws ResponseException{
@@ -965,36 +939,24 @@ public class ChessClient implements ServerMessageObserver {
     private void gamePlayHelp() throws ResponseException{
         System.out.println("Enter 1 to redraw the game board.");
         System.out.println("Enter 2 to make a move.");
-        System.out.println("  (Note: This option is only valid for users actually playing the game. If you are just " +
-                "observing, you may NOT use this option.");
         System.out.println("Enter 3 to highlight all legal moves for a specific chess piece.");
         System.out.println("Enter 4 to forfeit, ending the game.");
-        System.out.println("  (Note: you may not forfeit if you are merely observing a game and not playing it.");
-        System.out.println("   Also, resigning from the game does not cause the user to leave the game, " +
-                " whether you are playing or merely observing.)");
         System.out.println("Enter 5 to leave the game.");
-        System.out.println(" (Note: This is not the same thing as resigning from a game you are playing.)");
         System.out.println("Enter 6 to see this message again.\n");
         displayGamePlayMenu();
     }
-
 
     @Override
     //public void notify(ServerMessage serverMessage) {
     public void notify(String message) {
         ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
         switch (serverMessage.getServerMessageType()) {
-            //case NOTIFICATION -> displayNotification(((NotificationMessage) serverMessage));
             case NOTIFICATION -> displayNotification(message);
             // create a subclass
-            //case ERROR -> displayError(((ErrorMessage) serverMessage));
             case ERROR -> displayError(message);
-            //case LOAD_GAME -> loadGame(((LoadGameMessage) serverMessage).getGame());
-        //    case LOAD_GAME -> loadGame(((LoadGameMessage) serverMessage));
             case LOAD_GAME -> loadGame(message);
         }
     }
-
 
     //private void loadGame(Game gameClass) {
     private void loadGame(String serverMessage){
@@ -1004,10 +966,10 @@ public class ChessClient implements ServerMessageObserver {
         setChessGame(game);
         String playerColor = gameClass.playerColor;
         if(playerColorClient.equals(playerColor)) {
-            DrawChessboard drawChessboard = new DrawChessboard(game, playerColor, 0);
+            DrawChessboard drawChessboard = new DrawChessboard(game, playerColor);
             drawChessboard.run();
         } else {
-            DrawChessboard drawChessboard = new DrawChessboard(game, playerColorClient, 0);
+            DrawChessboard drawChessboard = new DrawChessboard(game, playerColorClient);
             drawChessboard.run();
         }
     }
@@ -1029,7 +991,6 @@ public class ChessClient implements ServerMessageObserver {
     }
 
     // create matrix for chess piece locations
-    //public ChessBoard chessPiecePositions() {
     public ChessGame chessPiecePositions() {
         // note: this may be a temporary solution, as it may or may not be compatible with Phase 6
         // for now though, it works fine

@@ -214,8 +214,6 @@ public class WebSocketRequestHandler {
             //int endCol = endPos.getColumn();
             int endRow = endPos.getColumn();
             int endCol = endPos.getRow();
-            System.out.println(endCol);
-            System.out.println(endRow);
             String startRowLetter = "";
             String endRowLetter = "";
             if(teamColor == ChessGame.TeamColor.WHITE) {
@@ -240,8 +238,6 @@ public class WebSocketRequestHandler {
             if(startRowLetter.isBlank() || endRowLetter.isBlank()){
                 sendMessage(session, new Gson().toJson(new ErrorMessage("Error: invalid move.")));
             }
-            System.out.println(startRowLetter);
-            System.out.println(endRowLetter);
             try {
                 if(oldGD.whiteUsername().equals(username)){
                     if(teamColor != ChessGame.TeamColor.WHITE) {
