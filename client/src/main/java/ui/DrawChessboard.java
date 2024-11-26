@@ -34,8 +34,7 @@ public class DrawChessboard {
     public void run() {
         // note: will eventually need to pass in the chosen player's color and only print out one side of the board
         // based on that player's color (observers will always view from white's perspective).
-        // TODO: make it so that it only prints one side of the board depending on the teamcolor of the player
-        //  (observers will view it from White's perspective by default)
+
         PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
 
         out.print(ERASE_SCREEN);
@@ -68,8 +67,6 @@ public class DrawChessboard {
     public void runHighlight(ChessPosition inputPos) {
         // note: will eventually need to pass in the chosen player's color and only print out one side of the board
         // based on that player's color (observers will always view from white's perspective).
-        // TODO: make it so that it only prints one side of the board depending on the teamcolor of the player
-        //  (observers will view it from White's perspective by default)
         PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
 
         out.print(ERASE_SCREEN);
