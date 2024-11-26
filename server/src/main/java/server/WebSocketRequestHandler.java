@@ -162,7 +162,7 @@ public class WebSocketRequestHandler {
             userSessions.broadcastToAll(notificationMessage);
         }
     }
-    // TODO: find some way to make this shorter.
+
     public void makeMove(Session session, String uN, String message) throws Exception{
         MakeMoveCommand command = new Gson().fromJson(message, MakeMoveCommand.class);
         String authToken = command.getAuthToken();

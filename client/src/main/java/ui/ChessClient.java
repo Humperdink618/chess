@@ -628,7 +628,7 @@ public class ChessClient implements ServerMessageObserver {
     public void setChessGame(ChessGame chessGame) {
         this.chessGame = chessGame;
     }
-    // TODO: try to see if I can shorten this method (if possible!)
+
     private void makeMove(String playerColor, int gameID) throws ResponseException{
         // makes a move on the ChessBoard during a game
         if(isObserver){
