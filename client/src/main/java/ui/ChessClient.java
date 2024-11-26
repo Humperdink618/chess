@@ -32,6 +32,7 @@ public class ChessClient implements ServerMessageObserver {
     private Integer gameID = null;
     private Boolean isObserver = false;
 
+    //TODO: find some way to shorten this class
     public ChessClient(String serverURL){
         serverFacade = new ServerFacade(serverURL);
         this.serverURL = serverURL;
@@ -627,7 +628,7 @@ public class ChessClient implements ServerMessageObserver {
     public void setChessGame(ChessGame chessGame) {
         this.chessGame = chessGame;
     }
-
+    // TODO: try to see if I can shorten this method (if possible!)
     private void makeMove(String playerColor, int gameID) throws ResponseException{
         // makes a move on the ChessBoard during a game
         if(isObserver){
@@ -650,24 +651,22 @@ public class ChessClient implements ServerMessageObserver {
         char[] inputCharStartPos = inputStartPos.toCharArray();
         checkIfCharArrayIsValidInput(playerColor, gameID, inputCharStartPos, isInvalidPos);
 
-        int x = 0;
-        int y = 0;
+        int i = 0;
+        int j = 0;
 
         for(char c : inputCharStartPos){
             if(Character.isLetter(c)){
-                x = c - 'a' + 1;
+                i = c - 'a' + 1;
             } else if(Character.isDigit(c)){
-                y = Character.getNumericValue(c);
+                j = Character.getNumericValue(c);
             } else {
                 returnToMenuBCBadPos(playerColor, gameID, isInvalidPos);
             }
         }
 
-        if(x < 1 || x > 8 || y < 1 || y > 8){
-            returnToMenuBCBadPos(playerColor, gameID, isInvalidPos);
-        }
+        checkIfRowAndColAreRightSize(i < 1 || i > 8 || j < 1 || j > 8, playerColor, gameID, isInvalidPos);
 
-        ChessPosition startPos = new ChessPosition(y, x);
+        ChessPosition startPos = new ChessPosition(j, i);
 
         System.out.println("Where would you like to move this piece? (Enter the piece's end position in the form b2 " +
                 "(a letter from 'a' to 'h' followed by a number from 1 to 8): ");
@@ -696,9 +695,7 @@ public class ChessClient implements ServerMessageObserver {
             }
         }
 
-        if(z < 1 || z > 8 || k < 1 || k > 8){
-            returnToMenuBCBadPos(playerColor, gameID, isInvalidPos);
-        }
+        checkIfRowAndColAreRightSize(z < 1 || z > 8 || k < 1 || k > 8, playerColor, gameID, isInvalidPos);
 
         ChessPosition endPos = new ChessPosition(k, z);
 
@@ -789,6 +786,12 @@ public class ChessClient implements ServerMessageObserver {
         returnToGameMenu(playerColor, gameID);
     }
 
+    private void checkIfRowAndColAreRightSize(boolean x, String playerColor, int gameID, String isInvalidPos) throws ResponseException {
+        if (x) {
+            returnToMenuBCBadPos(playerColor, gameID, isInvalidPos);
+        }
+    }
+
     private void returnToGameMenu(String playerColor, int gameID) throws ResponseException {
         displayGamePlayMenu();
         gameMenu(playerColor, gameID);
@@ -807,9 +810,7 @@ public class ChessClient implements ServerMessageObserver {
             } else if(!Character.isDigit(inputCharPos[1])) {
                 returnToMenuBCBadPos(playerColor, gameID, isInvalidPos);
 
-            } else if(inputCharPos.length > 2) {
-                returnToMenuBCBadPos(playerColor, gameID, isInvalidPos);
-            }
+            } else checkIfRowAndColAreRightSize(inputCharPos.length > 2, playerColor, gameID, isInvalidPos);
         }
     }
 
@@ -842,9 +843,7 @@ public class ChessClient implements ServerMessageObserver {
             }
         }
 
-        if(x < 1 || x > 8 || y < 1 || y > 8){
-            returnToMenuBCBadPos(playerColor, gameID, isInvalidPos);
-        }
+        checkIfRowAndColAreRightSize(x < 1 || x > 8 || y < 1 || y > 8, playerColor, gameID, isInvalidPos);
 
         ChessPosition inputPos = new ChessPosition(y, x);
         ChessBoard board = chessPiecePositions().getBoard();
