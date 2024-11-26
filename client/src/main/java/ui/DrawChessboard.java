@@ -65,11 +65,11 @@ public class DrawChessboard {
         }
     }
 
-    private static boolean isWhite(BoardColor color) {
+    public static boolean isWhite(BoardColor color) {
         return color == BoardColor.WHITE;
     }
 
-    private static void drawHeaders(PrintStream out, BoardColor color) {
+    public static void drawHeaders(PrintStream out, BoardColor color) {
 
         setLightGrey(out);
 
@@ -90,13 +90,13 @@ public class DrawChessboard {
         resetColor(out);
     }
 
-    private static void drawHeader(PrintStream out, String headerText){
+    public static void drawHeader(PrintStream out, String headerText){
         printPadding(out);
         printHeaderText(out, headerText);
         printPadding(out);
     }
 
-    private static void printHeaderText(PrintStream out, String headerText) {
+    public static void printHeaderText(PrintStream out, String headerText) {
         out.print(SET_BG_COLOR_LIGHT_GREY);
         out.print(SET_TEXT_COLOR_BLACK);
         out.print(SET_TEXT_BOLD);
@@ -196,7 +196,7 @@ public class DrawChessboard {
         }
     }
 
-    private static void drawWhiteSquare(PrintStream out, int j, int i){
+    public static void drawWhiteSquare(PrintStream out, int j, int i){
         setVeryLightGrey(out);
         String chessPiece = parseChessPiece(j, i);
         printPadding(out);
@@ -204,7 +204,7 @@ public class DrawChessboard {
         printPadding(out);
     }
 
-    private static void drawBlackSquare(PrintStream out, int j, int i){
+    public static void drawBlackSquare(PrintStream out, int j, int i){
         String chessPiece = parseChessPiece(j, i);
         setBlack(out);
         printPadding(out);
@@ -212,11 +212,11 @@ public class DrawChessboard {
         printPadding(out);
     }
 
-    private static void printPadding(PrintStream out) {
+    public static void printPadding(PrintStream out) {
         out.print(EMPTY.repeat(1));
     }
 
-    private static ChessPiece getChessPiece(int j, int i) {
+    public static ChessPiece getChessPiece(int j, int i) {
         //ChessBoard board = ChessClient.chessPiecePositions();
         //ChessBoard chessBoard = DrawChessboard.getBoard();
         ChessPosition myPos = new ChessPosition(j + 1, i + 1);
@@ -224,11 +224,11 @@ public class DrawChessboard {
         return myPiece;
     }
 
-    private static boolean isTeamColorWhite(ChessPiece piece){
+    public static boolean isTeamColorWhite(ChessPiece piece){
         return piece.getTeamColor() == ChessGame.TeamColor.WHITE;
     }
 
-    private static String parseChessPiece(int j, int i){
+    public static String parseChessPiece(int j, int i){
         ChessPiece piece = getChessPiece(j, i);
         if(piece != null){
             ChessPiece.PieceType type = piece.getPieceType();
@@ -275,12 +275,7 @@ public class DrawChessboard {
         ChessPiece piece = getChessPiece(j, i);
         out.print(backGroundColor);
         if(piece != null){
-            if(backGroundColor.equals(SET_BG_COLOR_GREEN)
-                    || backGroundColor.equals(SET_BG_COLOR_YELLOW)
-                    || backGroundColor.equals(SET_BG_COLOR_DARK_GREEN)
-                    || backGroundColor.equals(SET_BG_COLOR_ORANGE)){
-                out.print(SET_TEXT_COLOR_BLACK);
-            } else if(isTeamColorWhite(piece)){
+            if(isTeamColorWhite(piece)){
                 out.print(SET_TEXT_COLOR_RED);
 
             } else {
@@ -288,9 +283,7 @@ public class DrawChessboard {
             }
         }
         out.print(SET_TEXT_BOLD);
-
         out.print(chessPiece);
-
         out.print(backGroundColor);
         out.print(textColor);
     }
@@ -302,27 +295,27 @@ public class DrawChessboard {
         resetColor(out);
     }
 
-    private static void setLightGrey(PrintStream out) {
+    public static void setLightGrey(PrintStream out) {
         out.print(SET_BG_COLOR_LIGHT_GREY);
         out.print(SET_TEXT_COLOR_LIGHT_GREY);
     }
 
-    private static void setDarkGrey(PrintStream out) {
+    public static void setDarkGrey(PrintStream out) {
         out.print(SET_BG_COLOR_DARK_GREY);
         out.print(SET_TEXT_COLOR_DARK_GREY);
     }
 
-    private static void setBlack(PrintStream out) {
+    public static void setBlack(PrintStream out) {
         out.print(SET_BG_COLOR_BLACK);
         out.print(SET_TEXT_COLOR_BLACK);
     }
 
-    private static void setVeryLightGrey(PrintStream out) {
+    public static void setVeryLightGrey(PrintStream out) {
         out.print(SET_BG_COLOR_VERY_LIGHT_GREY);
         out.print(SET_TEXT_COLOR_VERY_LIGHT_GREY);
     }
 
-    private static void resetColor(PrintStream out) {
+    public static void resetColor(PrintStream out) {
         out.print(RESET_BG_COLOR);
         out.print(RESET_TEXT_COLOR);
         out.print('\n');

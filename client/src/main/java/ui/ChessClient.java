@@ -44,8 +44,7 @@ public class ChessClient implements ServerMessageObserver {
         while (true) {
             if (isLoggedIn) {
                 if(isPlayingGame){
-                    displayGamePlayMenu();
-                    gameMenu(getPlayerColorClient(), getGameID());
+                    returnToGameMenu(getPlayerColorClient(), getGameID());
                 } else {
                     loggedInHelp();
                     loggedIn();
@@ -444,8 +443,7 @@ public class ChessClient implements ServerMessageObserver {
                 //displayError(new ErrorMessage(e.getMessage()));
                 displayError(new Gson().toJson(e.getMessage(), ErrorMessage.class));
             }
-            displayGamePlayMenu();
-            gameMenu(playerColor, newID);
+            returnToGameMenu(playerColor, newID);
         } else {
             HashMap errorMessageMap = new Gson().fromJson(joinMessage, HashMap.class);
             String errorMessage = errorMessageMap.get("message").toString();
@@ -517,8 +515,7 @@ public class ChessClient implements ServerMessageObserver {
             //displayError(new ErrorMessage(e.getMessage()));
             displayError(new Gson().toJson(e.getMessage(), ErrorMessage.class));
         }
-        displayGamePlayMenu();
-        gameMenu("WHITE", gameID);
+        returnToGameMenu("WHITE", gameID);
     }
 
     // note: I am putting this here so that it can be used by both my ChessClient AND my ServerFacadeTests
@@ -620,8 +617,7 @@ public class ChessClient implements ServerMessageObserver {
         ChessGame game = getChessGame();
         DrawChessboard drawChessboard = new DrawChessboard(game, playerColor);
         drawChessboard.run();
-        displayGamePlayMenu();
-        gameMenu(playerColor, gameID);
+        returnToGameMenu(playerColor, gameID);
     }
 
     public ChessGame getChessGame() {
@@ -637,8 +633,7 @@ public class ChessClient implements ServerMessageObserver {
         if(isObserver){
             System.out.println("Error: you can't move a piece if you are just observing and not actually " +
                     "playing the game.");
-            displayGamePlayMenu();
-            gameMenu(playerColor, gameID);
+            returnToGameMenu(playerColor, gameID);
         }
         System.out.println("Enter the piece's start position in the form b2 (a letter from 'a' to 'h' " +
                 "followed by a number from 1 to 8): ");
@@ -708,15 +703,11 @@ public class ChessClient implements ServerMessageObserver {
         ChessPosition endPos = new ChessPosition(k, z);
 
         ChessBoard board = chessPiecePositions().getBoard();
-        Collection<ChessPosition> chessPositions = board.getChessPositions();
         ChessPiece chessPiece = board.getPiece(startPos);
         Boolean canPromote = false;
         if(chessPiece == null){
-
             returnToMenuBCBadPos(playerColor, gameID, isInvalidPos);
-
         } else if(chessPiece.getPieceType() == ChessPiece.PieceType.PAWN){
-
             if(chessPiece.getTeamColor() == ChessGame.TeamColor.WHITE){
                 if(endPos.getRow() == 8){
                     canPromote = true;
@@ -783,8 +774,7 @@ public class ChessClient implements ServerMessageObserver {
         }
         if(move == null){
             System.out.println("Error: invalid move");
-            displayGamePlayMenu();
-            gameMenu(playerColor, gameID);
+            returnToGameMenu(playerColor, gameID);
         }
 
         try {
@@ -796,6 +786,10 @@ public class ChessClient implements ServerMessageObserver {
             displayError(new Gson().toJson(e.getMessage(), ErrorMessage.class));
         }
 
+        returnToGameMenu(playerColor, gameID);
+    }
+
+    private void returnToGameMenu(String playerColor, int gameID) throws ResponseException {
         displayGamePlayMenu();
         gameMenu(playerColor, gameID);
     }
@@ -869,15 +863,13 @@ public class ChessClient implements ServerMessageObserver {
                 }
             }
         }
-        displayGamePlayMenu();
-        gameMenu(playerColor, gameID);
+        returnToGameMenu(playerColor, gameID);
     }
 
     private void returnToMenuBCBadPos(String playerColor, int gameID, String isInvalidPos) throws ResponseException {
         System.out.println(isInvalidPos);
         // for testing purposes ONLY. Replace these values with the values from the gamePlayMenu later
-        displayGamePlayMenu();
-        gameMenu(playerColor, gameID);
+        returnToGameMenu(playerColor, gameID);
     }
 
     private void resign(String playerColor, int gameID) throws ResponseException{
@@ -891,8 +883,7 @@ public class ChessClient implements ServerMessageObserver {
             // user has resigned
             if(isObserver){
                 System.out.println("Error: You can't resign if you are not playing.");
-                displayGamePlayMenu();
-                gameMenu(playerColor, gameID);
+                returnToGameMenu(playerColor, gameID);
             } else {
                 try {
                     WebsocketCommunicator ws = new WebsocketCommunicator(this);
@@ -906,17 +897,14 @@ public class ChessClient implements ServerMessageObserver {
                     //displayError(new ErrorMessage(e.getMessage()));
                     displayError(new Gson().toJson(e.getMessage(), ErrorMessage.class));
                 }
-                displayGamePlayMenu();
-                gameMenu(playerColor, gameID);
+                returnToGameMenu(playerColor, gameID);
             }
 
         } else if(input.equals("N") || input.equals("NO")){
-            displayGamePlayMenu();
-            gameMenu(playerColor, gameID);
+            returnToGameMenu(playerColor, gameID);
         } else {
             System.out.println("Error: Invalid option");
-            displayGamePlayMenu();
-            gameMenu(playerColor, gameID);
+            returnToGameMenu(playerColor, gameID);
         }
     }
 
