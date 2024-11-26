@@ -94,7 +94,6 @@ public class DrawHighlightedChessBoard {
         DrawChessboard.resetColor(out);
     }
 
-    // TODO: try to find some way to remove repeated code (if possible!)
     private static void drawRowOfSquaresEvenIndex1(
             PrintStream out,
             DrawChessboard.BoardColor color,
@@ -213,7 +212,6 @@ public class DrawHighlightedChessBoard {
             DrawChessboard.BoardColor color,
             int j,
             ChessPosition pos) {
-        // TODO: find some way to remove repeated code (if possible)
         Collection<ChessMove> highlightMoves = validMoves(pos);
         int x = j + 1;
         if (DrawChessboard.isWhite(color)) {

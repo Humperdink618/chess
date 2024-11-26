@@ -646,14 +646,12 @@ public class ChessClient implements ServerMessageObserver {
                     "followed by a number from 1 to 8): ");
             inputStartPos = scanner.nextLine().toLowerCase();
         }
-
         String isInvalidPos = "Error: Invalid position.";
         char[] inputCharStartPos = inputStartPos.toCharArray();
         checkIfCharArrayIsValidInput(playerColor, gameID, inputCharStartPos, isInvalidPos);
 
         int i = 0;
         int j = 0;
-
         for(char c : inputCharStartPos){
             if(Character.isLetter(c)){
                 i = c - 'a' + 1;
@@ -663,9 +661,7 @@ public class ChessClient implements ServerMessageObserver {
                 returnToMenuBCBadPos(playerColor, gameID, isInvalidPos);
             }
         }
-
         checkIfRowAndColAreRightSize(i < 1 || i > 8 || j < 1 || j > 8, playerColor, gameID, isInvalidPos);
-
         ChessPosition startPos = new ChessPosition(j, i);
 
         System.out.println("Where would you like to move this piece? (Enter the piece's end position in the form b2 " +
@@ -678,13 +674,11 @@ public class ChessClient implements ServerMessageObserver {
                     " form b2 (a letter from 'a' to 'h' followed by a number from 1 to 8): ");
             inputEndPos = scanner.nextLine().toLowerCase();
         }
-
         char[] inputCharEndPos = inputEndPos.toCharArray();
         checkIfCharArrayIsValidInput(playerColor, gameID, inputCharEndPos, isInvalidPos);
 
         int z = 0;
         int k = 0;
-
         for(char c : inputCharEndPos){
             if(Character.isLetter(c)){
                 z = c - 'a' + 1;
@@ -694,29 +688,21 @@ public class ChessClient implements ServerMessageObserver {
                 returnToMenuBCBadPos(playerColor, gameID, isInvalidPos);
             }
         }
-
         checkIfRowAndColAreRightSize(z < 1 || z > 8 || k < 1 || k > 8, playerColor, gameID, isInvalidPos);
 
         ChessPosition endPos = new ChessPosition(k, z);
-
         ChessBoard board = chessPiecePositions().getBoard();
         ChessPiece chessPiece = board.getPiece(startPos);
         Boolean canPromote = false;
         if(chessPiece == null){
             returnToMenuBCBadPos(playerColor, gameID, isInvalidPos);
         } else if(chessPiece.getPieceType() == ChessPiece.PieceType.PAWN){
-            if(chessPiece.getTeamColor() == ChessGame.TeamColor.WHITE){
-                if(endPos.getRow() == 8){
+            if(chessPiece.getTeamColor() == ChessGame.TeamColor.WHITE && endPos.getRow() == 8){
                     canPromote = true;
-                } else {
-                    canPromote = false;
-                }
-            } else if(chessPiece.getTeamColor() == ChessGame.TeamColor.BLACK){
-                if(endPos.getRow() == 1){
+            } else if(chessPiece.getTeamColor() == ChessGame.TeamColor.BLACK && endPos.getRow() == 1){
                     canPromote = true;
-                } else {
-                    canPromote = false;
-                }
+            } else {
+                canPromote = false;
             }
         }
         ChessPiece promotionPiece = null;
@@ -765,7 +751,6 @@ public class ChessClient implements ServerMessageObserver {
         ChessMove move = null;
         if(promotionPiece == null) {
             move = new ChessMove(startPos, endPos, null);
-
         } else {
             move = new ChessMove(startPos, endPos, promotionPiece.getPieceType());
         }
@@ -777,12 +762,10 @@ public class ChessClient implements ServerMessageObserver {
         try {
             WebsocketCommunicator ws = new WebsocketCommunicator(this);
             ws.clientMakeMove(auth, gameID, move);
-
         } catch (Exception e) {
             //displayError(new ErrorMessage(e.getMessage()));
             displayError(new Gson().toJson(e.getMessage(), ErrorMessage.class));
         }
-
         returnToGameMenu(playerColor, gameID);
     }
 
