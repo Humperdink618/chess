@@ -109,15 +109,15 @@ public class DrawHighlightedChessBoard {
                 int y = i + 1;
                 ChessPosition startPos = getStartPos(x, y, highlightMoves, pos);
                 ChessPosition endPos = getEndPos(x, y, highlightMoves);
-                drawBlackSquareFirstHilight(out, j, i, startPos, endPos, pos, x, y);
+                drawBlackSquareFirstHilight(out, j, i, startPos, endPos, pos);
             }
         } else {
             for (int i = 7; i > -1; i--) {
-                int x = j + 1;
-                int y = i + 1;
-                ChessPosition startPos = getStartPos(x, y, highlightMoves, pos);
-                ChessPosition endPos = getEndPos(x, y, highlightMoves);
-                drawWhiteSquareFirstHilight(out, j, i, startPos, endPos, pos, x, y);
+                int a = j + 1;
+                int b = i + 1;
+                ChessPosition startPos1 = getStartPos(a, b, highlightMoves, pos);
+                ChessPosition endPos1 = getEndPos(a, b, highlightMoves);
+                drawWhiteSquareFirstHilight(out, j, i, startPos1, endPos1, pos);
             }
         }
         DrawChessboard.setLightGrey(out);
@@ -129,9 +129,7 @@ public class DrawHighlightedChessBoard {
             int i,
             ChessPosition startPos,
             ChessPosition endPos,
-            ChessPosition pos,
-            int x,
-            int y) {
+            ChessPosition pos) {
         int k = pos.getColumn() - 1;
         int z = pos.getRow() - 1;
         if(i % 2 == 0){
@@ -201,9 +199,7 @@ public class DrawHighlightedChessBoard {
             int i,
             ChessPosition startPos,
             ChessPosition endPos,
-            ChessPosition pos,
-            int x,
-            int y){
+            ChessPosition pos){
         int k = pos.getColumn() - 1;
         int z = pos.getRow() - 1;
         if(i % 2 == 0){
@@ -223,11 +219,11 @@ public class DrawHighlightedChessBoard {
         if (DrawChessboard.isWhite(color)) {
             // odd index
             for (int i = 0; i < 8; i++) {
-                int x = j + 1;
-                int y = i + 1;
-                ChessPosition startPos = getStartPos(x, y, highlightMoves, pos);
-                ChessPosition endPos = getEndPos(x, y, highlightMoves);
-                drawWhiteSquareFirstHilight(out, j, i, startPos, endPos, pos, x, y);
+                int a = j + 1;
+                int b = i + 1;
+                ChessPosition startPos1 = getStartPos(a, b, highlightMoves, pos);
+                ChessPosition endPos1 = getEndPos(a, b, highlightMoves);
+                drawWhiteSquareFirstHilight(out, j, i, startPos1, endPos1, pos);
             }
         } else {
             for (int i = 7; i > -1; i--) {
@@ -235,7 +231,7 @@ public class DrawHighlightedChessBoard {
                 int y = i + 1;
                 ChessPosition startPos = getStartPos(x, y, highlightMoves, pos);
                 ChessPosition endPos = getEndPos(x, y, highlightMoves);
-                drawBlackSquareFirstHilight(out, j, i, startPos, endPos, pos, x, y);
+                drawBlackSquareFirstHilight(out, j, i, startPos, endPos, pos);
             }
         }
         DrawChessboard.setLightGrey(out);
