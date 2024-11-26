@@ -634,10 +634,7 @@ public class ChessClient implements ServerMessageObserver {
         "followed by a number from 1 to 8): ");
         String chessPos = scanner.nextLine().toLowerCase();
         while(chessPos.isBlank()) {
-            System.out.println("Error: not a valid option.");
-            System.out.println("Enter the piece's position in the form b2 (a letter from 'a' to 'h' " +
-                    "followed by a number from 1 to 8): ");
-            chessPos = scanner.nextLine().toLowerCase();
+            chessPos = ClientWareHouse.getInputChessPositionAgain(scanner);
         }
         String isInvalidPos = "Error: Invalid position.";
         char[] inputCharPos = chessPos.toCharArray();

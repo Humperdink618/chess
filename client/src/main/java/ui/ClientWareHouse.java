@@ -259,6 +259,15 @@ public class ClientWareHouse {
         return inputEndPos;
     }
 
+    protected static String getInputChessPositionAgain(Scanner scanner) {
+        String chessPos;
+        System.out.println("Error: not a valid option.");
+        System.out.println("Enter the piece's position in the form b2 (a letter from 'a' to 'h' " +
+                "followed by a number from 1 to 8): ");
+        chessPos = scanner.nextLine().toLowerCase();
+        return chessPos;
+    }
+
     // WEBSOCKET STUFF
 
 
