@@ -226,9 +226,9 @@ public class DrawHighlightedChessBoard {
             }
         } else {
             for (int i = 7; i > -1; i--) {
-                int y = i + 1;
-                ChessPosition startPos = getStartPos(x, y, highlightMoves, pos);
-                ChessPosition endPos = getEndPos(x, y, highlightMoves);
+                int z = i + 1;
+                ChessPosition startPos = getStartPos(x, z, highlightMoves, pos);
+                ChessPosition endPos = getEndPos(x, z, highlightMoves);
                 drawBlackSquareFirstHilight(out, j, i, startPos, endPos, pos);
             }
         }
