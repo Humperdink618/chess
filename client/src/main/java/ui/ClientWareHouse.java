@@ -1,178 +1,218 @@
 package ui;
 
-import chess.ChessGame;
-import chess.ChessPiece;
+import chess.*;
 import com.google.gson.Gson;
 import exceptions.ResponseException;
+import model.GameData;
 import websocket.messages.ErrorMessage;
-import websocket.messages.Game;
-import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
 import static ui.EscapeSequences.RESET_TEXT_COLOR;
 
 public class ClientWareHouse {
-    // Optional: This is just for fun!
-    private Boolean isSarcasticText = false;
-    private int counter = 0;
-    private Boolean bootUser = false;
-    private Boolean isLoggedIn = false;
+
     private ChessClient client;
 
-    public ClientWareHouse(ChessClient client){
+    public ClientWareHouse(ChessClient client) {
         this.client = client;
     }
 
-    // SARCASTIC TEXT STUFF:
-
-    protected static void sarcasticLogin(Integer counter) throws ResponseException {
-        if(counter == 10){
-            System.out.println("You know what? I'm done here!");
-            System.out.println("If you're not going to take this seriously, " +
-                    "then you don't deserve to play!");
-            System.out.println("I am making an executive decision here, and closing this session myself.");
-            System.out.println("Come back when you're ready to behave and actually take this seriously!");
+    // NORMAL STATIC METHODS:
+    protected static void printErrorMessageAuth(String authToken) {
+        String errorMessage = getErrorMessage(authToken);
+        if (errorMessage.equals("Error: bad request")) {
+            System.out.println("Error: Failed to register user due to invalid username, password, or email.");
+        } else if (errorMessage.equals("Error: already taken")) {
+            System.out.println(errorMessage);
         } else {
-            System.out.println("Ok, this is getting ridiculous. Just Enter 1 or 2 for crying out loud!");
-            System.out.println("It's not rocket science! It's just tapping two keys on a keyboard.");
-            System.out.println("It's so simple! Heck, a BABY could do it! Please stop wasting my time!");
+            System.out.println(errorMessage);
         }
     }
 
-    protected static void notLoggedInHelpSarcastic(){
-        System.out.println("Oh, so you need help, do you?");
-        System.out.println("Well, and here I was assuming that this lovely little menu was straightforward enough");
-        System.out.println(" for any normal human being to understand. Thank you for proving me wrong.");
-        System.out.println("Anyway, since you somehow can't understand these simple instructions, I guess I'll");
-        System.out.println("  explain this again in a way that your simple minds can understand: \n");
-        System.out.println("  Enter 1 to login to play our magical chess game.");
-        System.out.println("  Enter 2 to register a new player if you're new around here and haven't played yet ");
-        System.out.println("    (in which case, why are you even reading this? My sarcasm doesn't unlock unless some" +
-                " cheeky monkey decided to screw around with the login prompt. ");
-        System.out.println("    If you are that cheeky monkey, why the heck did you try to log in if you don't have" +
-                "an existing account yet?!)");
-        System.out.println("  Enter 3 to quit out of this program (and to get me to shut up if you've unlocked my " +
-                "built-in sarcasm).");
-        System.out.println("  Enter 4 if somehow you STILL can't understand what we're asking for you," +
-                " in which case, I'll just display this message all over again. I've got all day people.\n ");
-        System.out.println(" Anyway, here's your stupid menu again. At least TRY to understand it this time...\n");
+    protected static String getInputRegisterCredentials(String prompt, Scanner scanner) {
+        String uNPrompt = prompt;
+        String userInput = scanner.nextLine();
+        userInput = getInputStringAgainBool(userInput.isBlank(), uNPrompt, userInput, scanner);
+        return userInput;
     }
 
-    protected static void sarcasticRegister() throws ResponseException {
-        System.out.println("Oh thank goodness! Someone new.");
-        System.out.println("Let's hope you're not as cheeky as the last person who tried to log in. Have fun!");
+    protected static ChessMove getMove(ChessPiece promotionPiece, ChessPosition startPos, ChessPosition endPos) {
+        ChessMove move;
+        if (promotionPiece == null) {
+            move = new ChessMove(startPos, endPos, null);
+        } else {
+            move = new ChessMove(startPos, endPos, promotionPiece.getPieceType());
+        }
+        return move;
     }
 
-    protected static void okWiseGuy() {
-        System.out.println("Ok, who's the wise guy who tried to promote his pawn to a king, eh?");
-        System.out.println("While I appreciate the attempt to sow a little bit of anarchy into the mix here, " +
-                "unfortunately, promoting a pawn to a king is against the rules.");
-        System.out.println("In other words... \n");
-        System.out.println("Error: not a valid promotion.");
+    protected static String getTryAgain(Scanner scanner) {
+        String promptTryAgain = "If you want to try again, Enter 1. If you want to return to the main menu, Enter 2.";
+        String inputAnswer = ClientWareHouse.getInputString(promptTryAgain, scanner);
+        return inputAnswer;
     }
 
-    protected static String getGameNameInputSarcastic(Scanner scanner) {
-        String gameName;
-        System.out.println("Um, you actually need to write something here. It's NOT hard. Try again:");
-        System.out.println("Create a name for your Chess game: ");
-        gameName = scanner.nextLine();
+    protected static String getInputStringAgainBool(boolean isBlank, String x, String inputString, Scanner scanner) {
+        while (isBlank) {
+            inputString = ClientWareHouse.getInputAgainBecauseInvalid(scanner, x);
+        }
+        return inputString;
+    }
+
+    protected static String getInvalidPosMessage() {
+        String isInvalidPos = "Error: Invalid position.";
+        return isInvalidPos;
+    }
+
+    protected static String checkIfValidGameID(String gameID, String prompt, Collection<Integer> gameIDs,
+                                               Scanner scanner) {
+        gameID = ClientWareHouse.getInputStringAgainBool(!gameIDs.contains(Integer.parseInt(gameID)) ||
+                !ClientWareHouse.isNumeric(gameID), prompt, gameID, scanner);
+        return gameID;
+    }
+
+    protected static String getErrorMessage(String authToken) {
+        HashMap errorMessageMap = new Gson().fromJson(authToken, HashMap.class);
+        String errorMessage = errorMessageMap.get("message").toString();
+        return errorMessage;
+    }
+
+    protected static String getInputPlayerColor(Scanner scanner, String prompt) {
+        System.out.println(prompt);
+        String playerColor = scanner.nextLine().toUpperCase();
+        return playerColor;
+    }
+
+    protected static String getInputAgainBecauseInvalid(Scanner scanner, String prompt) {
+        promptAgainBecauseInvalid("Error: not a valid option.", prompt);
+        String inputString;
+        inputString = scanner.nextLine();
+        return inputString;
+    }
+
+    protected static String getEmailPrompt() {
+        String email = "Please enter your Email: ";
+        System.out.println(email);
+        return email;
+    }
+
+    protected static String getPWPrompt() {
+        String pWPrompt = "Create your Password: ";
+        System.out.println(pWPrompt);
+        return pWPrompt;
+    }
+
+    protected static String getUNPrompt() {
+        String uNPrompt = "Please create a valid username: ";
+        System.out.println(uNPrompt);
+        return uNPrompt;
+    }
+
+    protected static String getInputString(String prompt, Scanner scanner) {
+        String inputString;
+        System.out.println(prompt);
+        inputString = scanner.nextLine();
+        return inputString;
+    }
+
+    protected static String getPlayerColorAgain(Scanner scanner, String prompt) {
+        promptAgainBecauseInvalid("Error: not a valid option.", prompt);
+        String playerColor;
+        playerColor = scanner.nextLine().toUpperCase();
+        return playerColor;
+    }
+
+    protected static void promptAgainBecauseInvalid(String x, String prompt) {
+        System.out.println(x);
+        System.out.println(prompt);
+    }
+
+    protected static String getInputChessPositionAgain(Scanner scanner, String prompt) {
+        promptAgainBecauseInvalid("Error: not a valid option.", prompt);
+        String chessPos;
+        chessPos = scanner.nextLine().toLowerCase();
+        return chessPos;
+    }
+
+    protected static String getChessPos(Scanner scanner, String prompt) {
+        System.out.println(prompt);
+        String chessPos = scanner.nextLine().toLowerCase();
+        return chessPos;
+    }
+
+    protected static String inputDoYouWantToResign(Scanner scanner) {
+        System.out.println("Are you sure you want to resign? (Y/N): ");
+        // Does not cause the user to leave the game.
+        String input = scanner.nextLine().toUpperCase();
+        return input;
+    }
+
+    protected static void printUnauthorizedErrorMessage(String errorMessage) {
+        if (errorMessage.equals("Error: unauthorized")) {
+            System.out.println(errorMessage);
+        }
+    }
+
+    protected static String getHLPrompt() {
+        String hLPrompt = "Enter the piece's position in the form b2 (a letter from 'a' to 'h' " +
+                "followed by a number from 1 to 8): ";
+        return hLPrompt;
+    }
+
+    protected static StringBuilder getIndividualGameData(GameData game) {
+        StringBuilder individualGameData = new StringBuilder();
+        individualGameData.append(" " + game.whiteUsername() + ", ");
+        individualGameData.append(game.blackUsername() + ", " + game.gameName());
+        return individualGameData;
+    }
+
+    protected static String getObservePrompt() {
+        String observePrompt = "Pick a game you want to observe: ";
+        System.out.println(observePrompt);
+        return observePrompt;
+    }
+
+    protected static String getGameNameAgainBecauseInvalid(String gameName, Scanner scanner) {
+        gameName = ClientWareHouse.getInputStringAgainBool(gameName.isBlank() ||
+                !ClientWareHouse.isNumeric(gameName), "Choose a game to observe: ", gameName, scanner);
         return gameName;
-    }
-
-    protected static String getInputLoginCredentialsSarcastic(Scanner scanner) {
-        String inputUserName;
-        System.out.println("Please enter your username or whatever. And PLEASE get it right this time!: ");
-        inputUserName = scanner.nextLine();
-        return inputUserName;
-    }
-
-    protected static String getInputUserNameAgainSarcastic(Scanner scanner) {
-        String inputUserName;
-        System.out.println("Error: not a valid option, stupid.");
-        System.out.println("Please enter the CORRECT username. We don't have all day: ");
-        inputUserName = scanner.nextLine();
-        return inputUserName;
-    }
-
-    protected static String getInputPWSarcastic(Scanner scanner) {
-        String inputPassword;
-        System.out.println("Enter your Password or whatever. And please don't mess this up: ");
-        inputPassword = scanner.nextLine();
-        return inputPassword;
-    }
-
-    protected static String getInputPWAgainSarcastic(Scanner scanner) {
-        String inputPassword;
-        System.out.println("Error: not a valid option, stupid.");
-        System.out.println("Please enter the CORRECT password: ");
-        inputPassword = scanner.nextLine();
-        return inputPassword;
-    }
-
-    protected static void ohSoYouThinkYouAreFunnyEh() {
-        System.out.println("Oh, so you think you're funny, eh? " +
-                "Well, I guess I'll make the decision FOR you...");
-    }
-
-    // NORMAL STATIC METHODS:
-
-    protected static String getInputGameNameAgain(Scanner scanner) {
-        String gameName;
-        System.out.println("Error: not a valid option.");
-        System.out.println("Create a name for your Chess game: ");
-        gameName = scanner.nextLine();
-        return gameName;
-    }
-
-    protected static String getInputUsernameAgain(Scanner scanner) {
-        String inputUserName;
-        System.out.println("Error: not a valid option.");
-        System.out.println("Please enter your username: ");
-        inputUserName = scanner.nextLine();
-        return inputUserName;
-    }
-
-    protected static String getInputPWAgain(Scanner scanner) {
-        String inputPassword;
-        System.out.println("Error: not a valid option.");
-        System.out.println("Enter your Password: ");
-        inputPassword = scanner.nextLine();
-        return inputPassword;
     }
 
     protected static ChessPiece getPromotionPieceClient(Boolean canPromote, ChessPiece chessPiece, Scanner scanner) {
         ChessPiece promotionPiece = null;
-        if(canPromote) {
+        if (canPromote) {
             System.out.println("Enter the piece type you want to promote your pawn to (can be any piece except for " +
                     "KING and PAWN): ");
             String inputPromotionPiece = scanner.nextLine().toUpperCase();
-            while(inputPromotionPiece.isBlank()) {
+            while (inputPromotionPiece.isBlank()) {
                 System.out.println("Error: if you are moving a pawn to the opposite side of the board, it has to be " +
                         "promoted to something.");
                 inputPromotionPiece = getInputPromotionPiece(scanner);
             }
-            while (inputPromotionPiece.equals("KING")){
-                ClientWareHouse.okWiseGuy();
+            while (inputPromotionPiece.equals("KING")) {
+                SarcasticClient.okWiseGuy();
                 inputPromotionPiece = getInputPromotionPiece(scanner);
             }
-            while(!inputPromotionPiece.equals("QUEEN") &&
+            while (!inputPromotionPiece.equals("QUEEN") &&
                     !inputPromotionPiece.equals("ROOK") &&
                     !inputPromotionPiece.equals("KNIGHT") &&
                     !inputPromotionPiece.equals("BISHOP") &&
-                    !inputPromotionPiece.equals("KING")){
+                    !inputPromotionPiece.equals("KING")) {
                 System.out.println("Error: not a valid promotion.");
                 inputPromotionPiece = getInputPromotionPiece(scanner);
             }
-            if(inputPromotionPiece.equals("QUEEN")){
+            if (inputPromotionPiece.equals("QUEEN")) {
                 promotionPiece = new ChessPiece(chessPiece.getTeamColor(), ChessPiece.PieceType.QUEEN);
-            } else if(inputPromotionPiece.equals("ROOK")){
+            } else if (inputPromotionPiece.equals("ROOK")) {
                 promotionPiece = new ChessPiece(chessPiece.getTeamColor(), ChessPiece.PieceType.ROOK);
-            } else if(inputPromotionPiece.equals("KNIGHT")){
+            } else if (inputPromotionPiece.equals("KNIGHT")) {
                 promotionPiece = new ChessPiece(chessPiece.getTeamColor(), ChessPiece.PieceType.KNIGHT);
-            } else if(inputPromotionPiece.equals("BISHOP")){
+            } else if (inputPromotionPiece.equals("BISHOP")) {
                 promotionPiece = new ChessPiece(chessPiece.getTeamColor(), ChessPiece.PieceType.BISHOP);
             }
         }
@@ -187,7 +227,7 @@ public class ClientWareHouse {
         return inputPromotionPiece;
     }
 
-    protected static void displayGamePlayMenu(){
+    protected static void displayGamePlayMenu() {
         System.out.println("Choose an option: ");
         System.out.println("  1. Redraw Chess Board");
         System.out.println("  2. Make Move");
@@ -197,7 +237,7 @@ public class ClientWareHouse {
         System.out.println("  6. Help");
     }
 
-    protected static void gamePlayHelp() throws ResponseException{
+    protected static void gamePlayHelp() throws ResponseException {
         System.out.println("Enter 1 to redraw the game board.");
         System.out.println("Enter 2 to make a move.");
         System.out.println("Enter 3 to highlight all legal moves for a specific chess piece.");
@@ -207,7 +247,7 @@ public class ClientWareHouse {
         displayGamePlayMenu();
     }
 
-    protected static void notLoggedInHelp(){
+    protected static void notLoggedInHelp() {
         System.out.println("Choose an option: ");
         System.out.println("  1. Login");
         System.out.println("  2. Register");
@@ -215,7 +255,7 @@ public class ClientWareHouse {
         System.out.println("  4. Help");
     }
 
-    protected static void loggedInHelp(){
+    protected static void loggedInHelp() {
         System.out.println("Welcome to Chess!");
         System.out.println("Choose an option: ");
         System.out.println("  1. Create Game");
@@ -226,51 +266,150 @@ public class ClientWareHouse {
         System.out.println("  6. Help");
     }
 
-    protected static String getGameIDInputAgain(Scanner scanner) {
-        String gameID;
-        System.out.println("Error: not a valid option.");
-        System.out.println("Pick a game you want to play: ");
-        gameID = scanner.nextLine();
-        return gameID;
+    protected static void displayInvalidMoveObserverMessage() {
+        System.out.println("Error: you can't move a piece if you are just observing and not actually " +
+                "playing the game.");
     }
 
-    protected static String getPlayerColorAgain(Scanner scanner) {
-        String playerColor;
-        System.out.println("Error: not a valid option.");
-        System.out.println("Choose what team you wish to play (White or Black): ");
-        playerColor = scanner.nextLine().toUpperCase();
-        return playerColor;
+    protected static String promptForStartPos() {
+        String prompt1 = "Enter the piece's start position in the form b2" +
+                " (a letter from 'a' to 'h' followed by a number from 1 to 8): ";
+        return prompt1;
     }
 
-    protected static String getInputStartPosAgain(Scanner scanner) {
-        String inputStartPos;
-        System.out.println("Error: not a valid option.");
-        System.out.println("Enter the piece's start position in the form b2 (a letter from 'a' to 'h' " +
-                "followed by a number from 1 to 8): ");
-        inputStartPos = scanner.nextLine().toLowerCase();
-        return inputStartPos;
+    protected static String getStartPrompt() {
+        String startPrompt = "Enter the piece's start position in the form b2 (a letter from 'a' to 'h' " +
+                "followed by a number from 1 to 8): ";
+        return startPrompt;
     }
 
-    protected static String getInputEndPosAgain(Scanner scanner) {
-        String inputEndPos;
-        System.out.println("Where would you like to move this piece? (Enter the piece's end position in the" +
-                " form b2 (a letter from 'a' to 'h' followed by a number from 1 to 8): ");
-        inputEndPos = scanner.nextLine().toLowerCase();
-        return inputEndPos;
-    }
-
-    protected static String getInputChessPositionAgain(Scanner scanner) {
-        String chessPos;
-        System.out.println("Error: not a valid option.");
-        System.out.println("Enter the piece's position in the form b2 (a letter from 'a' to 'h' " +
-                "followed by a number from 1 to 8): ");
-        chessPos = scanner.nextLine().toLowerCase();
+    protected static String getChessPosAgain(String chessPos, String hLPrompt, Scanner scanner) {
+        while (chessPos.isBlank()) {
+            chessPos = getInputChessPositionAgain(scanner, hLPrompt);
+        }
         return chessPos;
     }
 
+    protected static Integer getNewGameID(String gameID, Integer newID,
+                                          Collection<Integer> gameIDs, Collection<GameData> gameDataList) {
+        for (int id : gameIDs) {
+            if (Integer.parseInt(gameID) == id) {
+                newID = ClientWareHouse.getGameIDFromGameDataList(id, gameID, gameDataList);
+                if (newID != 0) {
+                    break;
+                }
+            }
+        }
+        return newID;
+    }
+
+    protected static String promptForEndPos() {
+        String prompt2 = "Where would you like to move this piece? (Enter the piece's end position in the form b2 " +
+                "(a letter from 'a' to 'h' followed by a number from 1 to 8): ";
+        return prompt2;
+    }
+
+    protected static Integer getGameIDFromGameDataList(int id, String gameID, Collection<GameData> gameDataList) {
+        for (GameData game : gameDataList) {
+            if (Integer.parseInt(gameID) == game.gameID()) {
+                return id;
+            }
+        }
+        return 0;
+    }
+
+    protected static String getGameIDAgainIfInvalid(String gameID, Scanner scanner) {
+        while (gameID.isBlank() || !ClientWareHouse.isNumeric(gameID)) {
+            gameID = ClientWareHouse.getInputAgainBecauseInvalid(scanner, "Pick a game you want to play: ");
+        }
+        return gameID;
+    }
+
+    protected static Boolean checkIfCanPromote(ChessPiece chessPiece, ChessPosition endPos) {
+        Boolean canPromote;
+        if(chessPiece.getTeamColor() == ChessGame.TeamColor.WHITE && endPos.getRow() == 8){
+            canPromote = true;
+        } else {
+            canPromote = chessPiece.getTeamColor() == ChessGame.TeamColor.BLACK && endPos.getRow() == 1;
+        }
+        return canPromote;
+    }
+
+    protected static void printErrorMessageJoinGame(String joinMessage) {
+        String errorMessage = getErrorMessage(joinMessage);
+        if(errorMessage.equals("Error: unauthorized") || errorMessage.equals("Error: already taken")) {
+            System.out.println(errorMessage);
+        } else if(errorMessage.equals("Error: bad request")){
+            System.out.println("Error: Join failed due to poor user input.");
+        } else {
+            System.out.println(errorMessage);
+        }
+    }
+
+
+    protected static void getErrorMessageLogin(String authToken) {
+        String errorMessage = getErrorMessage(authToken);
+        if(errorMessage.equals("Error: unauthorized")) {
+            System.out.println("Error: invalid username or password.");
+        } else {
+            System.out.println(errorMessage);
+        }
+    }
+
+    protected static void checkIfGameSuccessfullyCreated(String gameID) {
+        if(!isNumeric(gameID)){
+            String errorMessage = getErrorMessage(gameID);
+            if(errorMessage.equals("Error: unauthorized")) {
+                System.out.println(errorMessage);
+            } else if(errorMessage.equals("Error: bad request")){
+                System.out.println("Error: Failed to create game due to poor user input.");
+            } else {
+                System.out.println(errorMessage);
+            }
+        } else {
+            System.out.println("Game successfully created!");
+        }
+    }
+
+
+    protected static String getInputGameID(Scanner scanner, Collection<Integer> gameIDs) {
+        String gameID = ClientWareHouse.getInputString("Pick a game you want to play: ", scanner);
+        gameID = ClientWareHouse.getGameIDAgainIfInvalid(gameID, scanner);
+        gameID = ClientWareHouse.checkIfValidGameID(gameID, "Pick a game you want to play: ", gameIDs, scanner);
+        return gameID;
+    }
+
+    protected static String getPlayerColor(Scanner scanner) {
+        String playerColorPrompt = "Choose what team you wish to play (White or Black): ";
+        String playerColor = ClientWareHouse.getInputPlayerColor(scanner, playerColorPrompt);
+        while(playerColor.isBlank()){
+            playerColor = ClientWareHouse.getPlayerColorAgain(scanner, playerColorPrompt);
+        }
+        while(!playerColor.equals("WHITE") && !playerColor.equals("BLACK")){
+            playerColor = ClientWareHouse.getPlayerColorAgain(scanner, playerColorPrompt);
+        }
+        return playerColor;
+    }
+
+    protected static String getPw(Scanner scanner) {
+        String inputPW;
+        inputPW = getInputString("Enter your Password: ", scanner);
+        while (inputPW.isBlank()) {
+            inputPW = getInputAgainBecauseInvalid(scanner, "Enter your Password: ");
+        }
+        return inputPW;
+    }
+
+    protected static String getUn(Scanner scanner) {
+        String inputUN;
+        inputUN = getInputString("Please enter your username: ", scanner);
+        while (inputUN.isBlank()) {
+            inputUN = getInputAgainBecauseInvalid(scanner, "Please enter your username: ");
+        }
+        return inputUN;
+    }
+
     // WEBSOCKET STUFF
-
-
     protected static void displayNotification(String message) {
         NotificationMessage serverMessage = new Gson().fromJson(message, NotificationMessage.class);
         System.out.print(SET_TEXT_COLOR_GREEN);
@@ -278,11 +417,31 @@ public class ClientWareHouse {
         System.out.print(RESET_TEXT_COLOR);
     }
 
-    public static void displayError(String message){
+    public static void displayError(String message) {
         ErrorMessage errorMessage = new Gson().fromJson(message, ErrorMessage.class);
         System.out.print(SET_TEXT_COLOR_RED);
         System.out.println(errorMessage.getErrorMessage());
         System.out.print(RESET_TEXT_COLOR);
     }
 
+    // note: I am putting this here so that it can be used by both my ChessClient AND my ServerFacadeTests
+    public static boolean isNumeric(String str) {
+        try {
+            Integer.parseInt(str);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+    protected static void drawHighlightedBoard(String color, ChessBoard board, ChessPosition inputPos, ChessGame game){
+        Collection<ChessPosition> chessPositions = board.getChessPositions();
+        for (ChessPosition position : chessPositions) {
+            if (position.getRow() == inputPos.getRow() && position.getColumn() == inputPos.getColumn()) {
+                //  make this code grab the most up-to-date chessboard/chess game
+                DrawHighlightedChessBoard drawBoard = new DrawHighlightedChessBoard(game, color);
+                drawBoard.runHighlight(inputPos);
+            }
+        }
+    }
 }

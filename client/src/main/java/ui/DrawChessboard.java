@@ -29,7 +29,7 @@ public class DrawChessboard {
         this.playerColor = playerColor;
     }
     /* (OPTIONAL: not sure if I would need to do this or not, but if I so desired (and if I have time),
-      maybe add some functionality where if a KING is in Check or Checkmate, it and the piece attacking it's
+      maybe add some functionality where if a KING is in Check or Checkmate, it and the piece attacking its
       squares turn red or something (same with runHighLight())).
 
      */
@@ -46,7 +46,7 @@ public class DrawChessboard {
             // draw white board
             BoardColor white = BoardColor.WHITE;
             drawHeaders(out, white);
-            drawChessBoard(out, white, null);
+            drawChessBoard(out, white);
             drawHeaders(out, white);
         }
 
@@ -57,7 +57,7 @@ public class DrawChessboard {
             // draw black board
             BoardColor black = BoardColor.BLACK;
             drawHeaders(out, black);
-            drawChessBoard(out, black, null);
+            drawChessBoard(out, black);
             drawHeaders(out, black);
         }
         else {
@@ -108,7 +108,7 @@ public class DrawChessboard {
         setLightGrey(out);
     }
 
-    private static void drawChessBoard(PrintStream out, BoardColor color, ChessPosition pos) {
+    private static void drawChessBoard(PrintStream out, BoardColor color) {
 
         // note: first draw the board w/o the chesspieces, then pass in a matrix from ChessClient to populate
         // this chessboard with the right chesspieces in the right positions (use default board config for Phase 5)
@@ -116,28 +116,28 @@ public class DrawChessboard {
 
         if(isWhite(color)) {
             for(int j = 7; j > -1; j--){
-                createRowWithHeaders(out, color, j, pos);
+                createRowWithHeaders(out, color, j);
                 setLightGrey(out);
             }
         } else {
             for(int j = 0; j < 8; j++){
-                createRowWithHeaders(out, color, j, pos);
+                createRowWithHeaders(out, color, j);
                 setLightGrey(out);
             }
         }
     }
 
-    private static void createRowWithHeaders(PrintStream out, BoardColor color, int j, ChessPosition pos) {
+    private static void createRowWithHeaders(PrintStream out, BoardColor color, int j) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(j + 1);
         String rowHeader = stringBuilder.toString();
         drawHeader(out, rowHeader);
-        drawRowOfSquares(out, color, j, pos);
+        drawRowOfSquares(out, color, j);
         drawHeader(out, rowHeader);
         resetColor(out);
     }
 
-    private static void drawRowOfSquaresEvenIndex(PrintStream out, BoardColor color, int j, ChessPosition pos){
+    private static void drawRowOfSquaresEvenIndex(PrintStream out, BoardColor color, int j){
 
         if(isWhite(color)){
             for(int i = 0; i < 8; i++){
@@ -160,7 +160,7 @@ public class DrawChessboard {
         }
     }
 
-    private static void drawRowOfSquaresOddIndex(PrintStream out, BoardColor color, int j, ChessPosition pos) {
+    private static void drawRowOfSquaresOddIndex(PrintStream out, BoardColor color, int j) {
 
         if (isWhite(color)) {
             for (int i = 0; i < 8; i++) {
@@ -182,18 +182,18 @@ public class DrawChessboard {
         }
     }
 
-    private static void drawRowOfSquares(PrintStream out, BoardColor color, int j, ChessPosition pos){
+    private static void drawRowOfSquares(PrintStream out, BoardColor color, int j){
         if(isWhite(color)) {
             if (j % 2 == 0) {
-                drawRowOfSquaresEvenIndex(out, color, j, pos);
+                drawRowOfSquaresEvenIndex(out, color, j);
             } else {
-                drawRowOfSquaresOddIndex(out, color, j, pos);
+                drawRowOfSquaresOddIndex(out, color, j);
             }
         } else {
             if (j % 2 == 0) {
-                drawRowOfSquaresOddIndex(out, color, j, pos);
+                drawRowOfSquaresOddIndex(out, color, j);
             } else {
-                drawRowOfSquaresEvenIndex(out, color, j, pos);
+                drawRowOfSquaresEvenIndex(out, color, j);
             }
         }
     }
@@ -222,8 +222,7 @@ public class DrawChessboard {
         //ChessBoard board = ChessClient.chessPiecePositions();
         //ChessBoard chessBoard = DrawChessboard.getBoard();
         ChessPosition myPos = new ChessPosition(j + 1, i + 1);
-        ChessPiece myPiece = board.getPiece(myPos);
-        return myPiece;
+        return board.getPiece(myPos);
     }
 
     public static boolean isTeamColorWhite(ChessPiece piece){
